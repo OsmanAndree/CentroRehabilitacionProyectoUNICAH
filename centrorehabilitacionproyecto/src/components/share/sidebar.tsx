@@ -1,29 +1,81 @@
 import './sidebar.css';
 import { IoIosLogOut } from "react-icons/io";
-
+import { useState } from 'react';
+// Importar iconos (puedes cambiarlos por los que prefieras)
+import { FaUsers, FaUserInjured, FaMoneyBillWave, FaStethoscope, 
+         FaBoxes, FaCalendarAlt, FaWarehouse, FaUserCog } from 'react-icons/fa';
 
 const Sidebar = () => {
-  return (
-    <div className="sidebar">
-      
-        <img className='logo' src="/src/img/logo.png" alt="" />
-      <ul>
-        <li>
-            <a href="/">Encargados</a>
-            <a href="/">Pacientes</a>
-            <a href="/">Prestamos</a>
-            <a href="/">diagnostico</a>
-            <a href="/">Productos</a>
-            <a href="/">Cita</a>
-            <a href="/">Bodega</a>
-            <a href="/">Usuario</a>
-       
+  const [isOpen, setIsOpen] = useState(true);
 
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
+
+  return (
+    <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
+      <div className="sidebar-header">
+        <img className='logo' src="/src/img/logo.png" alt="" />
+        <button className="toggle-btn" onClick={toggleSidebar}>
+          {isOpen ? '<' : '>'}
+        </button>
+      </div>
+      
+      <ul className="nav-links">
+        <li className="active">
+          <a href="/">
+            <FaUsers className="icon" />
+            <span className="link-text">Encargados</span>
+          </a>
+        </li>
+        <li>
+          <a href="/">
+            <FaUserInjured className="icon" />
+            <span className="link-text">Pacientes</span>
+          </a>
+        </li>
+        <li>
+          <a href="/">
+            <FaMoneyBillWave className="icon" />
+            <span className="link-text">Prestamos</span>
+          </a>
+        </li>
+        <li>
+          <a href="/">
+            <FaStethoscope className="icon" />
+            <span className="link-text">Diagnostico</span>
+          </a>
+        </li>
+        <li>
+          <a href="/">
+            <FaBoxes className="icon" />
+            <span className="link-text">Productos</span>
+          </a>
+        </li>
+        <li>
+          <a href="/">
+            <FaCalendarAlt className="icon" />
+            <span className="link-text">Cita</span>
+          </a>
+        </li>
+        <li>
+          <a href="/">
+            <FaWarehouse className="icon" />
+            <span className="link-text">Bodega</span>
+          </a>
+        </li>
+        <li>
+          <a href="/">
+            <FaUserCog className="icon" />
+            <span className="link-text">Usuario</span>
+          </a>
         </li>
       </ul>
-     <div className='Btnlogout'>
-     <IoIosLogOut className='ola' />
-     </div>
+      
+      <div className='Btnlogout'>
+        <IoIosLogOut className="icon" />
+        <span className="link-text">Cerrar sesión</span>
+      </div>
     </div>
   );
 }

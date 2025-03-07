@@ -1,42 +1,69 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* App.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app-container {
+  display: flex;
+}
+
+.main-content {
+  margin-left: 250px;
+  width: 100%;
+  transition: margin-left 0.3s ease;
+}
+
+.top-navbar {
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.content-area {
+  padding: 20px;
+}
+
+/* Header que queda debajo del sidebar */
+header {
+  width: 100%; /* Asegura que ocupe todo el ancho de la página */
+  background-color: #2e8b57;
+  color: white;
   text-align: center;
+  padding: 15px 0; /* Espaciado para que el texto no esté pegado al borde */
+  font-size: 20px;
+  font-weight: bold;
+  position: fixed; /* Fija el encabezado en la parte superior */
+  top: 0;
+  left: 0;
+  z-index: 100; /* Mantener el header debajo del sidebar */
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Sidebar encima del header */
+.sidebar {
+  position: fixed; /* Fija el sidebar */
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: #2e8b57;
+  z-index: 101; /* Asegura que esté encima del header */
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.main-content {
+  margin-top: 0; /* No requiere margen superior ya que el sidebar está encima del header */
+  margin-left: 250px; /* Espacio para el sidebar */
+  transition: margin-left 0.3s ease;
+}
+
+/* Responsividad: Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+  header {
+    margin-left: 80px; /* Ajusta el margen cuando el sidebar esté cerrado */
   }
-  to {
-    transform: rotate(360deg);
+
+  .main-content {
+    margin-left: 80px; /* Ajusta el contenido cuando el sidebar esté cerrado */
   }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }
