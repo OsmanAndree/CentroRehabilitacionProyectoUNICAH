@@ -1,0 +1,53 @@
+.sidebar{
+    background-color:#2e8b57;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 250px;
+    height: 100%;
+   
+}
+ul{
+    list-style: none;
+    padding: 0;
+}
+.sidebar a{
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 15px;
+    transition: background-color 300ms;
+    font-family: 'Roboto', sans-serif;
+  
+  
+}
+
+.Btnlogout{
+   
+    color: white;
+    position: fixed;
+    margin-left: 12em;
+    width: 40px;
+    height: 0px;
+   
+}
+
+.ola{
+    width: 50px;
+    height: 50px;
+    background-color: #ff6347;
+}
+
+.logo{
+    width: 150px;
+    height: 150px;
+    
+}
+
+.sidebar a.active{
+    background-color: #ff6347;
+}
+
+.sidebar a:hover{
+    background-color: #ff6347;
+}
