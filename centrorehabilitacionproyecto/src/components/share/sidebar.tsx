@@ -6,18 +6,18 @@ import { FaUsers, FaUserInjured, FaMoneyBillWave, FaStethoscope,
          FaBoxes, FaCalendarAlt, FaWarehouse, FaUserCog } from 'react-icons/fa';
 
 const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false); 
 
   const toggleSidebar = () => {
-    setIsOpen(!isOpen);
+    setIsOpen(!isOpen);  
   };
 
   return (
     <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
       <div className="sidebar-header">
-        <img className='logo' src="/src/img/logo.png" alt="" />
+        <img className='logo' src="/src/img/logo.png" alt="Logo" />
         <button className="toggle-btn" onClick={toggleSidebar}>
-          {isOpen ? '<' : '>'}
+          {isOpen ? '<' : '>'} {}
         </button>
       </div>
       
