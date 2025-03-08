@@ -1,78 +1,94 @@
-
+/*
+--------------------------------------------
+  CSS RESETEO
+--------------------------------------------
+*/
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+html, body {
+  height: 100%;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-}
-
-
-.app-container {
-  display: flex;
-  flex: 1;
-}
-
-
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 250px;
-  height: 100vh;
-  background-color: #2e8b57;
-  z-index: 101; 
-}
-
-
-header {
-  width: 100%;
-  background-color: #2e8b57;
-  color: white;
-  text-align: center;
-  padding: 15px 0;
-  font-size: 20px;
-  font-weight: bold;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 100;
-}
-
-
-.main-content {
-  margin-left: 250px; 
-  margin-top: 70px;
-  width: calc(100% - 250px); 
   overflow-y: auto;
-  padding: 20px;
-  text-align: center;
-  padding-right: 285px;
-  padding-top: 80px;
-  
-
-  h2{
-    color: #2e8b57;
-    text-align: center;
-  }
 }
+body {
+  font-family: Arial, sans-serif;
+  background-color: #98D8AA !important;
+  overflow: hidden;
+  padding-top: 5%;
+}
+/*
+--------------------------------------------
+ APP
+--------------------------------------------
+*/
+#root, .App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.main-content{
+  flex: 1;
+  overflow-y: auto;
+}
+
+/*
+--------------------------------------------
+  NAVBAR
+--------------------------------------------
+*/
+
+.brand-hover {
+  cursor: pointer; 
+  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 5px; 
+  border-radius: 5px; 
+}
+
+.brand-hover:hover {
+  background-color: rgba(255, 255, 255, 0.2); 
+  color: #f8f9fa; 
+}
+
+.custom-datetime-picker input {
+  width: 100% !important; /* Esto asegura que ocupe todo el ancho del contenedor */
+}
+
+/*
+--------------------------------------------
+  GRIDS DEL HOME
+--------------------------------------------
+*/
+.container {
+  min-height: 100vh;
+  min-width: 95vw;
+  align-content:space-between;
+  margin-bottom: 10% !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+.hover-shadow {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.hover-shadow:hover {
+  transform: translateY(-3px); 
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); 
+  border: 2px solid #007bff; 
+}
+
+
 
 
 @media (max-width: 768px) {
   body {
     overflow: auto;
   }
-  header {
-    margin-left: 80px;
-  }
-  .main-content {
-    margin-left: 80px; 
-  }
+ 
 }

@@ -1,21 +1,25 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import './App.css';
-import Sidebar from './components/share/sidebar';
+import NavBar from './components/share/NavBar';
+import Home from './components/Home';
+import PacientesTable from "./components/Pacientes";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="header">
-        <h1>Encargados</h1>
-      </header>
-      <div className="app-container">
-        <Sidebar />
-        <div className="main-content">
-        <h2>Bienvenido al Panel de Encargados</h2>
-        <p>Contenido de la página aquí</p>
-        
-        </div>
-      </div>
-    </div>
+    <Router>
+      <NavBar />
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/pacientes" element={<PacientesTable />} />
+        </Routes>
+      </main>
+     
+      <ToastContainer />
+    </Router>
   );
 }
 
