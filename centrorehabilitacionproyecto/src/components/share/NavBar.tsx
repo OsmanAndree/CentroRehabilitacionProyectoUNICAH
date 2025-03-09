@@ -15,7 +15,6 @@ function NavBar() {
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="offcanvasNavbar" className="border-0 shadow-none text-white" />
-        {/*className="bg-dark*/}
         <Navbar.Offcanvas id="offcanvasNavbar" placement="end" className="offcanvas-custom" >
           <Offcanvas.Header closeButton>
             <Offcanvas.Title className="fw-bold text-white">Centro de Rehabilitación</Offcanvas.Title>
@@ -23,20 +22,20 @@ function NavBar() {
 
           <Offcanvas.Body>
             <Nav className="justify-content-center flex-grow-1 pe-3">
-              <Nav.Link onClick={() => navigate("/")} className="fw-bold text-white nav-hover">
+              <Nav.Link onClick={() => navigate("/")} className="fw-bold text-white nav-hover" style={{ fontSize: '18px' }}>
                 <FaHome className="me-2" /> Inicio
               </Nav.Link>
-              <Nav.Link onClick={() => navigate("/citas")} className="fw-bold text-white nav-hover">
+              <Nav.Link onClick={() => navigate("/citas")} className="fw-bold text-white nav-hover" style={{ fontSize: '18px' }}>
                 <FaCalendarAlt className="me-2" /> Citas
               </Nav.Link>
-              <Nav.Link onClick={() => navigate("/diagnosticos")} className="fw-bold text-white nav-hover">
+              <Nav.Link onClick={() => navigate("/diagnosticos")} className="fw-bold text-white nav-hover" style={{ fontSize: '18px' }}>
                 <FaNotesMedical className="me-2" /> Diagnósticos
               </Nav.Link>
-              <Nav.Link onClick={() => navigate("/pacientes")} className="fw-bold text-white nav-hover">
+              <Nav.Link onClick={() => navigate("/pacientes")} className="fw-bold text-white nav-hover" style={{ fontSize: '18px' }}>
                 <FaUsers className="me-2" /> Pacientes
               </Nav.Link>
 
-              <NavDropdown title={<span style={{ color: 'white' }}>Accesos Rápidos</span>} className="fw-bold text-white nav-hover">
+              <NavDropdown title={<span style={{ color: 'white' }}>Accesos Rápidos</span>} className="fw-bold text-white nav-hover" style={{ fontSize: '18px' }}>
                 <NavDropdown.Item onClick={() => navigate("/prestamos")}>
                   <FaClipboardList className="me-2 text-success" /> Préstamos
                 </NavDropdown.Item>
