@@ -18,7 +18,7 @@ html, body {
 }
 body {
   font-family: 'Poppins', sans-serif !important;
-  background-color: #98D8AA !important;
+  background-color: #2E8B57 !important;
   overflow: hidden;
   padding-top: 5%;
 }
@@ -73,6 +73,21 @@ body {
   background-color: #007bff !important; 
   color: white;
 }
+
+.offcanvas-custom{
+  background-color: #1A5D1A !important;
+  color: white;
+  transition: all 0.3s ease-in-out;
+}
+
+.offcanvas-custom .offcanvas-header{
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.offcanvas-custom .offcanvas-title{
+  color: white !important;
+}
+
 /*
 --------------------------------------------
   GRIDS DEL HOME

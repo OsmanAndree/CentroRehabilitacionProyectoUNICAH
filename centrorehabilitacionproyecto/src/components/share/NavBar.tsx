@@ -6,7 +6,7 @@ function NavBar() {
   const navigate = useNavigate();
 
   return (
-    <Navbar expand="lg" fixed="top" style={{ backgroundColor: "#1A5D1A" }} className="shadow">
+    <Navbar expand="lg" fixed="top" style={{ backgroundColor: "#287549" }} className="shadow">
       <Container fluid>
 
         <Navbar.Brand onClick={() => navigate("/")} className="brand-hover fw-bold text-white">
@@ -15,10 +15,10 @@ function NavBar() {
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="offcanvasNavbar" className="border-0 shadow-none text-white" />
-
-        <Navbar.Offcanvas id="offcanvasNavbar" placement="end" className="bg-light">
+        {/*className="bg-dark*/}
+        <Navbar.Offcanvas id="offcanvasNavbar" placement="end" className="offcanvas-custom" >
           <Offcanvas.Header closeButton>
-            <Offcanvas.Title className="fw-bold text-success">Centro de Rehabilitación</Offcanvas.Title>
+            <Offcanvas.Title className="fw-bold text-white">Centro de Rehabilitación</Offcanvas.Title>
           </Offcanvas.Header>
 
           <Offcanvas.Body>
