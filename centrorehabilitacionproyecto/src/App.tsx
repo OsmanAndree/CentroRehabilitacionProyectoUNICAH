@@ -3,6 +3,7 @@ import './App.css';
 import NavBar from './components/share/NavBar';
 import Home from './components/Home';
 import PacientesTable from "./components/Pacientes";
+import CitasTable from "./components/Citas";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/pacientes" element={<PacientesTable />} />
           <Route path="/terapeutas" element={<TerapeutasTable />} /> 
+          <Route path="/citas" element={<CitasTable />} />
         </Routes>
       </main>
       <ToastContainer />

@@ -1,0 +1,105 @@
+CREATE DATABASE IF NOT EXISTS CentroRehabilitacionDB;
+USE CentroRehabilitacionDB;
+
+CREATE TABLE Pacientes (
+    id_paciente INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    fecha_nacimiento DATE NOT NULL,
+    telefono VARCHAR(20),
+    direccion TEXT,
+    id_encargado INT,
+    FOREIGN KEY (id_encargado) REFERENCES Encargados(id_encargado)
+);
+
+CREATE TABLE Encargados (
+    id_encargado INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    telefono VARCHAR(20),
+    direccion TEXT
+);
+
+CREATE TABLE Terapeutas (
+    id_terapeuta INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    especialidad VARCHAR(100),
+    telefono VARCHAR(20)
+);
+
+CREATE TABLE Citas (
+    id_cita INT AUTO_INCREMENT PRIMARY KEY,
+    id_paciente INT NOT NULL,
+    id_terapeuta INT NOT NULL,
+    fecha DATE NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    estado ENUM('Pendiente', 'Confirmada', 'Cancelada', 'Completada') NOT NULL,
+    FOREIGN KEY (id_paciente) REFERENCES Pacientes(id_paciente),
+    FOREIGN KEY (id_terapeuta) REFERENCES Terapeutas(id_terapeuta)
+);
+
+CREATE TABLE Diagnosticos (
+    id_diagnostico INT AUTO_INCREMENT PRIMARY KEY,
+    id_paciente INT NOT NULL,
+    id_terapeuta INT NOT NULL,
+    fecha DATE NOT NULL,
+    descripcion TEXT NOT NULL,
+    tratamiento TEXT,
+    FOREIGN KEY (id_paciente) REFERENCES Pacientes(id_paciente),
+    FOREIGN KEY (id_terapeuta) REFERENCES Terapeutas(id_terapeuta)
+);
+
+CREATE TABLE Productos (
+    id_producto INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    categoria VARCHAR(50),
+    cantidad_disponible INT NOT NULL
+);
+
+CREATE TABLE Bodega (
+    id_bodega INT AUTO_INCREMENT PRIMARY KEY,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL,
+    ubicacion VARCHAR(100),
+    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto)
+);
+
+CREATE TABLE Compras (
+    id_compra INT AUTO_INCREMENT PRIMARY KEY,
+    fecha DATE NOT NULL,
+    donante VARCHAR(100),
+    total DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE Detalle_Compras (
+    id_detalle INT AUTO_INCREMENT PRIMARY KEY,
+    id_compra INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL,
+    costo_unitario DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (id_compra) REFERENCES Compras(id_compra),
+    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto)
+);
+
+CREATE TABLE Prestamos (
+    id_prestamo INT AUTO_INCREMENT PRIMARY KEY,
+    id_paciente INT NOT NULL,
+    id_producto INT NOT NULL,
+    fecha_prestamo DATE NOT NULL,
+    fecha_devolucion DATE NULL,
+    estado ENUM('Prestado', 'Devuelto') NOT NULL,
+    FOREIGN KEY (id_paciente) REFERENCES Pacientes(id_paciente),
+    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto)
+);
+
+ALTER TABLE Citas
+ADD COLUMN tipo_terapia ENUM('Fisica', 'Neurologica') NOT NULL AFTER id_terapeuta,
+ADD COLUMN duracion_min INT GENERATED ALWAYS AS (
+    CASE tipo_terapia
+        WHEN 'Fisica' THEN 30
+        WHEN 'Neurologica' THEN 20
+    END
+) STORED;
