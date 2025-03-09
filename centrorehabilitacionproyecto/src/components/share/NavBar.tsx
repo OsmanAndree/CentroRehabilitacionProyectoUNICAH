@@ -20,10 +20,10 @@ function NavBar() {
             <Navbar.Brand onClick={() => navigate("/")}
               className='brand-hover'>
               <img
-                src="/images/react.svg"
+                src="/logo.png"
                 alt=""
-                width="22"
-                height="24"
+                width="50"
+                height="50"
                 className="d-inline-block align-center"
               />{' '}
               Centro de Rehabilitacion
@@ -41,17 +41,17 @@ function NavBar() {
               </Offcanvas.Header>
               <Offcanvas.Body>
                 <Nav className="justify-content-center flex-grow-1 pe-3 ">
-                  <Nav.Link href="#action1" className="fw-bold">Inicio</Nav.Link>
-                  <Nav.Link href="#action1" className="fw-bold">Citas</Nav.Link>
-                  <Nav.Link href="#action1" className="fw-bold">Diagnósticos</Nav.Link>
-                  <Nav.Link href="#action1" className="fw-bold">Pacientes</Nav.Link>
-                  <Nav.Link href="#action1" className="fw-bold">Terapeutas</Nav.Link>
+                  <Nav.Link onClick={() => navigate("/")} className="fw-bold">Inicio</Nav.Link>
+                  <Nav.Link onClick={() => navigate("/")} className="fw-bold">Citas</Nav.Link>
+                  <Nav.Link onClick={() => navigate("/")} className="fw-bold">Diagnósticos</Nav.Link>
+                  <Nav.Link onClick={() => navigate("/pacientes")} className="fw-bold">Pacientes</Nav.Link>
+                  <Nav.Link onClick={() => navigate("/")} className="fw-bold">Terapeutas</Nav.Link>
                   <NavDropdown title="Accesos Rápidos" id={`offcanvasNavbarDropdown-expand-${expand}`}>
-                    <NavDropdown.Item href="#action3">Préstamos</NavDropdown.Item>
-                    <NavDropdown.Item href="#action3">Productos</NavDropdown.Item>
-                    <NavDropdown.Item href="#action3">Bodegas</NavDropdown.Item>
+                    <NavDropdown.Item onClick={() => navigate("/")}>Préstamos</NavDropdown.Item>
+                    <NavDropdown.Item onClick={() => navigate("/")}>Productos</NavDropdown.Item>
+                    <NavDropdown.Item onClick={() => navigate("/")}>Bodegas</NavDropdown.Item>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="#action5">Usuarios</NavDropdown.Item>
+                    <NavDropdown.Item onClick={() => navigate("/")}>Usuarios</NavDropdown.Item>
                   </NavDropdown>
                 </Nav>
                 <Form className="d-flex">

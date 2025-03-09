@@ -14,12 +14,13 @@ html, body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  
 }
 body {
   font-family: Arial, sans-serif;
   background-color: #98D8AA !important;
   overflow: hidden;
-  padding-top: 5%;
+  padding-top: 8%;
 }
 /*
 --------------------------------------------
@@ -55,7 +56,8 @@ body {
 }
 
 .custom-datetime-picker input {
-  width: 100% !important; /* Esto asegura que ocupe todo el ancho del contenedor */
+  
+  width: 15% !important; /* Esto asegura que ocupe todo el ancho del contenedor */
 }
 
 /*

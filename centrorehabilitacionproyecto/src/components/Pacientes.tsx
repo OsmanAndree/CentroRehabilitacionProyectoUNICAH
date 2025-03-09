@@ -81,7 +81,7 @@ function PacientesTable() {
       <Button variant="primary" onClick={crearPaciente} className="mb-3">
         Crear Paciente
       </Button>
-
+   
       {showForm && (
         <PacientesForm 
           pacienteEditar={pacienteSeleccionado}
@@ -115,7 +115,7 @@ function PacientesTable() {
                 <td>{index + 1}</td>
                 <td>{paciente.nombre}</td>
                 <td>{paciente.apellido}</td>
-                <td>{paciente.fecha_nacimiento}</td>
+                <td>{new Date(paciente.fecha_nacimiento).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}</td>
                 <td>{paciente.telefono}</td>
                 <td>{paciente.direccion}</td>
                 <td>{paciente.encargado.nombre} {paciente.encargado.apellido}</td>
@@ -136,6 +136,7 @@ function PacientesTable() {
           )}
         </tbody>
       </Table>
+      
     </div>
   );
 }

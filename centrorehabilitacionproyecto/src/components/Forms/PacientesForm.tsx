@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import axios from 'axios';
-import DateTimePicker from 'react-datetime-picker';
+import DatePicker from 'react-date-picker';
+import 'react-date-picker/dist/DatePicker.css';
+import 'react-calendar/dist/Calendar.css';
 
 interface Paciente {
     id_paciente?: number;
@@ -14,7 +16,7 @@ interface Paciente {
 }
 
 interface PacientesFormModalProps {
-    pacienteEditar: Paciente | null;  
+    pacienteEditar: Paciente | null;
     show: boolean;
     handleClose: () => void;
     handleSubmit: () => void;
@@ -117,15 +119,18 @@ function PacientesFormModal({
                     <Form.Group className="mb-3">
                         <Form.Label>Fecha de Nacimiento</Form.Label>
                         <div className="w-100">
-                            <DateTimePicker
-                                onChange={(value: Date | null) => {
-                                    if (value) {
-                                        setFechaNacimiento(value);
+                            <DatePicker
+                                onChange={(value) => {
+                                    const dateValue = value as Date | null; 
+                                    if (dateValue) {
+                                        setFechaNacimiento(dateValue);
                                     }
                                 }}
                                 value={fechaNacimiento}
-                                className="custom-datetime-picker w-100"   
+                                className="custom-datetime-picker w-100"
                             />
+
+
                         </div>
                     </Form.Group>
 
