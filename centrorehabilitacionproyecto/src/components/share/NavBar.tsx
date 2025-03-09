@@ -36,7 +36,7 @@ function NavBar() {
                 <FaUsers className="me-2" /> Pacientes
               </Nav.Link>
 
-              <NavDropdown title="Accesos Rápidos" className="fw-bold text-white nav-hover">
+              <NavDropdown title={<span style={{ color: 'white' }}>Accesos Rápidos</span>} className="fw-bold text-white nav-hover">
                 <NavDropdown.Item onClick={() => navigate("/prestamos")}>
                   <FaClipboardList className="me-2 text-success" /> Préstamos
                 </NavDropdown.Item>
@@ -60,7 +60,7 @@ function NavBar() {
                   placeholder="Buscar..."
                   aria-label="Buscar"
                 />
-                <Button variant="success">
+                <Button variant="danger">
                   <FaSearch />
                 </Button>
               </InputGroup>
