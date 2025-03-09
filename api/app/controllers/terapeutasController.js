@@ -1,9 +1,9 @@
 'use strict';
 
 const db = require('../config/db');
-const terapeuta = db.terapeuta;
+const terapeuta = db.terapeuta; // Asegúrate de que esto coincida con el nombre en db.js
 
-async function getTerapeutas(req, res) {
+const getTerapeutas = async (req, res) => {
     terapeuta.findAll()
         .then(result => {
             res.status(200).send({ result });

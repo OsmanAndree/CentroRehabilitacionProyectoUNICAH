@@ -6,6 +6,7 @@ import PacientesTable from "./components/Pacientes";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import TerapeutasTable from './components/Terapeuta';
 
 function App() {
   return (
@@ -15,9 +16,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/pacientes" element={<PacientesTable />} />
+          <Route path="/terapeutas" element={<TerapeutasTable />} /> 
         </Routes>
       </main>
-     
       <ToastContainer />
     </Router>
   );
