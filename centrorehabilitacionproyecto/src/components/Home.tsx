@@ -4,40 +4,43 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Container from "react-bootstrap/Container";
 
+const cardsData = [
+  { path: "/pacientes", img: "/images/paciente.jpg", title: "Control de Pacientes", text: "Gestiona pacientes, citas y diagnósticos." },
+  { path: "/terapeutas", img: "/images/terapeuta.jpg", title: "Control de Terapeutas", text: "Administra terapeutas, horarios y especialidades." },
+  { path: "/citas", img: "/images/citas.jpg", title: "Control de Citas", text: "Organiza y gestiona citas de los pacientes." },
+  { path: "/diagnosticos", img: "/images/diagnostico.jpg", title: "Control de Diagnósticos", text: "Registro y seguimiento de diagnósticos." },
+  { path: "/bodega", img: "/images/bodega.jpg", title: "Control de Bodega", text: "Administra el inventario de productos médicos." },
+  { path: "/prestamos", img: "/images/prestamo.jpg", title: "Control de Préstamos", text: "Gestiona préstamos de insumos y equipos." },
+  { path: "/productos", img: "/images/producto.jpg", title: "Control de Productos", text: "Supervisa el stock y gestión de productos." },
+  { path: "/encargados", img: "/images/encargado.jpg", title: "Control de Encargados", text: "Maneja información de encargados del sistema." },
+  { path: "/usuarios", img: "/images/usuario.jpg", title: "Control de Usuarios", text: "Gestiona permisos y roles de usuarios." },
+];
+
 function CardGrids() {
   const navigate = useNavigate();
 
   return (
-    <Container className="py-4 container">
-      <Row xs={1} md={2} lg={3} className="g-4"> 
-        {[
-          { path: "/pacientes", img: "/images/paciente.jpg", title: "Control de Pacientes", text: "Aquí se maneja el control de pacientes, citas, diagnósticos, etc." },
-         
-          { path: "/", img: "/images/terapeuta.jpg", title: "Control de Terapeutas", text: "Aquí se maneja el control de terapeutas, horarios y especialidades." },
-         
-          { path: "/", img: "/images/citas.jpg", title: "Control de Citas", text: "Aquí se maneja el control de las citas de los pacientes." },
-         
-          { path: "/", img: "/images/diagnostico.jpg", title: "Control de Diagnósticos", text: "Aquí se maneja el control de diagnósticos de pacientes." },
-         
-          { path: "/", img: "/images/bodega.jpg", title: "Control de Bodega", text: "Aquí se maneja el control de la bodega de productos." },
-          
-          { path: "/", img: "/images/prestamo.jpg", title: "Control de Préstamos", text: "Aquí se maneja el control de préstamos de productos." },
-         
-          { path: "/", img: "/images/producto.jpg", title: "Control de Productos", text: "Aquí se maneja el control de productos." },
-         
-          { path: "/", img: "/images/encargado.jpg", title: "Control de Encargados", text: "Aquí se maneja el control de los encargados." },
-         
-          { path: "/", img: "/images/usuario.jpg", title: "Control de Usuarios", text: "Aquí se maneja el control de los usuarios." },
-        ].map((card, index) => (
+    <Container className="py-5">
+      <Row xs={1} md={2} lg={3} className="g-4">
+        {cardsData.map((card, index) => (
           <Col key={index}>
-            <Card 
+            <Card
+              className="border-0 shadow-lg rounded-4 overflow-hidden card-hover"
               onClick={() => navigate(card.path)}
-              className="cursor-pointer shadow-sm hover-shadow"
+              style={{ cursor: "pointer", transition: "transform 0.3s ease" }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+              onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1.0)"}
             >
-              <Card.Img variant="top" src={card.img} height="300px"  width="50px"/>
-              <Card.Body>
-                <Card.Title>{card.title}</Card.Title>
-                <Card.Text>{card.text}</Card.Text>
+              <Card.Img
+                variant="top"
+                src={card.img}
+                height="200px"
+                style={{ objectFit: "cover" }}
+                className="rounded-top-4"
+              />
+              <Card.Body className="text-center">
+                <Card.Title className="fw-bold">{card.title}</Card.Title>
+                <Card.Text className="text-muted">{card.text}</Card.Text>
               </Card.Body>
             </Card>
           </Col>
