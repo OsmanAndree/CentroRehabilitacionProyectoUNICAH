@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Form, Modal } from 'react-bootstrap';
+import { Button, Form, Modal, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
 
 interface Terapeuta {
@@ -74,58 +74,73 @@ function TerapeutasForm({
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
+        <Modal show={show} onHide={handleClose} centered>
+            <Modal.Header closeButton className="bg-success text-white">
                 <Modal.Title>{terapeutaEditar ? 'Editar Terapeuta' : 'Crear Terapeuta'}</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className="p-4 bg-light">
                 <Form onSubmit={handleFormSubmit}>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Nombre</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Ingrese el nombre"
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
-                            required
-                        />
-                    </Form.Group>
+                    <Row className="mb-3">
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label>Nombre</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Ingrese el nombre"
+                                    value={nombre}
+                                    onChange={(e) => setNombre(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label>Apellido</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Ingrese el apellido"
+                                    value={apellido}
+                                    onChange={(e) => setApellido(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Row>
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>Apellido</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Ingrese el apellido"
-                            value={apellido}
-                            onChange={(e) => setApellido(e.target.value)}
-                            required
-                        />
-                    </Form.Group>
+                    <Row className="mb-3">
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label>Especialidad</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Ingrese la especialidad"
+                                    value={especialidad}
+                                    onChange={(e) => setEspecialidad(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label>Teléfono</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Ingrese el teléfono"
+                                    value={telefono}
+                                    onChange={(e) => setTelefono(e.target.value)}
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Row>
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>Especialidad</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Ingrese la especialidad"
-                            value={especialidad}
-                            onChange={(e) => setEspecialidad(e.target.value)}
-                            required
-                        />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                        <Form.Label>Teléfono</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Ingrese el teléfono"
-                            value={telefono}
-                            onChange={(e) => setTelefono(e.target.value)}
-                        />
-                    </Form.Group>
-
-                    <Button variant="primary" type="submit">
-                        {terapeutaEditar ? 'Guardar Cambios' : 'Crear Terapeuta'}
-                    </Button>
+                    <div className="d-flex justify-content-end">
+                        <Button variant="success" type="submit" className="me-2">
+                            {terapeutaEditar ? 'Guardar Cambios' : 'Crear Terapeuta'}
+                        </Button>
+                        <Button variant="secondary" onClick={handleClose}>
+                            Cancelar
+                        </Button>
+                    </div>
                 </Form>
             </Modal.Body>
         </Modal>
