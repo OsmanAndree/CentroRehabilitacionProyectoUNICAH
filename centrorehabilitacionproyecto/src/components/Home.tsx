@@ -7,13 +7,13 @@ import Container from "react-bootstrap/Container";
 const cardsData = [
   { path: "/pacientes", img: "/images/paciente.jpg", title: "Control de Pacientes", text: "Gestiona pacientes, citas y diagnósticos." },
   { path: "/terapeutas", img: "/images/terapeuta.jpg", title: "Control de Terapeutas", text: "Administra terapeutas, horarios y especialidades." },
-  { path: "/citas", img: "/images/citas.jpg", title: "Control de Citas", text: "Organiza y gestiona citas de los pacientes." },
+  /*{ path: "/citas", img: "/images/citas.jpg", title: "Control de Citas", text: "Organiza y gestiona citas de los pacientes." },
   { path: "/diagnosticos", img: "/images/diagnostico.jpg", title: "Control de Diagnósticos", text: "Registro y seguimiento de diagnósticos." },
   { path: "/bodega", img: "/images/bodega.jpg", title: "Control de Bodega", text: "Administra el inventario de productos médicos." },
   { path: "/prestamos", img: "/images/prestamo.jpg", title: "Control de Préstamos", text: "Gestiona préstamos de insumos y equipos." },
   { path: "/productos", img: "/images/producto.jpg", title: "Control de Productos", text: "Supervisa el stock y gestión de productos." },
   { path: "/encargados", img: "/images/encargado.jpg", title: "Control de Encargados", text: "Maneja información de encargados del sistema." },
-  { path: "/usuarios", img: "/images/usuario.jpg", title: "Control de Usuarios", text: "Gestiona permisos y roles de usuarios." },
+  { path: "/usuarios", img: "/images/usuario.jpg", title: "Control de Usuarios", text: "Gestiona permisos y roles de usuarios." },*/
 ];
 
 function CardGrids() {
