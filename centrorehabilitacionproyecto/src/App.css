@@ -56,10 +56,23 @@ body {
 }
 
 .custom-datetime-picker input {
-  
-  width: 15% !important; /* Esto asegura que ocupe todo el ancho del contenedor */
+  width: 15% !important; 
+}
+.react-calendar{
+  background-color: #f4f4f4 !important; 
+  border-radius: 10px; 
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+.react-calendar__tile {
+  background-color: white; 
+  color: #333;
 }
 
+.react-calendar__tile--active {
+  background-color: #007bff !important; 
+  color: white;
+}
 /*
 --------------------------------------------
   GRIDS DEL HOME
