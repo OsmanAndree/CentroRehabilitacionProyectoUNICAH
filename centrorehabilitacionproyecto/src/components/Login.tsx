@@ -2,6 +2,7 @@ import React, { useState, FormEvent } from 'react';
 import { Button, Form, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { BiFontSize } from 'react-icons/bi';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -29,9 +30,9 @@ const Login: React.FC = () => {
             <div className="text-center mt-3">
               <img src="/logo.svg" alt="Logo" style={{ width: '150px' }} />
             </div>
-            <h2 className="text-center mb-4 text-dark">Iniciar Sesión</h2>
+            <h2 className="text-center mb-4 text-dark" style={{ fontWeight: 'bold', fontSize: '28px' }}>Bienvenidos al Sistema</h2>
             <Form onSubmit={handleLogin}>
-              <Form.Group className="mb-3" controlId="formBasicUser">
+              <Form.Group className="mb-3" controlId="formBasicUser" style={{ fontWeight: 'medium' }}>
                 <Form.Label>Usuario</Form.Label>
                 <Form.Control
                   type="text"
@@ -43,7 +44,7 @@ const Login: React.FC = () => {
                 />
               </Form.Group>
 
-              <Form.Group className="mb-3" controlId="formBasicPassword">
+              <Form.Group className="mb-3" controlId="formBasicPassword" style={{ fontWeight: 'medium' }}>
                 <Form.Label>Contraseña</Form.Label>
                 <div className="d-flex align-items-center">
                   <Form.Control

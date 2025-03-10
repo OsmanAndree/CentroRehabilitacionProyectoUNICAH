@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Button, Form, NavDropdown, Offcanvas, InputGroup } from "react-bootstrap";
-import { FaSearch, FaUser, FaBox, FaWarehouse, FaClipboardList, FaHome, FaCalendarAlt, FaNotesMedical, FaUsers, FaUsersCog, FaUserFriends, FaBriefcaseMedical, FaClinicMedical, FaBuyNLarge, FaBuysellads, FaMoneyBill } from "react-icons/fa";
+import { FaSearch, FaUser, FaBox, FaWarehouse, FaClipboardList, FaHome, FaCalendarAlt, FaNotesMedical, FaUsers, FaUsersCog, FaUserFriends, FaBriefcaseMedical, FaClinicMedical, FaBuyNLarge, FaBuysellads, FaMoneyBill, FaSignOutAlt } from "react-icons/fa";
 
 function NavBar() {
   const navigate = useNavigate();
@@ -62,17 +62,14 @@ function NavBar() {
             </Nav>
 
             <Form className="d-flex">
-              <InputGroup>
-                <Form.Control
-                  type="search"
-                  placeholder="Buscar..."
-                  aria-label="Buscar"
-                />
-                <Button variant="danger">
-                  <FaSearch />
-                </Button>
-              </InputGroup>
+              <Button variant="danger" onClick={() => {
+                window.location.href = "/";
+              }}
+              className="d-fñlex align-items-center gap-2">
+                <FaSignOutAlt /> Cerrar Sesión
+              </Button>
             </Form>
+
           </Offcanvas.Body>
         </Navbar.Offcanvas>
       </Container>
