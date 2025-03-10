@@ -15,7 +15,6 @@ const Login: React.FC = () => {
     navigate('/home');
   };
 
-
   const togglePasswordVisibility = () => {
     setShowPassword((prevState) => !prevState); 
   };
