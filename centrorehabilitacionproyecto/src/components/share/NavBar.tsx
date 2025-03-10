@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Button, Form, NavDropdown, Offcanvas, InputGroup } from "react-bootstrap";
-import { FaSearch, FaUser, FaBox, FaWarehouse, FaClipboardList, FaHome, FaCalendarAlt, FaNotesMedical, FaUsers } from "react-icons/fa";
+import { FaSearch, FaUser, FaBox, FaWarehouse, FaClipboardList, FaHome, FaCalendarAlt, FaNotesMedical, FaUsers, FaUsersCog, FaUserFriends, FaBriefcaseMedical, FaClinicMedical, FaBuyNLarge, FaBuysellads, FaMoneyBill } from "react-icons/fa";
 
 function NavBar() {
   const navigate = useNavigate();
@@ -34,8 +34,17 @@ function NavBar() {
               <Nav.Link onClick={() => navigate("/pacientes")} className="fw-bold text-white nav-hover" style={{ fontSize: '18px' }}>
                 <FaUsers className="me-2" /> Pacientes
               </Nav.Link>
+              <Nav.Link onClick={() => navigate("/encargados")} className="fw-bold text-white nav-hover" style={{ fontSize: '18px' }}>
+                <FaUserFriends className="me-2" /> Encargados
+              </Nav.Link>
+              <Nav.Link onClick={() => navigate("/terapeutas")} className="fw-bold text-white nav-hover" style={{ fontSize: '18px' }}>
+                <FaClinicMedical className="me-2" /> Terapeutas
+              </Nav.Link>
 
               <NavDropdown title={<span style={{ color: 'white' }}>Accesos Rápidos</span>} className="fw-bold text-white nav-hover" style={{ fontSize: '18px' }}>
+              <NavDropdown.Item onClick={() => navigate("/compras")}>
+                  <FaMoneyBill className="me-2 text-success" /> Compras
+                </NavDropdown.Item>
                 <NavDropdown.Item onClick={() => navigate("/prestamos")}>
                   <FaClipboardList className="me-2 text-success" /> Préstamos
                 </NavDropdown.Item>
