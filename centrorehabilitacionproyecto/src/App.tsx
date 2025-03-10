@@ -1,37 +1,40 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import './App.css';
 import NavBar from './components/share/NavBar';
 import Home from './components/Home';
 import PacientesTable from "./components/Pacientes";
 import TerapeutasTable from './components/Terapeuta';
 import CitasTable from "./components/Citas";
-import Login from './components/Login';  
+import Login from './components/Login';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
-  const isAuthenticated = localStorage.getItem("user"); 
-
   return (
     <Router>
+      <AppContent />
+    </Router>
+  );
+}
+
+function AppContent() {
+  const location = useLocation();
+
+  return (
+    <>
       <ToastContainer />
+      {location.pathname !== '/' && <NavBar />}
       <main className="main-content">
         <Routes>
-          <Route path="/" element={<Login/>} />
-          {isAuthenticated ? (
-            <>
-              <Route path="/home" element={<><NavBar /><Home /></>} />
-              <Route path="/pacientes" element={<><NavBar /><PacientesTable /></>} />
-              <Route path="/terapeutas" element={<><NavBar /><TerapeutasTable /></>} />
-              <Route path="/citas" element={<><NavBar /><CitasTable /></>} />
-            </>
-          ) : (
-            <Navigate to="/" />
-          )}
+          <Route path="/" element={<Login />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/pacientes" element={<PacientesTable />} />
+          <Route path="/terapeutas" element={<TerapeutasTable />} />
+          <Route path="/citas" element={<CitasTable />} />
         </Routes>
       </main>
-    </Router>
+    </>
   );
 }
 

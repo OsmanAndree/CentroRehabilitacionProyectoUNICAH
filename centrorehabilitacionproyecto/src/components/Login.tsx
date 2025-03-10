@@ -1,23 +1,24 @@
 import React, { useState, FormEvent } from 'react';
 import { Button, Form, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  
-  const [usuario, setusuario] = useState<string>('');
-  const [contraseña, setcontraseña] = useState<string>('');
+
+  const [usuario, setUsuario] = useState<string>('');
+  const [contraseña, setContraseña] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  
+
   const handleLogin = (e: FormEvent) => {
     e.preventDefault();
-    navigate('/home');
+
+    // Aquí iría la lógica de validación del usuario
+    navigate('/home'); // Solo navegación sin lógica
   };
 
-
   const togglePasswordVisibility = () => {
-    setShowPassword((prevState) => !prevState); 
+    setShowPassword((prevState) => !prevState);
   };
 
   return (
@@ -28,46 +29,46 @@ const Login: React.FC = () => {
             <div className="text-center mt-3">
               <img src="/logo.svg" alt="Logo" style={{ width: '150px' }} />
             </div>
-            <h2 className="text-center mb-4 text-dark" style={{ margin: '0 0 0px' }}>Iniciar Sesion</h2>
+            <h2 className="text-center mb-4 text-dark">Iniciar Sesión</h2>
             <Form onSubmit={handleLogin}>
-              <Form.Group className="mb-3" controlId="formBasicUsser">
+              <Form.Group className="mb-3" controlId="formBasicUser">
                 <Form.Label>Usuario</Form.Label>
-                <Form.Control 
-                  type="text" 
-                  placeholder="Introduce tu Usuario" 
-                  value={usuario} 
-                  onChange={(e) => setusuario(e.target.value)} 
+                <Form.Control
+                  type="text"
+                  placeholder="Introduce tu Usuario"
+                  value={usuario}
+                  onChange={(e) => setUsuario(e.target.value)}
                   required
-                  style={{ borderRadius: '0.375rem' }} 
+                  style={{ borderRadius: '0.375rem' }}
                 />
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="formBasicPassword">
                 <Form.Label>Contraseña</Form.Label>
                 <div className="d-flex align-items-center">
-                  <Form.Control 
-                    type={showPassword ? 'text' : 'password'} 
-                    placeholder="Introduce tu contraseña" 
-                    value={contraseña} 
-                    onChange={(e) => setcontraseña(e.target.value)} 
+                  <Form.Control
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Introduce tu contraseña"
+                    value={contraseña}
+                    onChange={(e) => setContraseña(e.target.value)}
                     required
                     style={{
-                      borderRadius: '0.375rem', 
-                      paddingLeft: '10px', 
-                      paddingRight: '35px', 
+                      borderRadius: '0.375rem',
+                      paddingLeft: '10px',
+                      paddingRight: '35px',
                     }}
                   />
-                  <Button 
-                    variant="link" 
-                    onClick={togglePasswordVisibility} 
-                    className="text-decoration-none" 
+                  <Button
+                    variant="link"
+                    onClick={togglePasswordVisibility}
+                    className="text-decoration-none"
                     style={{
-                      marginLeft: '-30px', 
+                      marginLeft: '-30px',
                       fontSize: '1.2rem',
                       padding: 0,
                     }}
                   >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />} 
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </Button>
                 </div>
               </Form.Group>
