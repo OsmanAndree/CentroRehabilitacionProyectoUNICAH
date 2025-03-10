@@ -9,7 +9,7 @@ function NavBar() {
     <Navbar expand="lg" fixed="top" style={{ backgroundColor: "#287549" }} className="shadow">
       <Container fluid>
 
-        <Navbar.Brand onClick={() => navigate("/")} className="brand-hover fw-bold text-white">
+        <Navbar.Brand onClick={() => navigate("/home")} className="brand-hover fw-bold text-white">
           <img src="/logo.png" alt="Logo" width="50" height="50" className="d-inline-block align-center me-2" />
           Centro de Rehabilitación
         </Navbar.Brand>
@@ -22,7 +22,7 @@ function NavBar() {
 
           <Offcanvas.Body>
             <Nav className="justify-content-center flex-grow-1 pe-3">
-              <Nav.Link onClick={() => navigate("/")} className="fw-bold text-white nav-hover" style={{ fontSize: '18px' }}>
+              <Nav.Link onClick={() => navigate("/home")} className="fw-bold text-white nav-hover" style={{ fontSize: '18px' }}>
                 <FaHome className="me-2" /> Inicio
               </Nav.Link>
               <Nav.Link onClick={() => navigate("/citas")} className="fw-bold text-white nav-hover" style={{ fontSize: '18px' }}>
