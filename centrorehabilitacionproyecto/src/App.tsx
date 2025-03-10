@@ -18,9 +18,7 @@ function App() {
       <ToastContainer />
       <main className="main-content">
         <Routes>
-        
-          <Route path="/" element={<Login />} />
-
+          <Route path="/" element={<Login/>} />
           {isAuthenticated ? (
             <>
               <Route path="/home" element={<><NavBar /><Home /></>} />
