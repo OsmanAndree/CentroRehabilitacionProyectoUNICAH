@@ -19,7 +19,6 @@ html, body {
 body {
   font-family: 'Poppins', sans-serif !important;
   background-color: #2E8B57 !important;
-  overflow: hidden;
   padding-top: 5%;
 }
 /*
@@ -81,7 +80,7 @@ body {
 }
 
 .offcanvas-custom{
-  background-color: #1A5D1A !important;
+  background-color: #2c5c37 !important;
   color: white;
   transition: all 0.3s ease-in-out;
 }
@@ -125,6 +124,7 @@ body {
 @media (max-width: 768px) {
   body {
     overflow: auto;
+    padding-top: 30%;
   }
  
 }
