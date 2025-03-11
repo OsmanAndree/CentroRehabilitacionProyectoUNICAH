@@ -9,6 +9,7 @@ const cardsData = [
   { path: "/terapeutas", img: "/images/terapeuta.jpg", title: "Control de Terapeutas", text: "Administra terapeutas, horarios y especialidades." },
   { path: "/citas", img: "/images/citas.jpg", title: "Control de Citas", text: "Organiza y gestiona citas de los pacientes." }, 
   { path: "/encargados", img: "/images/encargado.jpg", title: "Control de Encargados", text: "Maneja información de encargados del sistema." },
+  { path: "/productos", img: "/images/producto.jpg", title: "Control de Productos", text: "Supervisa el stock y gestión de productos." },
  /* { path: "/diagnosticos", img: "/images/diagnostico.jpg", title: "Control de Diagnósticos", text: "Registro y seguimiento de diagnósticos." },
   { path: "/bodega", img: "/images/bodega.jpg", title: "Control de Bodega", text: "Administra el inventario de productos médicos." },
   { path: "/prestamos", img: "/images/prestamo.jpg", title: "Control de Préstamos", text: "Gestiona préstamos de insumos y equipos." },
