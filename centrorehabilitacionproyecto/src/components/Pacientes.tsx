@@ -86,7 +86,7 @@ function PacientesTable() {
       <Card className="shadow-lg mt-4 border-0" style={{ backgroundColor: "#D4EDDA", borderRadius: "15px" }}>
         <Card.Header className="text-white d-flex justify-content-between align-items-center"
           style={{ backgroundColor: "#155724", borderRadius: "15px 15px 0 0" }}>
-          <h5 className="mb-0">Lista de Pacientes</h5>
+          <h5 className="mb-0" style={{ fontWeight: 'bold' }}>Lista de Pacientes</h5>
           <Button variant="light" onClick={crearPaciente} className="text-dark">
             <FaPlus /> Nuevo Paciente
           </Button>
