@@ -11,6 +11,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import EncargadosTable from "./components/Encargados";
 import ProductosTable from "./components/Productos";
+import BodegaTable from "./components/Bodegas";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function AppContent() {
           <Route path="/citas" element={<CitasTable />} />
           <Route path="/encargados" element={<EncargadosTable />} />
           <Route path="/productos" element={<ProductosTable />} />
+          <Route path="/bodega" element={<BodegaTable />} />
         </Routes>
       </main>
     </>
