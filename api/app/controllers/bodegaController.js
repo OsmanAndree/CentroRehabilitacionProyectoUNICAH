@@ -8,7 +8,8 @@ async function getBodegas(req, res) {
     Bodega.findAll({
         include: [{
             model: Producto,
-            attributes: ['nombre', 'descripcion']
+            as: 'producto', 
+            attributes: ['nombre']
         }]
     })
     .then(result => {

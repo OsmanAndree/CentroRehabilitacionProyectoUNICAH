@@ -35,8 +35,8 @@ db.citas = require('../models/citasModel')(sequelizeInstance, Sequelize);
 db.paciente.belongsTo(db.encargado, { foreignKey: 'id_encargado' });
 db.encargado.hasMany(db.paciente, { foreignKey: 'id_encargado' });
 
-db.productos.belongsTo(db.bodegas, { foreignKey: 'id_producto' });
-db.bodegas.hasMany(db.productos, { foreignKey: 'id_producto' });
+db.bodegas.belongsTo(db.productos, { foreignKey: 'id_producto', as: 'producto' });
+db.productos.hasMany(db.bodegas, { foreignKey: 'id_producto' });
 
 db.diagnostico.belongsTo(db.paciente, { foreignKey: 'id_paciente' });
 db.paciente.hasMany(db.diagnostico, { foreignKey: 'id_paciente' });
