@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Navbar, Nav, Container, Button, Form, NavDropdown, Offcanvas } from "react-bootstrap";
-import { FaUser, FaBox, FaWarehouse, FaClipboardList, FaHome, FaCalendarAlt, FaNotesMedical, FaUsers, FaUserFriends, FaClinicMedical, FaMoneyBill, FaSignOutAlt } from "react-icons/fa";
+import { Navbar, Nav, Container, Button } from "react-bootstrap";
+import { FaCalendarAlt, FaNotesMedical, FaUsers, FaUserFriends, FaClinicMedical, FaMoneyBill, FaSignOutAlt } from "react-icons/fa";
 
 function NavBar() {
   const navigate = useNavigate();
@@ -12,78 +12,144 @@ function NavBar() {
     setShowOffcanvas(false);
   };
 
+  const menuItems = [
+    { path: "/citas", icon: <FaCalendarAlt size={20} />, text: "Citas" },
+    { path: "/diagnosticos", icon: <FaNotesMedical size={20} />, text: "Diagnósticos" },
+    { path: "/pacientes", icon: <FaUsers size={20} />, text: "Pacientes" },
+    { path: "/encargados", icon: <FaUserFriends size={20} />, text: "Encargados" },
+    { path: "/terapeutas", icon: <FaClinicMedical size={20} />, text: "Terapeutas" },
+    { path: "/compras", icon: <FaMoneyBill size={20} />, text: "Compras" }
+  ];
+
   return (
-    <Navbar expand="lg" fixed="top" style={{ backgroundColor: "#287549" }} className="shadow">
+    <Navbar expand="lg" fixed="top" className="shadow-lg" style={{ 
+      background: "linear-gradient(to right, #287549, #1a5735)",
+      borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+      padding: "0.75rem 0"
+    }}>
       <Container fluid>
-        <Navbar.Brand onClick={() => handleNavClick("/home")} className="brand-hover fw-bold text-white">
-          <img src="/logo.png" alt="Logo" width="50" height="50" className="d-inline-block align-center me-2" />
-          Centro de Rehabilitación
+        <Navbar.Brand 
+          onClick={() => handleNavClick("/home")} 
+          className="d-flex align-items-center"
+          style={{ 
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+            padding: "0.5rem 1rem",
+            borderRadius: "12px"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.02)";
+            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.backgroundColor = "transparent";
+          }}
+        >
+          <img 
+            src="/logo.png" 
+            alt="Logo" 
+            width="45" 
+            height="45" 
+            className="d-inline-block align-center me-3" 
+            style={{ 
+              filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.2))",
+              borderRadius: "10px"
+            }}
+          />
+          <span className="fw-bold text-white" style={{ 
+            fontSize: "1.3rem",
+            letterSpacing: "0.5px",
+            textShadow: "2px 2px 4px rgba(0,0,0,0.2)"
+          }}>
+            Centro de Rehabilitación
+          </span>
         </Navbar.Brand>
 
-        <Navbar.Toggle aria-controls="offcanvasNavbar" className="border-0 shadow-none text-white" onClick={() => setShowOffcanvas(true)} />
-        <Navbar.Offcanvas
-          id="offcanvasNavbar"
-          placement="end"
-          className="offcanvas-custom"
-          show={showOffcanvas}
-          onHide={() => setShowOffcanvas(false)}
+        <Navbar.Toggle 
+          aria-controls="basic-navbar-nav"
+          className="border-0 shadow-none" 
+          style={{
+            color: "white",
+            padding: "0.5rem",
+            marginRight: "1rem"
+          }}
         >
-          <Offcanvas.Header closeButton>
-            <Offcanvas.Title className="fw-bold text-white">Menú Desplegable</Offcanvas.Title>
-          </Offcanvas.Header>
+          <span className="navbar-toggler-icon" style={{ filter: "brightness(0) invert(1)" }} />
+        </Navbar.Toggle>
 
-          <Offcanvas.Body>
-            <Nav className="justify-content-center flex-grow-1 pe-3">
-              <Nav.Link onClick={() => handleNavClick("/home")} className="fw-bold text-white nav-hover mb-2" style={{ fontSize: '18px' }}>
-                <FaHome className="me-2" /> Inicio
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mx-auto d-flex align-items-center gap-3">
+            {menuItems.map((item, index) => (
+              <Nav.Link 
+                key={index}
+                onClick={() => handleNavClick(item.path)}
+                className="text-white d-flex align-items-center position-relative"
+                style={{
+                  padding: "0.6rem 1.2rem",
+                  borderRadius: "10px",
+                  transition: "all 0.3s ease",
+                  fontSize: "1rem",
+                  fontWeight: "500",
+                  letterSpacing: "0.3px"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.15)";
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+                <span className="me-2" style={{ 
+                  display: "flex", 
+                  alignItems: "center",
+                  color: "rgba(255, 255, 255, 0.9)"
+                }}>
+                  {item.icon}
+                </span>
+                <span style={{ position: "relative" }}>
+                  {item.text}
+                  <span style={{
+                    position: "absolute",
+                    bottom: "-4px",
+                    left: "0",
+                    width: "0",
+                    height: "2px",
+                    backgroundColor: "white",
+                    transition: "width 0.3s ease"
+                  }} className="hover-line" />
+                </span>
               </Nav.Link>
-              <Nav.Link onClick={() => handleNavClick("/citas")} className="fw-bold text-white nav-hover mb-2" style={{ fontSize: '18px' }}>
-                <FaCalendarAlt className="me-2" /> Citas
-              </Nav.Link>
-              <Nav.Link onClick={() => handleNavClick("/diagnosticos")} className="fw-bold text-white nav-hover mb-2" style={{ fontSize: '18px' }}>
-                <FaNotesMedical className="me-2" /> Diagnósticos
-              </Nav.Link>
-              <Nav.Link onClick={() => handleNavClick("/pacientes")} className="fw-bold text-white nav-hover mb-2" style={{ fontSize: '18px' }}>
-                <FaUsers className="me-2" /> Pacientes
-              </Nav.Link>
-              <Nav.Link onClick={() => handleNavClick("/encargados")} className="fw-bold text-white nav-hover mb-2" style={{ fontSize: '18px' }}>
-                <FaUserFriends className="me-2" /> Encargados
-              </Nav.Link>
-              <Nav.Link onClick={() => handleNavClick("/terapeutas")} className="fw-bold text-white nav-hover mb-2" style={{ fontSize: '18px' }}>
-                <FaClinicMedical className="me-2" /> Terapeutas
-              </Nav.Link>
-
-              <NavDropdown title={<span style={{ color: 'white' }}>Accesos Rápidos</span>} className="fw-bold text-white nav-hover mb-3" style={{ fontSize: '18px' }}>
-                <NavDropdown.Item onClick={() => handleNavClick("/compras")}>
-                  <FaMoneyBill className="me-2 text-success" /> Compras
-                </NavDropdown.Item>
-                <NavDropdown.Item onClick={() => handleNavClick("/prestamos")}>
-                  <FaClipboardList className="me-2 text-success" /> Préstamos
-                </NavDropdown.Item>
-                <NavDropdown.Item onClick={() => handleNavClick("/productos")}>
-                  <FaBox className="me-2 text-success" /> Productos
-                </NavDropdown.Item>
-                <NavDropdown.Item onClick={() => handleNavClick("/bodegas")}>
-                  <FaWarehouse className="me-2 text-success" /> Bodegas
-                </NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item onClick={() => handleNavClick("/usuarios")}>
-                  <FaUser className="me-2 text-danger" /> Usuarios
-                </NavDropdown.Item>
-              </NavDropdown>
-            </Nav>
-
-            <Form className="d-flex">
-              <Button variant="danger" onClick={() => {
-                window.location.href = "/";
-              }}
-              className="d-flex align-items-center gap-2">
-                <FaSignOutAlt /> Cerrar Sesión
-              </Button>
-            </Form>
-
-          </Offcanvas.Body>
-        </Navbar.Offcanvas>
+            ))}
+          </Nav>
+          <Button 
+            variant="outline-light"
+            onClick={() => window.location.href = "/"}
+            className="d-flex align-items-center"
+            style={{ 
+              gap: "8px",
+              padding: "0.6rem 1.2rem",
+              borderRadius: "10px",
+              transition: "all 0.3s ease",
+              border: "1px solid rgba(255, 255, 255, 0.3)"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.15)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            <FaSignOutAlt size={18} />
+            <span>Salir</span>
+          </Button>
+        </Navbar.Collapse>
       </Container>
     </Navbar>
   );
