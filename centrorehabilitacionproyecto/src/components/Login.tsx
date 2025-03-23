@@ -1,72 +1,128 @@
 import React, { useState, FormEvent } from 'react';
 import { Button, Form, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { BiFontSize } from 'react-icons/bi';
+import { FaEye, FaEyeSlash, FaUser, FaLock } from 'react-icons/fa';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-
   const [usuario, setUsuario] = useState<string>('');
   const [contraseña, setContraseña] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const handleLogin = (e: FormEvent) => {
     e.preventDefault();
-
-    // Aquí iría la lógica de validación del usuario
-    navigate('/home'); // Solo navegación sin lógica
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword((prevState) => !prevState);
+    navigate('/home');
   };
 
   return (
-    <Container fluid className="vh-90 d-flex justify-content-center align-items-center">
-      <Row className="w-100">
-        <Col md={6} className="mx-auto d-flex justify-content-center">
-          <div className="card p-4 shadow-lg bg-white" style={{ minWidth: '400px', maxWidth: '400px', borderRadius: '10px' }}>
-            <div className="text-center mt-3">
-              <img src="/logo.svg" alt="Logo" style={{ width: '150px' }} />
+    <Container fluid className="p-0 m-0" style={{
+      minHeight: '100vh',
+      width: '100vw',
+      background: "linear-gradient(135deg, #287549 0%, #1a5735 100%)",
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <Row className="w-100 justify-content-center">
+        <Col md={6} lg={4} xl={4} className="px-4">
+          <div className="bg-white shadow-lg" style={{
+            borderRadius: "20px",
+            padding: "2.5rem",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255, 255, 255, 0.1)"
+          }}>
+            <div className="text-center mb-4">
+              <img 
+                src="/logo.png" 
+                alt="Logo" 
+                style={{ 
+                  width: '120px',
+                  height: 'auto',
+                  marginBottom: '1.5rem',
+                  filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.1))"
+                }} 
+              />
+              <h2 style={{ 
+                fontSize: '1.8rem',
+                fontWeight: '600',
+                color: '#2E8B57',
+                marginBottom: '0.5rem'
+              }}>
+                Bienvenido
+              </h2>
+              <p style={{ 
+                color: '#666',
+                fontSize: '0.95rem'
+              }}>
+                Ingresa tus credenciales para continuar
+              </p>
             </div>
-            <h2 className="text-center mb-4 text-dark" style={{ fontWeight: 'bold', fontSize: '28px' }}>Bienvenidos al Sistema</h2>
+
             <Form onSubmit={handleLogin}>
-              <Form.Group className="mb-3" controlId="formBasicUser" style={{ fontWeight: 'medium' }}>
-                <Form.Label>Usuario</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Introduce tu Usuario"
-                  value={usuario}
-                  onChange={(e) => setUsuario(e.target.value)}
-                  required
-                  style={{ borderRadius: '0.375rem' }}
-                />
+              <Form.Group className="mb-4" controlId="formBasicUser">
+                <div className="position-relative">
+                  <div className="position-absolute" style={{
+                    left: '15px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: '#2E8B57'
+                  }}>
+                    <FaUser />
+                  </div>
+                  <Form.Control
+                    type="text"
+                    placeholder="Usuario"
+                    value={usuario}
+                    onChange={(e) => setUsuario(e.target.value)}
+                    required
+                    style={{
+                      padding: '0.75rem 1rem 0.75rem 2.5rem',
+                      borderRadius: '10px',
+                      border: '1px solid #e0e0e0',
+                      fontSize: '0.95rem',
+                      transition: 'all 0.3s ease'
+                    }}
+                  />
+                </div>
               </Form.Group>
 
-              <Form.Group className="mb-3" controlId="formBasicPassword" style={{ fontWeight: 'medium' }}>
-                <Form.Label>Contraseña</Form.Label>
-                <div className="d-flex align-items-center">
+              <Form.Group className="mb-4" controlId="formBasicPassword">
+                <div className="position-relative">
+                  <div className="position-absolute" style={{
+                    left: '15px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: '#2E8B57'
+                  }}>
+                    <FaLock />
+                  </div>
                   <Form.Control
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Introduce tu contraseña"
+                    placeholder="Contraseña"
                     value={contraseña}
                     onChange={(e) => setContraseña(e.target.value)}
                     required
                     style={{
-                      borderRadius: '0.375rem',
-                      paddingLeft: '10px',
-                      paddingRight: '35px',
+                      padding: '0.75rem 1rem 0.75rem 2.5rem',
+                      borderRadius: '10px',
+                      border: '1px solid #e0e0e0',
+                      fontSize: '0.95rem',
+                      transition: 'all 0.3s ease'
                     }}
                   />
                   <Button
                     variant="link"
-                    onClick={togglePasswordVisibility}
-                    className="text-decoration-none"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="position-absolute"
                     style={{
-                      marginLeft: '-30px',
-                      fontSize: '1.2rem',
-                      padding: 0,
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#2E8B57',
+                      padding: '0.25rem'
                     }}
                   >
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -74,8 +130,30 @@ const Login: React.FC = () => {
                 </div>
               </Form.Group>
 
-              <Button variant="primary" type="submit" className="w-100">
-                Iniciar sesión
+              <Button 
+                variant="success" 
+                type="submit" 
+                className="w-100"
+                style={{
+                  padding: '0.75rem',
+                  borderRadius: '10px',
+                  backgroundColor: '#2E8B57',
+                  border: 'none',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  marginTop: '1rem',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(46, 139, 87, 0.25)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                Iniciar Sesión
               </Button>
             </Form>
           </div>
