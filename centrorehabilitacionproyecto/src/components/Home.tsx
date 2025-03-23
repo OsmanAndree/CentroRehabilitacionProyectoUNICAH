@@ -63,7 +63,7 @@ function CardGrids() {
         left: 0
       }} />
       
-      <Container className="py-5 position-relative" style={{ zIndex: 1 }}>
+      <Container className="py-4 position-relative" style={{ zIndex: 1 }}>
         <div className="text-center mb-5">
           <h1 className="display-4 fw-bold text-white mb-3" style={{ 
             textShadow: "2px 2px 4px rgba(0,0,0,0.2)",
