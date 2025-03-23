@@ -15,6 +15,7 @@ const cardsData = [
   { path: "/productos", img: "/images/producto.webp", title: "Control de Productos", text: "Supervisa el stock y gestión de productos.", icon: <FaBox size={24} /> },
   { path: "/bodega", img: "/images/bodega.webp", title: "Control de Bodega", text: "Administra el inventario de productos médicos.", icon: <FaWarehouse size={24} /> },
   { path: "/usuarios", img: "/images/usuario.webp", title: "Control de Usuarios", text: "Gestiona permisos y roles de usuarios.", icon: <FaUsersGear size={24} /> },
+  { path: "/diagnosticos", img: "/images/diagnostico.webp", title: "Control de Diagnósticos", text: "Registro y seguimiento de diagnósticos.", icon: <FaUserFriends size={24} /> },
  /* { path: "/diagnosticos", img: "/images/diagnostico.jpg", title: "Control de Diagnósticos", text: "Registro y seguimiento de diagnósticos." },
   { path: "/bodega", img: "/images/bodega.jpg", title: "Control de Bodega", text: "Administra el inventario de productos médicos." },
   { path: "/prestamos", img: "/images/prestamo.jpg", title: "Control de Préstamos", text: "Gestiona préstamos de insumos y equipos." },

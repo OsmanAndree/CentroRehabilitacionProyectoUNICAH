@@ -42,7 +42,7 @@ useEffect(() => {
 const eliminarUsuario = (id: number) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar este usuario?")) return;
 
-    axios.delete(`http://localhost:3002/Api/usuarios/deleteusuario?id_usuario=${id}`)
+    axios.delete(`http://localhost:3002/Api/usuarios/deleteusuarios?id_usuario=${id}`)
     .then(() => {
         setUsuarios(prev => prev.filter(u => u.id_usuario !== id));
         toast.success("Usuario eliminado con éxito.");

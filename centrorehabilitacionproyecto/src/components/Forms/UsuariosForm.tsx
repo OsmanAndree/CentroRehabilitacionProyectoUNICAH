@@ -62,7 +62,7 @@ function UsuariosForm({
         }
 
         if (usuarioEditar && usuarioEditar.id_usuario) {
-            axios.put(`http://localhost:3002/Api/usuarios/updateusuario?id_usuario=${usuarioEditar.id_usuario}`, usuario)
+            axios.put(`http://localhost:3002/Api/usuarios/updateusuarios?id_usuario=${usuarioEditar.id_usuario}`, usuario)
                 .then(() => {
                     handleSubmit();
                     handleClose();
@@ -71,7 +71,7 @@ function UsuariosForm({
                     console.error('Error al editar usuario:', error);
                 });
         } else {
-            axios.post('http://localhost:3002/Api/usuarios/insertusuario', usuario)
+            axios.post('http://localhost:3002/Api/usuarios/insertusuarios', usuario)
                 .then(() => {
                     handleSubmit();
                     handleClose();

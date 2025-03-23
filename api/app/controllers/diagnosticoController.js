@@ -3,7 +3,7 @@
 const db = require('../config/db');
 const diagnostico= db.diagnostico;
 const Paciente = db.paciente;
-const Terapeuta = db.terapeutas;
+const Terapeuta = db.terapeuta;
 
 async function getDiagnostico(req, res) {
     diagnostico.findAll({
