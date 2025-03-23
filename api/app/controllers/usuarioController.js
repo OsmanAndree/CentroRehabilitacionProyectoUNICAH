@@ -1,49 +1,94 @@
-exports.IniciarSesion = async (req, res) => {
-    const errores = validationResult(req);
-    const ers = [];
+'use strict';
 
-    errores.errors.forEach(e => {
-        ers.push({ campo: e.path, msj: e.msg });
-    });
+const db = require('../config/db');
+const usuario = db.usuarios;
+const bcrypt = require('bcrypt');
+const jwt = require('../services/services');
 
-    if (ers.length > 0) {
-        return res.status(200).json({ ers });
-    }
-
-    try {
-        const { login, contrasena } = req.body;
-
-        const usuario = await modeloUsuario.findOne({
-            where: {
-                [Op.or]: {
-                    correo: login,
-                    nombreUsuario: login
-                },
-                estado: 'AC'
-            }
+const getUsuarios = async (req, res) => {
+    usuario.findAll()
+        .then(result => {
+            res.status(200).send({ result });
+        })
+        .catch(error => {
+            res.status(500).send({ message: error.message || "Sucedió un error inesperado" });
         });
+};
 
-        if (!usuario) {
-            return res.status(400).json({ msg: "Usuario o contraseña incorrectos" });
-        }
+const insertUsuario = async (req, res) => {
+    try {
+        const { nombre, email, password, rol, estado } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUsuario = await usuario.create({ nombre, email, password: hashedPassword, rol, estado });
+        res.status(201).json({ message: 'Usuario guardado exitosamente', data: newUsuario });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
 
-        if (await argon2.verify(usuario.contrasena, contrasena)) {
-            usuario.intentos = 0;
-            await usuario.save();
+const updateUsuario = async (req, res) => {
+    try {
+        const { id_usuario } = req.query;
+        const usuarioData = req.body;
 
-            const token = getToken({ id: usuario.id });
-            return res.status(200).json({ usuario , token });
+        const usuarioToUpdate = await usuario.findByPk(id_usuario);
+        if (usuarioToUpdate) {
+            await usuarioToUpdate.update(usuarioData);
+            res.status(200).json({ message: 'Usuario actualizado exitosamente', data: usuarioToUpdate });
         } else {
-            usuario.intentos += 1;
-            if (usuario.intentos === 5) {
-                usuario.estado = 'BL';
-            }
-            await usuario.save();
-
-            return res.json({ error: "Usuario o contraseña incorrectos" });
+            res.status(404).json({ error: 'Usuario no encontrado' });
         }
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ msg: "Error en el servidor" });
+        res.status(500).json({ error: error.message });
     }
+};
+
+const deleteUsuario = async (req, res) => {
+    try {
+        const { id_usuario } = req.query;
+
+        const usuarioToDelete = await usuario.findByPk(id_usuario);
+        if (usuarioToDelete) {
+            await usuarioToDelete.destroy();
+            res.status(200).json({ message: 'Usuario eliminado exitosamente' });
+        } else {
+            res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const loginUsuario = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await usuario.findOne({ where: { email } });
+
+        if (!user) {
+            return res.status(401).json({ error: 'Usuario no encontrado' });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: 'Contraseña incorrecta' });
+        }
+
+        const token = jwt.createToken(user.id_usuario);
+
+        res.status(200).json({ message: 'Login exitoso', token });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = {
+    getUsuarios,
+    insertUsuario,
+    updateUsuario,
+    deleteUsuario,
+    loginUsuario
 };

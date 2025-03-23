@@ -31,7 +31,7 @@ db.productos = require('../models/productoModel')(sequelizeInstance, Sequelize);
 db.terapeuta = require('../models/terapeutasModel')(sequelizeInstance, Sequelize);
 db.diagnostico = require('../models/diagnosticoModel')(sequelizeInstance, Sequelize);
 db.citas = require('../models/citasModel')(sequelizeInstance, Sequelize);
-
+db.usuarios = require('../models/usuarioModel')(sequelizeInstance, Sequelize);
 db.paciente.belongsTo(db.encargado, { foreignKey: 'id_encargado' });
 db.encargado.hasMany(db.paciente, { foreignKey: 'id_encargado' });
 
