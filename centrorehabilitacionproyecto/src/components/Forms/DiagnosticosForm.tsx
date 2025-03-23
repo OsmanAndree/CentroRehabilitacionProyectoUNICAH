@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Modal, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 interface Diagnostico {
     id_diagnostico?: number;
@@ -79,18 +80,22 @@ function DiagnosticosForm({
                 .then(() => {
                     handleSubmit();
                     handleClose();
+                    toast.success('Diagnóstico guardado exitosamente');
                 })
                 .catch(error => {
                     console.error('Error al editar diagnóstico:', error);
+                    toast.error('Error al guardar el diagnóstico');
                 });
         } else {
             axios.post('http://localhost:3002/Api/diagnostico/insertDiagnosticos', diagnostico)
                 .then(() => {
                     handleSubmit();
                     handleClose();
+                    toast.success('Diagnóstico guardado exitosamente');
                 })
                 .catch(error => {
                     console.error('Error al insertar diagnóstico:', error);
+                    toast.error('Error al guardar el diagnóstico');
                 });
         }
     };

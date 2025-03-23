@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Form, Modal, Row, Col } from 'react-bootstrap';
+import { Button, Form, Modal, Row, Col, InputGroup } from 'react-bootstrap';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
 
 interface Usuario {
@@ -29,12 +30,13 @@ function UsuariosForm({
     const [password, setPassword] = useState('');
     const [rol, setRol] = useState<'Administrador' | 'Terapeuta' | 'Encargado'>('Encargado');
     const [estado, setEstado] = useState<'Activo' | 'Inactivo'>('Activo');
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         if (usuarioEditar) {
             setNombre(usuarioEditar.nombre);
             setEmail(usuarioEditar.email);
-            setPassword(''); // No mostramos la contraseña actual por seguridad
+            setPassword('');
             setRol(usuarioEditar.rol);
             setEstado(usuarioEditar.estado);
         } else {
@@ -56,7 +58,7 @@ function UsuariosForm({
             estado,
         };
 
-        // Solo incluir password si se está creando un nuevo usuario o si se ha modificado
+        
         if (password) {
             usuario.password = password;
         }
@@ -120,13 +122,22 @@ function UsuariosForm({
                         <Col md={6}>
                             <Form.Group>
                                 <Form.Label>Contraseña {usuarioEditar && '(Dejar vacío para mantener)'}</Form.Label>
-                                <Form.Control
-                                    type="password"
-                                    placeholder={usuarioEditar ? "••••••••" : "Ingrese la contraseña"}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required={!usuarioEditar}
-                                />
+                                <InputGroup>
+                                    <Form.Control
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder={usuarioEditar ? "••••••••" : "Ingrese la contraseña"}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required={!usuarioEditar}
+                                    />
+                                    <Button 
+                                        variant="outline-secondary"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{ borderColor: '#ced4da' }}
+                                    >
+                                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                    </Button>
+                                </InputGroup>
                             </Form.Group>
                         </Col>
                         <Col md={6}>

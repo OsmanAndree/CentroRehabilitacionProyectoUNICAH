@@ -14,6 +14,8 @@ import ProductosTable from "./components/Productos";
 import BodegaTable from "./components/Bodegas";
 import UsuariosTable from "./components/Usuario";
 import DiagnosticosTable from "./components/Diagnosticos";
+import './toast-custom.css';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
@@ -28,9 +30,22 @@ function AppContent() {
 
   return (
     <>
-      <ToastContainer />
+      <ScrollToTop />
+      <ToastContainer
+        position="top-right"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        toastClassName="custom-toast"
+      />
       {location.pathname !== '/' && <NavBar />}
-      <main className="main-content">
+      <main className="main-content" style={{ overflow: 'auto', height: '100%' }}>
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<Home />} />
