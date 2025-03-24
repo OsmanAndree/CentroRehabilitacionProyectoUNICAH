@@ -76,7 +76,7 @@ const loginUsuario = async (req, res) => {
             return res.status(401).json({ error: 'Contraseña incorrecta' });
         }
 
-        const token = jwt.createToken(user.id_usuario);
+        const token = jwt.createToken(user);
 
         res.status(200).json({ message: 'Login exitoso', token });
     } catch (error) {
