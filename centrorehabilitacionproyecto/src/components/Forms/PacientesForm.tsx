@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Form, Modal, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
 import DatePicker from 'react-date-picker';
+import { FaUser, FaPhone, FaMapMarkerAlt, FaUserFriends, FaCalendarAlt } from 'react-icons/fa';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
 
@@ -88,85 +89,157 @@ function PacientesFormModal({
   };
 
   return (
-    <Modal show={show} onHide={handleClose} centered>
-      <Modal.Header closeButton className="bg-success text-white">
-        <Modal.Title>{pacienteEditar ? 'Editar Paciente' : 'Crear Paciente'}</Modal.Title>
+    <Modal 
+      show={show} 
+      onHide={handleClose} 
+      centered
+      size="lg"
+      backdrop="static"
+      className="custom-modal"
+    >
+      <Modal.Header 
+        className="border-0 position-relative"
+        style={{
+          background: "linear-gradient(135deg, #2E8B57 0%, #1a5735 100%)",
+          borderRadius: "15px 15px 0 0",
+          padding: "1.5rem"
+        }}
+      >
+        <Modal.Title className="text-white">
+          <div className="d-flex align-items-center">
+            <FaUser className="me-2" size={24} />
+            <span style={{ fontSize: "1.4rem", fontWeight: "600" }}>
+              {pacienteEditar ? 'Editar Paciente' : 'Nuevo Paciente'}
+            </span>
+          </div>
+        </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="p-4 bg-light">
+
+      <Modal.Body style={{ padding: "2rem" }}>
         <Form onSubmit={handleFormSubmit}>
-          <Row className="mb-3">
+          <Row className="mb-4">
             <Col md={6}>
               <Form.Group>
-                <Form.Label>Nombre</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Ingrese el nombre"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  required
-                />
+                <Form.Label className="fw-semibold mb-2">Nombre</Form.Label>
+                <div className="input-group">
+                  <span className="input-group-text bg-light border-0">
+                    <FaUser className="text-muted" />
+                  </span>
+                  <Form.Control
+                    type="text"
+                    placeholder="Ingrese el nombre"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    required
+                    style={{
+                      borderLeft: "none",
+                      padding: "0.75rem",
+                      backgroundColor: "#f8f9fa"
+                    }}
+                  />
+                </div>
               </Form.Group>
             </Col>
             <Col md={6}>
               <Form.Group>
-                <Form.Label>Apellido</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Ingrese el apellido"
-                  value={apellido}
-                  onChange={(e) => setApellido(e.target.value)}
-                  required
-                />
+                <Form.Label className="fw-semibold mb-2">Apellido</Form.Label>
+                <div className="input-group">
+                  <span className="input-group-text bg-light border-0">
+                    <FaUser className="text-muted" />
+                  </span>
+                  <Form.Control
+                    type="text"
+                    placeholder="Ingrese el apellido"
+                    value={apellido}
+                    onChange={(e) => setApellido(e.target.value)}
+                    required
+                    style={{
+                      borderLeft: "none",
+                      padding: "0.75rem",
+                      backgroundColor: "#f8f9fa"
+                    }}
+                  />
+                </div>
               </Form.Group>
             </Col>
           </Row>
 
-          <Row className="mb-3">
+          <Row className="mb-4">
             <Col md={6}>
               <Form.Group>
-                <Form.Label>Fecha de Nacimiento</Form.Label>
-                <DatePicker
-                  onChange={(value) => {
-                    const dateValue = value as Date | null;
-                    if (dateValue) {
-                      setFechaNacimiento(dateValue);
-                    }
-                  }}
-                  value={fechaNacimiento}
-                  className="w-100 form-control"
-                />
+                <Form.Label className="fw-semibold mb-2">
+                  <FaCalendarAlt className="me-2" />
+                  Fecha de Nacimiento
+                </Form.Label>
+                <div className="custom-datepicker-container">
+                  <DatePicker 
+                    onChange={(value) => {
+                      const dateValue = value as Date | null;
+                      if (dateValue) {
+                        setFechaNacimiento(dateValue);
+                      }
+                    }}
+                    value={fechaNacimiento}
+                    className="form-control custom-datepicker"
+                    format="dd-MM-y"
+                    dayPlaceholder="dd"
+                    monthPlaceholder="mm"
+                    yearPlaceholder="aaaa"
+                    calendarIcon={null}
+                  />
+                </div>
               </Form.Group>
             </Col>
             <Col md={6}>
               <Form.Group>
-                <Form.Label>Teléfono</Form.Label>
+                <Form.Label className="fw-semibold mb-2">
+                  <FaPhone className="me-2" />
+                  Teléfono
+                </Form.Label>
                 <Form.Control
-                  type="text"
+                  type="tel"
                   placeholder="Ingrese el teléfono"
                   value={telefono}
                   onChange={(e) => setTelefono(e.target.value)}
+                  style={{
+                    padding: "0.75rem",
+                    backgroundColor: "#f8f9fa"
+                  }}
                 />
               </Form.Group>
             </Col>
           </Row>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Dirección</Form.Label>
+          <Form.Group className="mb-4">
+            <Form.Label className="fw-semibold mb-2">
+              <FaMapMarkerAlt className="me-2" />
+              Dirección
+            </Form.Label>
             <Form.Control
               type="text"
-              placeholder="Ingrese la dirección"
+              placeholder="Ingrese la dirección completa"
               value={direccion}
               onChange={(e) => setDireccion(e.target.value)}
+              style={{
+                padding: "0.75rem",
+                backgroundColor: "#f8f9fa"
+              }}
             />
           </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Encargado</Form.Label>
-            <Form.Control
-              as="select"
+          <Form.Group className="mb-4">
+            <Form.Label className="fw-semibold mb-2">
+              <FaUserFriends className="me-2" />
+              Encargado
+            </Form.Label>
+            <Form.Select
               value={idEncargado}
               onChange={(e) => setIdEncargado(Number(e.target.value))}
               required
+              style={{
+                padding: "0.75rem",
+                backgroundColor: "#f8f9fa"
+              }}
             >
               <option value="">Seleccione un encargado</option>
               {encargados.map((encargado: { id_encargado: number, nombre: string, apellido: string }) => (
@@ -174,15 +247,30 @@ function PacientesFormModal({
                   {encargado.nombre} {encargado.apellido}
                 </option>
               ))}
-            </Form.Control>
+            </Form.Select>
           </Form.Group>
 
-          <div className="d-flex justify-content-end">
-            <Button variant="success" type="submit" className="me-2">
-              {pacienteEditar ? 'Guardar Cambios' : 'Crear Paciente'}
-            </Button>
-            <Button variant="secondary" onClick={handleClose}>
+          <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+            <Button 
+              variant="outline-secondary" 
+              onClick={handleClose}
+              style={{
+                padding: "0.75rem 1.5rem",
+                borderRadius: "8px"
+              }}
+            >
               Cancelar
+            </Button>
+            <Button 
+              variant="success" 
+              type="submit"
+              style={{
+                padding: "0.75rem 1.5rem",
+                borderRadius: "8px",
+                backgroundColor: "#2E8B57"
+              }}
+            >
+              {pacienteEditar ? 'Guardar Cambios' : 'Crear Paciente'}
             </Button>
           </div>
         </Form>
@@ -192,4 +280,3 @@ function PacientesFormModal({
 }
 
 export default PacientesFormModal;
-
