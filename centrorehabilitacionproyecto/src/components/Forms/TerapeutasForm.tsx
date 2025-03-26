@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Modal, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
+import { FaUserMd, FaUser, FaStethoscope, FaPhone } from 'react-icons/fa';
 
 interface Terapeuta {
     id_terapeuta?: number;
@@ -74,71 +75,140 @@ function TerapeutasForm({
     };
 
     return (
-        <Modal show={show} onHide={handleClose} centered>
-            <Modal.Header closeButton className="bg-success text-white">
-                <Modal.Title>{terapeutaEditar ? 'Editar Terapeuta' : 'Crear Terapeuta'}</Modal.Title>
+        <Modal 
+            show={show} 
+            onHide={handleClose} 
+            centered
+            size="lg"
+            backdrop="static"
+            className="custom-modal"
+        >
+            <Modal.Header 
+                className="border-0 position-relative"
+                style={{
+                    background: "linear-gradient(135deg, #2E8B57 0%, #1a5735 100%)",
+                    borderRadius: "15px 15px 0 0",
+                    padding: "1.5rem"
+                }}
+            >
+                <Modal.Title className="text-white">
+                    <div className="d-flex align-items-center">
+                        <FaUserMd className="me-2" size={24} />
+                        <span style={{ fontSize: "1.4rem", fontWeight: "600" }}>
+                            {terapeutaEditar ? 'Editar Terapeuta' : 'Nuevo Terapeuta'}
+                        </span>
+                    </div>
+                </Modal.Title>
             </Modal.Header>
-            <Modal.Body className="p-4 bg-light">
+
+            <Modal.Body style={{ padding: "2rem" }}>
                 <Form onSubmit={handleFormSubmit}>
-                    <Row className="mb-3">
+                    <Row className="mb-4">
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Nombre</Form.Label>
+                                <Form.Label className="fw-semibold mb-2">
+                                    <FaUser className="me-2" />
+                                    Nombre
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Ingrese el nombre"
                                     value={nombre}
                                     onChange={(e) => setNombre(e.target.value)}
                                     required
+                                    style={{
+                                        padding: "0.75rem",
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "8px"
+                                    }}
                                 />
                             </Form.Group>
                         </Col>
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Apellido</Form.Label>
+                                <Form.Label className="fw-semibold mb-2">
+                                    <FaUser className="me-2" />
+                                    Apellido
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Ingrese el apellido"
                                     value={apellido}
                                     onChange={(e) => setApellido(e.target.value)}
                                     required
+                                    style={{
+                                        padding: "0.75rem",
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "8px"
+                                    }}
                                 />
                             </Form.Group>
                         </Col>
                     </Row>
 
-                    <Row className="mb-3">
+                    <Row className="mb-4">
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Especialidad</Form.Label>
+                                <Form.Label className="fw-semibold mb-2">
+                                    <FaStethoscope className="me-2" />
+                                    Especialidad
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Ingrese la especialidad"
                                     value={especialidad}
                                     onChange={(e) => setEspecialidad(e.target.value)}
                                     required
+                                    style={{
+                                        padding: "0.75rem",
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "8px"
+                                    }}
                                 />
                             </Form.Group>
                         </Col>
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Teléfono</Form.Label>
+                                <Form.Label className="fw-semibold mb-2">
+                                    <FaPhone className="me-2" />
+                                    Teléfono
+                                </Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="tel"
                                     placeholder="Ingrese el teléfono"
                                     value={telefono}
                                     onChange={(e) => setTelefono(e.target.value)}
+                                    style={{
+                                        padding: "0.75rem",
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "8px"
+                                    }}
                                 />
                             </Form.Group>
                         </Col>
                     </Row>
 
-                    <div className="d-flex justify-content-end">
-                        <Button variant="success" type="submit" className="me-2">
-                            {terapeutaEditar ? 'Guardar Cambios' : 'Crear Terapeuta'}
-                        </Button>
-                        <Button variant="secondary" onClick={handleClose}>
+                    <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <Button 
+                            variant="outline-secondary" 
+                            onClick={handleClose}
+                            style={{
+                                padding: "0.75rem 1.5rem",
+                                borderRadius: "8px"
+                            }}
+                        >
                             Cancelar
+                        </Button>
+                        <Button 
+                            variant="success" 
+                            type="submit"
+                            style={{
+                                padding: "0.75rem 1.5rem",
+                                borderRadius: "8px",
+                                backgroundColor: "#2E8B57"
+                            }}
+                        >
+                            {terapeutaEditar ? 'Guardar Cambios' : 'Crear Terapeuta'}
                         </Button>
                     </div>
                 </Form>

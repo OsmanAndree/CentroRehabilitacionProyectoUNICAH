@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
+import { FaUserMd, FaSearch, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
 import TerapeutasForm from './Forms/TerapeutasForm';
 import { toast } from 'react-toastify';
@@ -76,72 +76,148 @@ function TerapeutasTable() {
   );
 
   return (
-    <Container>
-      <Card className="shadow-lg mt-4 border-0" style={{ backgroundColor: "#D4EDDA", borderRadius: "15px" }}>
-        <Card.Header className="text-white d-flex justify-content-between align-items-center"
-          style={{ backgroundColor: "#155724", borderRadius: "15px 15px 0 0" }}>
-          <h5 className="mb-0" style={{ fontWeight: 'bold' }}>Lista de Terapeutas</h5>
-          <Button variant="light" onClick={crearTerapeuta} className="text-dark">
-            <FaPlus /> Nuevo Terapeuta
+    <Container fluid className="px-5 py-4" style={{
+      minHeight: '100%',
+      position: 'relative'
+    }}>
+      <Card className="shadow-lg border-0" style={{ 
+        borderRadius: "20px",
+        backgroundColor: "#ffffff",
+        marginBottom: '2rem'
+      }}>
+        <Card.Header className="bg-gradient d-flex justify-content-between align-items-center py-3"
+          style={{ 
+            backgroundColor: "#2E8B57",
+            borderRadius: "20px 20px 0 0",
+            border: "none"
+          }}>
+          <div className="d-flex align-items-center">
+            <FaUserMd size={24} className="text-white me-2" />
+            <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
+              Gestión de Terapeutas
+            </h4>
+          </div>
+          <Button 
+            variant="light" 
+            onClick={crearTerapeuta}
+            className="d-flex align-items-center"
+            style={{
+              borderRadius: "10px",
+              padding: "0.5rem 1rem",
+              fontWeight: "500",
+              transition: "all 0.3s ease"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            <FaPlus className="me-2" /> Nuevo Terapeuta
           </Button>
         </Card.Header>
-        <Card.Body>
-          <Row className="mb-3">
-            <InputGroup>
-              <InputGroup.Text><FaSearch /></InputGroup.Text>
-              <Form.Control
-                type="text"
-                placeholder="Buscar terapeuta..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </InputGroup>
+
+        <Card.Body className="p-4">
+          <Row className="mb-4">
+            <div className="col-md-6 col-lg-4">
+              <InputGroup style={{ 
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                borderRadius: "12px",
+                overflow: "hidden"
+              }}>
+                <InputGroup.Text style={{ 
+                  backgroundColor: "#f8f9fa",
+                  border: "none",
+                  paddingLeft: "1.2rem"
+                }}>
+                  <FaSearch className="text-muted" />
+                </InputGroup.Text>
+                <Form.Control
+                  type="text"
+                  placeholder="Buscar terapeuta..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{
+                    border: "none",
+                    padding: "0.8rem 1rem",
+                    fontSize: "0.95rem"
+                  }}
+                />
+              </InputGroup>
+            </div>
           </Row>
 
           {loading ? (
-            <div className="text-center my-3">
-              <Spinner animation="border" style={{ color: "#155724" }} />
-              <p>Cargando terapeutas...</p>
+            <div className="text-center my-5">
+              <Spinner animation="border" variant="success" style={{ width: "3rem", height: "3rem" }} />
+              <p className="mt-3 text-muted">Cargando información de terapeutas...</p>
             </div>
           ) : (
-            <Table responsive striped bordered hover className="table-sm text-center"
-              style={{ borderRadius: "10px", overflow: "hidden" }}>
-              <thead style={{ backgroundColor: "#155724", color: "white" }}>
-                <tr>
-                  <th>#</th>
-                  <th>Nombre</th>
-                  <th>Apellido</th>
-                  <th>Especialidad</th>
-                  <th>Teléfono</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {terapeutasFiltrados.length > 0 ? (
-                  terapeutasFiltrados.map((terapeuta, index) => (
-                    <tr key={terapeuta.id_terapeuta}>
-                      <td>{index + 1}</td>
-                      <td>{terapeuta.nombre}</td>
-                      <td>{terapeuta.apellido}</td>
-                      <td>{terapeuta.especialidad}</td>
-                      <td>{terapeuta.telefono}</td>
-                      <td>
-                        <Button variant="success" size="sm" onClick={() => editarTerapeuta(terapeuta)} className="me-2">
-                          <FaEdit /> Editar
-                        </Button>
-                        <Button variant="danger" size="sm" onClick={() => eliminarTerapeuta(terapeuta.id_terapeuta)}>
-                          <FaTrash /> Eliminar
-                        </Button>
+            <div className="table-responsive" style={{ 
+              borderRadius: "15px", 
+              overflow: "auto",
+              maxWidth: "100%",
+              display: "block"
+            }}>
+              <Table hover className="align-middle mb-0" style={{ minWidth: "700px" }}>
+                <thead>
+                  <tr style={{ backgroundColor: "#f8f9fa" }}>
+                    <th className="py-3 px-4 text-muted">#</th>
+                    <th className="py-3 px-4 text-muted">Nombre Completo</th>
+                    <th className="py-3 px-4 text-muted">Especialidad</th>
+                    <th className="py-3 px-4 text-muted">Teléfono</th>
+                    <th className="py-3 px-4 text-muted text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {terapeutasFiltrados.length > 0 ? (
+                    terapeutasFiltrados.map((terapeuta, index) => (
+                      <tr key={terapeuta.id_terapeuta}>
+                        <td className="py-3 px-4">{index + 1}</td>
+                        <td className="py-3 px-4">{`${terapeuta.nombre} ${terapeuta.apellido}`}</td>
+                        <td className="py-3 px-4">
+                          <span className="badge bg-success-light text-success" style={{ 
+                            fontSize: '0.95rem',
+                            fontWeight: '800'
+                          }}>
+                            {terapeuta.especialidad}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">{terapeuta.telefono}</td>
+                        <td className="py-3 px-4 text-center">
+                          <Button 
+                            variant="outline-success" 
+                            size="sm" 
+                            onClick={() => editarTerapeuta(terapeuta)}
+                            className="me-2"
+                            style={{ borderRadius: "8px" }}
+                          >
+                            <FaEdit /> Editar
+                          </Button>
+                          <Button 
+                            variant="outline-danger" 
+                            size="sm" 
+                            onClick={() => eliminarTerapeuta(terapeuta.id_terapeuta)}
+                            style={{ borderRadius: "8px" }}
+                          >
+                            <FaTrash /> Eliminar
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="text-center py-5 text-muted">
+                        No se encontraron terapeutas que coincidan con la búsqueda.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="text-center">No se encontraron terapeutas.</td>
-                  </tr>
-                )}
-              </tbody>
-            </Table>
+                  )}
+                </tbody>
+              </Table>
+            </div>
           )}
         </Card.Body>
       </Card>
