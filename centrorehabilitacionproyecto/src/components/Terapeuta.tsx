@@ -3,7 +3,8 @@ import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from '
 import { FaUserMd, FaSearch, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
 import TerapeutasForm from './Forms/TerapeutasForm';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Terapeuta {
   id_terapeuta: number;
@@ -25,6 +26,7 @@ function TerapeutasTable() {
     axios.get('http://localhost:3002/Api/terapeutas/getterapeutas')
       .then(response => {
         setTerapeutas(response.data.result);
+        toast.success("Terapeutas cargados exitosamente");
       })
       .catch(error => {
         console.error("Error al obtener terapeutas:", error);
@@ -59,11 +61,13 @@ function TerapeutasTable() {
   const editarTerapeuta = (terapeuta: Terapeuta) => {
     setTerapeutaSeleccionado(terapeuta);
     setShowForm(true);
+    toast.info("Editando terapeuta");
   };
 
   const crearTerapeuta = () => {
     setTerapeutaSeleccionado(null);
     setShowForm(true);
+    toast.info("Creando nuevo terapeuta");
   };
 
   const cerrarFormulario = () => {
@@ -80,6 +84,18 @@ function TerapeutasTable() {
       minHeight: '100%',
       position: 'relative'
     }}>
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Card className="shadow-lg border-0" style={{ 
         borderRadius: "20px",
         backgroundColor: "#ffffff",

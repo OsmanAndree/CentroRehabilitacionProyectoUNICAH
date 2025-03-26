@@ -3,7 +3,8 @@ import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from '
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserPlus, FaFilter } from 'react-icons/fa';
 import axios from 'axios';
 import PacientesForm from './Forms/PacientesForm';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Paciente {
   id_paciente: number;
@@ -31,6 +32,7 @@ function PacientesTable() {
     axios.get('http://localhost:3002/Api/pacientes/getpacientes')
       .then(response => {
         setPacientes(response.data.result);
+        toast.success("Pacientes cargados exitosamente");
       })
       .catch(error => {
         console.error("Error al obtener pacientes:", error);
@@ -65,11 +67,13 @@ function PacientesTable() {
   const editarPaciente = (paciente: Paciente) => {
     setPacienteSeleccionado(paciente);
     setShowForm(true);
+    toast.info("Editando paciente");
   };
 
   const crearPaciente = () => {
     setPacienteSeleccionado(null);
     setShowForm(true);
+    toast.info("Creando nuevo paciente");
   };
 
   const cerrarFormulario = () => {
@@ -83,6 +87,18 @@ function PacientesTable() {
 
   return (
     <Container fluid className="px-5 py-4">
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Card className="shadow-lg border-0" style={{ 
         borderRadius: "20px",
         backgroundColor: "#ffffff"
