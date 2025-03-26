@@ -3,7 +3,8 @@ import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } f
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaCalendar, FaUserClock } from 'react-icons/fa';
 import axios from 'axios';
 import CitasForm from './Forms/CitasForm';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Cita {
   id_cita: number;
@@ -39,6 +40,7 @@ function CitasTable() {
     axios.get('http://localhost:3002/Api/citas/getcitas')
       .then(response => {
         setCitas(response.data.result);
+        toast.success("Citas cargadas exitosamente");
       })
       .catch(error => {
         console.error("Error al obtener citas:", error);
@@ -72,11 +74,13 @@ function CitasTable() {
   const editarCita = (cita: Cita) => {
     setCitaSeleccionada(cita);
     setShowForm(true);
+    toast.info("Editando cita");
   };
 
   const crearCita = () => {
     setCitaSeleccionada(null);
     setShowForm(true);
+    toast.info("Creando nueva cita");
   };
 
   const cerrarFormulario = () => {
@@ -95,6 +99,18 @@ function CitasTable() {
 
   return (
     <Container fluid className="px-5 py-4">
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Card className="shadow-lg border-0" style={{ 
         borderRadius: "20px",
         backgroundColor: "#ffffff"

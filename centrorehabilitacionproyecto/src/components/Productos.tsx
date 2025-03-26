@@ -3,7 +3,8 @@ import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from '
 import { FaBox, FaSearch, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
 import ProductosForm from './Forms/ProductosForm';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Producto {
   id_producto: number;
@@ -25,6 +26,7 @@ function ProductosTable(){
         axios.get('http://localhost:3002/Api/productos/getProductos')
         .then(response => {
             setProductos(response.data.result);
+            toast.success("Productos cargados exitosamente");
         })
         .catch(error => {
             console.error("Error al obtener productos:", error);
@@ -59,11 +61,13 @@ function ProductosTable(){
     const editarProducto = (producto: Producto) => {
         setProductoSeleccionado(producto);
         setShowForm(true);
+        toast.info("Editando producto");
     }
 
     const crearProducto = () => {
         setProductoSeleccionado(null);
         setShowForm(true);
+        toast.info("Creando nuevo producto");
     };
 
     const cerrarFormulario = () => {
@@ -77,6 +81,18 @@ function ProductosTable(){
 
     return (
         <Container fluid className="px-5 py-4">
+          <ToastContainer 
+            position="top-right" 
+            autoClose={3000} 
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+          />
           <Card className="shadow-lg border-0" style={{ 
             borderRadius: "20px",
             backgroundColor: "#ffffff"

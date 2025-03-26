@@ -3,7 +3,8 @@ import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from '
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserFriends } from 'react-icons/fa';
 import axios from 'axios';
 import EncargadosForm from './Forms/EncargadosForm';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Encargado {
   id_encargado: number;
@@ -25,6 +26,7 @@ function EncargadosTable(){
         axios.get('http://localhost:3002/Api/encargados/getEncargados')
         .then(response => {
             setEncargados(response.data.result);
+            toast.success("Encargados cargados exitosamente");
         })
         .catch(error => {
             console.error("Error al obtener encargados:", error);
@@ -59,11 +61,13 @@ function EncargadosTable(){
     const editarEncargado = (encargado: Encargado) => {
         setEncargadoSeleccionado(encargado);
         setShowForm(true);
+        toast.info("Editando encargado");
     }
 
     const crearEncargado = () => {
         setEncargadoSeleccionado(null);
         setShowForm(true);
+        toast.info("Creando nuevo encargado");
     };
 
     const cerrarFormulario = () => {
@@ -77,6 +81,18 @@ function EncargadosTable(){
 
     return (
         <Container fluid className="px-5 py-4">
+            <ToastContainer 
+                position="top-right" 
+                autoClose={3000} 
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
             <Card className="shadow-lg border-0" style={{ 
                 borderRadius: "20px",
                 backgroundColor: "#ffffff"

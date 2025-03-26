@@ -3,7 +3,8 @@ import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from '
 import { FaWarehouse, FaSearch, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
 import BodegasForm from './Forms/BodegasForm';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Bodega {
   id_bodega: number;
@@ -27,10 +28,11 @@ function BodegaTable() {
     axios.get('http://localhost:3002/Api/bodega/GetBodegas')
       .then(response => {
         setBodega(response.data.result);
+        toast.success("Registros de bodega cargados exitosamente");
       })
       .catch(error => {
         console.error("Error al obtener bodegas:", error);
-        toast.error("No se pudieron cargar las bodegas.");
+        toast.error("No se pudieron cargar los registros de bodega.");
       })
       .finally(() => setLoading(false));
   }, []);
@@ -61,11 +63,13 @@ function BodegaTable() {
   const editarBodega = (bodega: Bodega) => {
     setBodegaSeleccionada(bodega);
     setShowForm(true);
+    toast.info("Editando registro de bodega");
   };
 
   const crearBodega = () => {
     setBodegaSeleccionada(null);
     setShowForm(true);
+    toast.info("Creando nuevo registro de bodega");
   };
 
   const cerrarFormulario = () => {
@@ -79,6 +83,18 @@ function BodegaTable() {
 
   return (
     <Container fluid className="px-5 py-4">
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Card className="shadow-lg border-0" style={{ 
         borderRadius: "20px",
         backgroundColor: "#ffffff"
