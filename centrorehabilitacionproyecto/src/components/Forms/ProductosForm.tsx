@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Modal, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
+import { FaBox, FaFileAlt, FaTag, FaWarehouse } from 'react-icons/fa';
 
 interface Producto {
     id_producto?: number;
@@ -80,71 +81,142 @@ function ProductosForm({
     };
     
 return (
-        <Modal show={show} onHide={handleClose} centered>
-            <Modal.Header closeButton className="bg-success text-white">
-                <Modal.Title>{productoEditar ? 'Editar Producto' : 'Crear Producto'}</Modal.Title>
+        <Modal 
+            show={show} 
+            onHide={handleClose} 
+            centered
+            size="lg"
+            backdrop="static"
+            className="custom-modal"
+        >
+            <Modal.Header 
+                className="border-0 position-relative"
+                style={{
+                    background: "linear-gradient(135deg, #2E8B57 0%, #1a5735 100%)",
+                    borderRadius: "15px 15px 0 0",
+                    padding: "1.5rem"
+                }}
+            >
+                <Modal.Title className="text-white">
+                    <div className="d-flex align-items-center">
+                        <FaBox className="me-2" size={24} />
+                        <span style={{ fontSize: "1.4rem", fontWeight: "600" }}>
+                            {productoEditar ? 'Editar Producto' : 'Nuevo Producto'}
+                        </span>
+                    </div>
+                </Modal.Title>
             </Modal.Header>
-            <Modal.Body className="p-4 bg-light">
+
+            <Modal.Body style={{ padding: "2rem" }}>
                 <Form onSubmit={handleFormSubmit}>
-                    <Row className="mb-3">
+                    <Row className="mb-4">
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Nombre</Form.Label>
+                                <Form.Label className="fw-semibold mb-2">
+                                    <FaBox className="me-2" />
+                                    Nombre
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Ingrese el nombre"
                                     value={nombre}
                                     onChange={(e) => setNombre(e.target.value)}
                                     required
+                                    style={{
+                                        padding: "0.75rem",
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "8px"
+                                    }}
                                 />
                             </Form.Group>
                         </Col>
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Descripción</Form.Label>
+                                <Form.Label className="fw-semibold mb-2">
+                                    <FaFileAlt className="me-2" />
+                                    Descripción
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Ingrese la descripción"
                                     value={descripcion}
                                     onChange={(e) => setDescripcion(e.target.value)}
+                                    style={{
+                                        padding: "0.75rem",
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "8px"
+                                    }}
                                 />
                             </Form.Group>
                         </Col>
                     </Row>
 
-                    <Row className="mb-3">
+                    <Row className="mb-4">
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Categoría</Form.Label>
+                                <Form.Label className="fw-semibold mb-2">
+                                    <FaTag className="me-2" />
+                                    Categoría
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Ingrese la categoría"
                                     value={categoria}
                                     onChange={(e) => setCategoria(e.target.value)}
                                     required
+                                    style={{
+                                        padding: "0.75rem",
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "8px"
+                                    }}
                                 />
                             </Form.Group>
                         </Col>
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Cantidad Disponible</Form.Label>
+                                <Form.Label className="fw-semibold mb-2">
+                                    <FaWarehouse className="me-2" />
+                                    Cantidad Disponible
+                                </Form.Label>
                                 <Form.Control
                                     type="number"
-                                    placeholder="Ingrese la cantidad disponible"
+                                    placeholder="Ingrese la cantidad"
                                     value={cantidad_disponible}
                                     onChange={(e) => setCantidadDisponible(Number(e.target.value))}
                                     required
+                                    style={{
+                                        padding: "0.75rem",
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "8px",
+                                        textAlign: "center",
+                                        fontSize: "1rem"
+                                    }}
                                 />
                             </Form.Group>
                         </Col>
                     </Row>
 
-                    <div className="d-flex justify-content-end">
-                        <Button variant="success" type="submit" className="me-2">
-                            {productoEditar ? 'Guardar Cambios' : 'Crear Producto'}
-                        </Button>
-                        <Button variant="secondary" onClick={handleClose}>
+                    <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <Button 
+                            variant="outline-secondary" 
+                            onClick={handleClose}
+                            style={{
+                                padding: "0.75rem 1.5rem",
+                                borderRadius: "8px"
+                            }}
+                        >
                             Cancelar
+                        </Button>
+                        <Button 
+                            variant="success" 
+                            type="submit"
+                            style={{
+                                padding: "0.75rem 1.5rem",
+                                borderRadius: "8px",
+                                backgroundColor: "#2E8B57"
+                            }}
+                        >
+                            {productoEditar ? 'Guardar Cambios' : 'Crear Producto'}
                         </Button>
                     </div>
                 </Form>
