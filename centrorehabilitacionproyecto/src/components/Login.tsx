@@ -45,9 +45,9 @@ const Login: React.FC = () => {
       className="p-0 m-0"
       style={{
         minHeight: "100vh",
-        width: "100vw",
+        width: "100%",
         background: "linear-gradient(135deg, #287549 0%, #1a5735 100%)",
-        position: "absolute",
+        position: "fixed",
         top: 0,
         left: 0,
         display: "flex",
