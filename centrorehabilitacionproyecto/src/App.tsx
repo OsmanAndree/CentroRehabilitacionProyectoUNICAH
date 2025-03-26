@@ -14,6 +14,7 @@ import ProductosTable from "./components/Productos";
 import BodegaTable from "./components/Bodegas";
 import UsuariosTable from "./components/Usuario";
 import DiagnosticosTable from "./components/Diagnosticos";
+import PrestamosTable from "./components/Prestamos";
 import './toast-custom.css';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -57,6 +58,7 @@ function AppContent() {
           <Route path="/bodega" element={<BodegaTable />} />
           <Route path="/usuarios" element={<UsuariosTable />} />
           <Route path="/diagnosticos" element={<DiagnosticosTable />} />
+          <Route path="/prestamos" element={<PrestamosTable />} />
         </Routes>
       </main>
     </>

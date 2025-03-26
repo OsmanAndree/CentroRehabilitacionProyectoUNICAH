@@ -32,6 +32,8 @@ db.terapeuta = require('../models/terapeutasModel')(sequelizeInstance, Sequelize
 db.diagnostico = require('../models/diagnosticoModel')(sequelizeInstance, Sequelize);
 db.citas = require('../models/citasModel')(sequelizeInstance, Sequelize);
 db.usuarios = require('../models/usuarioModel')(sequelizeInstance, Sequelize);
+db.prestamos = require('../models/prestamoModel')(sequelizeInstance, Sequelize);
+
 db.paciente.belongsTo(db.encargado, { foreignKey: 'id_encargado' });
 db.encargado.hasMany(db.paciente, { foreignKey: 'id_encargado' });
 
@@ -49,5 +51,11 @@ db.paciente.hasMany(db.citas, { foreignKey: 'id_paciente' });
 
 db.citas.belongsTo(db.terapeuta, { foreignKey: 'id_terapeuta' });
 db.terapeuta.hasMany(db.citas, { foreignKey: 'id_terapeuta' });
+
+db.prestamos.belongsTo(db.paciente, { foreignKey: 'id_paciente' });
+db.paciente.hasMany(db.prestamos, { foreignKey: 'id_paciente' });
+
+db.prestamos.belongsTo(db.productos, { foreignKey: 'id_producto' });
+db.productos.hasMany(db.prestamos, { foreignKey: 'id_producto' });
 
 module.exports = db;

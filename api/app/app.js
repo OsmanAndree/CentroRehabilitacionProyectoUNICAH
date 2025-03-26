@@ -12,6 +12,7 @@ const terapeutaRoutes = require("./routes/terapeutaRoute.js");
 const diagnosticoRoutes = require("./routes/diagnosticoRoute.js");
 const citasRoutes = require("./routes/citaRoute.js");
 const usuarioRoutes = require("./routes/usuarioRoute.js");
+const prestamoRoutes = require("./routes/prestamoRoute.js");
 
 App.use(
     cors({
@@ -31,5 +32,6 @@ App.use("/Api/terapeutas", terapeutaRoutes);
 App.use("/Api/diagnostico", diagnosticoRoutes)
 App.use("/Api/citas", citasRoutes);
 App.use("/Api/usuarios", usuarioRoutes);
- 
+App.use("/Api/prestamos", prestamoRoutes);
+
 module.exports = App;
