@@ -4,6 +4,7 @@ import axios from 'axios';
 import DatePicker from 'react-date-picker';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
+import { FaUser, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 
 interface Encargado {
   id_encargado?: number;
@@ -83,70 +84,141 @@ function EncargadosForm({
     };
     
 return (
-        <Modal show={show} onHide={handleClose} centered>
-            <Modal.Header closeButton className="bg-success text-white">
-                <Modal.Title>{encargadoEditar ? 'Editar Encargado' : 'Crear Encargado'}</Modal.Title>
+        <Modal 
+            show={show} 
+            onHide={handleClose} 
+            centered
+            size="lg"
+            backdrop="static"
+            className="custom-modal"
+        >
+            <Modal.Header 
+                className="border-0 position-relative"
+                style={{
+                    background: "linear-gradient(135deg, #2E8B57 0%, #1a5735 100%)",
+                    borderRadius: "15px 15px 0 0",
+                    padding: "1.5rem"
+                }}
+            >
+                <Modal.Title className="text-white">
+                    <div className="d-flex align-items-center">
+                        <FaUser className="me-2" size={24} />
+                        <span style={{ fontSize: "1.4rem", fontWeight: "600" }}>
+                            {encargadoEditar ? 'Editar Encargado' : 'Nuevo Encargado'}
+                        </span>
+                    </div>
+                </Modal.Title>
             </Modal.Header>
-            <Modal.Body className="p-4 bg-light">
+
+            <Modal.Body style={{ padding: "2rem" }}>
                 <Form onSubmit={handleFormSubmit}>
-                    <Row className="mb-3">
+                    <Row className="mb-4">
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Nombre</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Ingrese el nombre"
-                                    value={nombre}
-                                    onChange={(e) => setNombre(e.target.value)}
-                                    required
-                                />
+                                <Form.Label className="fw-semibold mb-2">Nombre</Form.Label>
+                                <div className="input-group">
+                                    <span className="input-group-text bg-light border-0">
+                                        <FaUser className="text-muted" />
+                                    </span>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Ingrese el nombre"
+                                        value={nombre}
+                                        onChange={(e) => setNombre(e.target.value)}
+                                        required
+                                        style={{
+                                            borderLeft: "none",
+                                            padding: "0.75rem",
+                                            backgroundColor: "#f8f9fa"
+                                        }}
+                                    />
+                                </div>
                             </Form.Group>
                         </Col>
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Apellido</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Ingrese el apellido"
-                                    value={apellido}
-                                    onChange={(e) => setApellido(e.target.value)}
-                                    required
-                                />
+                                <Form.Label className="fw-semibold mb-2">Apellido</Form.Label>
+                                <div className="input-group">
+                                    <span className="input-group-text bg-light border-0">
+                                        <FaUser className="text-muted" />
+                                    </span>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Ingrese el apellido"
+                                        value={apellido}
+                                        onChange={(e) => setApellido(e.target.value)}
+                                        required
+                                        style={{
+                                            borderLeft: "none",
+                                            padding: "0.75rem",
+                                            backgroundColor: "#f8f9fa"
+                                        }}
+                                    />
+                                </div>
                             </Form.Group>
                         </Col>
                     </Row>
 
-                    <Row className="mb-3">
+                    <Row className="mb-4">
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Teléfono</Form.Label>
+                                <Form.Label className="fw-semibold mb-2">
+                                    <FaPhone className="me-2" />
+                                    Teléfono
+                                </Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="tel"
                                     placeholder="Ingrese el teléfono"
                                     value={telefono}
                                     onChange={(e) => setTelefono(e.target.value)}
+                                    style={{
+                                        padding: "0.75rem",
+                                        backgroundColor: "#f8f9fa"
+                                    }}
                                 />
                             </Form.Group>
                         </Col>
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label>Dirección</Form.Label>
+                                <Form.Label className="fw-semibold mb-2">
+                                    <FaMapMarkerAlt className="me-2" />
+                                    Dirección
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Ingrese el teléfono"
+                                    placeholder="Ingrese la dirección"
                                     value={direccion}
                                     onChange={(e) => setDireccion(e.target.value)}
+                                    style={{
+                                        padding: "0.75rem",
+                                        backgroundColor: "#f8f9fa"
+                                    }}
                                 />
                             </Form.Group>
                         </Col>
                     </Row>
 
-                    <div className="d-flex justify-content-end">
-                        <Button variant="success" type="submit" className="me-2">
-                            {encargadoEditar ? 'Guardar Cambios' : 'Crear Encargado'}
-                        </Button>
-                        <Button variant="secondary" onClick={handleClose}>
+                    <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <Button 
+                            variant="outline-secondary" 
+                            onClick={handleClose}
+                            style={{
+                                padding: "0.75rem 1.5rem",
+                                borderRadius: "8px"
+                            }}
+                        >
                             Cancelar
+                        </Button>
+                        <Button 
+                            variant="success" 
+                            type="submit"
+                            style={{
+                                padding: "0.75rem 1.5rem",
+                                borderRadius: "8px",
+                                backgroundColor: "#2E8B57"
+                            }}
+                        >
+                            {encargadoEditar ? 'Guardar Cambios' : 'Crear Encargado'}
                         </Button>
                     </div>
                 </Form>
