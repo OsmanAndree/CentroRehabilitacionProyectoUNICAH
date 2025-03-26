@@ -4,6 +4,7 @@ import axios from 'axios';
 import DatePicker from 'react-date-picker';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
+import { FaCalendar, FaUserClock, FaClock, FaUser, FaNotesMedical, FaClipboardCheck } from 'react-icons/fa';
 
 interface Cita {
   id_cita?: number;
@@ -185,138 +186,240 @@ function CitasFormModal({
   };
 
   return (
-    <Modal show={show} onHide={handleClose} centered size="lg">
-      <Modal.Header closeButton className="bg-success text-white">
-        <Modal.Title>{citaEditar ? 'Editar Cita' : 'Crear Cita'}</Modal.Title>
+    <Modal 
+      show={show} 
+      onHide={handleClose} 
+      centered
+      size="lg"
+      backdrop="static"
+      className="custom-modal"
+    >
+      <Modal.Header 
+        className="border-0 position-relative"
+        style={{
+          background: "linear-gradient(135deg, #2E8B57 0%, #1a5735 100%)",
+          borderRadius: "15px 15px 0 0",
+          padding: "1.5rem"
+        }}
+      >
+        <Modal.Title className="text-white">
+          <div className="d-flex align-items-center">
+            <FaCalendar className="me-2" size={24} />
+            <span style={{ fontSize: "1.4rem", fontWeight: "600" }}>
+              {citaEditar ? 'Editar Cita' : 'Nueva Cita'}
+            </span>
+          </div>
+        </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="p-4 bg-light">
+
+      <Modal.Body style={{ padding: "2rem" }}>
         <Form onSubmit={handleFormSubmit}>
-          <Row className="mb-3">
+          <Row className="mb-4">
             <Col md={12}>
               <Form.Group>
-                <Form.Label>Terapeuta</Form.Label>
-                <Form.Control
-                  as="select"
+                <Form.Label className="fw-semibold mb-2">
+                  <FaUserClock className="me-2" />
+                  Terapeuta
+                </Form.Label>
+                <Form.Select
                   value={idTerapeuta}
                   onChange={(e) => setIdTerapeuta(Number(e.target.value))}
                   required
+                  style={{
+                    padding: "0.75rem",
+                    backgroundColor: "#f8f9fa",
+                    borderRadius: "8px"
+                  }}
                 >
                   <option value="">Seleccione un terapeuta</option>
-                  {terapeutas.map((terapeuta: { id_terapeuta: number, nombre: string, apellido: string }) => (
+                  {terapeutas.map((terapeuta) => (
                     <option key={terapeuta.id_terapeuta} value={terapeuta.id_terapeuta}>
                       {terapeuta.nombre} {terapeuta.apellido}
                     </option>
                   ))}
-                </Form.Control>
+                </Form.Select>
               </Form.Group>
             </Col>
           </Row>
-          <Row className="mb-3">
+
+          <Row className="mb-4">
             <Col md={12}>
               <Form.Group>
-                <Form.Label>Fecha</Form.Label>
-                <DatePicker 
-                  onChange={(value) => setFecha(value ? (value as Date) : new Date())}
-                  value={fecha}
-                  className="w-100 form-control"
-                  clearIcon={null}
-                  calendarIcon={null}
-                />
+                <Form.Label className="fw-semibold mb-2">
+                  <FaCalendar className="me-2" />
+                  Fecha
+                </Form.Label>
+                <div className="custom-datepicker-container">
+                  <DatePicker 
+                    onChange={(value) => setFecha(value ? (value as Date) : new Date())}
+                    value={fecha}
+                    className="form-control custom-datepicker"
+                    clearIcon={null}
+                    calendarIcon={null}
+                  />
+                </div>
               </Form.Group>
             </Col>
           </Row>
+
           {blockedIntervals.length > 0 && (
-            <div className="mb-3">
-              <strong>Horarios ocupados para esta fecha:</strong>
-              <ul>
+            <div className="mb-4 p-3" style={{
+              backgroundColor: "#f8f9fa",
+              borderRadius: "8px",
+              border: "1px solid #e9ecef"
+            }}>
+              <strong className="d-block mb-2">
+                <FaClock className="me-2" />
+                Horarios ocupados para esta fecha:
+              </strong>
+              <ul className="list-unstyled mb-0">
                 {blockedIntervals.map((interval, i) => (
-                  <li key={i}>{interval.inicio} - {interval.fin}</li>
+                  <li key={i} className="text-muted">
+                    • {interval.inicio} - {interval.fin}
+                  </li>
                 ))}
               </ul>
             </div>
           )}
-          <Row className="mb-3">
+
+          <Row className="mb-4">
             <Col md={6}>
               <Form.Group>
-                <Form.Label>Hora de Inicio</Form.Label>
+                <Form.Label className="fw-semibold mb-2">
+                  <FaClock className="me-2" />
+                  Hora de Inicio
+                </Form.Label>
                 <Form.Control
                   type="time"
                   value={horaInicio}
-                  step="600"
                   onChange={handleHoraInicioChange}
                   required
+                  style={{
+                    padding: "0.75rem",
+                    backgroundColor: "#f8f9fa",
+                    borderRadius: "8px"
+                  }}
                 />
               </Form.Group>
             </Col>
             <Col md={6}>
               <Form.Group>
-                <Form.Label>Hora de Fin</Form.Label>
+                <Form.Label className="fw-semibold mb-2">
+                  <FaClock className="me-2" />
+                  Hora de Fin
+                </Form.Label>
                 <Form.Control
                   type="time"
                   value={horaFin}
                   disabled
+                  style={{
+                    padding: "0.75rem",
+                    backgroundColor: "#f8f9fa",
+                    borderRadius: "8px"
+                  }}
                 />
               </Form.Group>
             </Col>
           </Row>
-          <Row className="mb-3">
+
+          <Row className="mb-4">
             <Col md={6}>
               <Form.Group>
-                <Form.Label>Tipo de Terapia</Form.Label>
-                <Form.Control 
-                  as="select" 
+                <Form.Label className="fw-semibold mb-2">
+                  <FaNotesMedical className="me-2" />
+                  Tipo de Terapia
+                </Form.Label>
+                <Form.Select
                   value={tipoTerapia}
                   onChange={(e) => setTipoTerapia(e.target.value)}
                   required
+                  style={{
+                    padding: "0.75rem",
+                    backgroundColor: "#f8f9fa",
+                    borderRadius: "8px"
+                  }}
                 >
                   <option value="">Seleccione un tipo de terapia</option>
                   <option value="Fisica">Terapia Física (30 min)</option>
                   <option value="Neurologica">Terapia Neurológica (20 min)</option>
-                </Form.Control>
+                </Form.Select>
               </Form.Group>
             </Col>
             <Col md={6}>
               <Form.Group>
-                <Form.Label>Estado</Form.Label>
-                <Form.Control 
-                  as="select" 
+                <Form.Label className="fw-semibold mb-2">
+                  <FaClipboardCheck className="me-2" />
+                  Estado
+                </Form.Label>
+                <Form.Select
                   value={estado}
                   onChange={(e) => setEstado(e.target.value as 'Pendiente' | 'Confirmada' | 'Cancelada' | 'Completada')}
                   required
+                  style={{
+                    padding: "0.75rem",
+                    backgroundColor: "#f8f9fa",
+                    borderRadius: "8px"
+                  }}
                 >
                   <option value="Pendiente">Pendiente</option>
                   <option value="Confirmada">Confirmada</option>
                   <option value="Cancelada">Cancelada</option>
                   <option value="Completada">Completada</option>
-                </Form.Control>
+                </Form.Select>
               </Form.Group>
             </Col>
           </Row>
-          <Row className="mb-3">
+
+          <Row className="mb-4">
             <Col md={12}>
               <Form.Group>
-                <Form.Label>Paciente</Form.Label>
-                <Form.Control 
-                  as="select" 
+                <Form.Label className="fw-semibold mb-2">
+                  <FaUser className="me-2" />
+                  Paciente
+                </Form.Label>
+                <Form.Select
                   value={idPaciente}
                   onChange={(e) => setIdPaciente(Number(e.target.value))}
                   required
+                  style={{
+                    padding: "0.75rem",
+                    backgroundColor: "#f8f9fa",
+                    borderRadius: "8px"
+                  }}
                 >
                   <option value="">Seleccione un paciente</option>
-                  {pacientes.map((paciente: { id_paciente: number, nombre: string, apellido: string }) => (
+                  {pacientes.map((paciente) => (
                     <option key={paciente.id_paciente} value={paciente.id_paciente}>
                       {paciente.nombre} {paciente.apellido}
                     </option>
                   ))}
-                </Form.Control>
+                </Form.Select>
               </Form.Group>
             </Col>
           </Row>
-          <div className="d-flex justify-content-end">
-            <Button variant="primary" type="submit" className="me-2">
+
+          <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+            <Button 
+              variant="outline-secondary" 
+              onClick={handleClose}
+              style={{
+                padding: "0.75rem 1.5rem",
+                borderRadius: "8px"
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              variant="success" 
+              type="submit"
+              style={{
+                padding: "0.75rem 1.5rem",
+                borderRadius: "8px",
+                backgroundColor: "#2E8B57"
+              }}
+            >
               {citaEditar ? 'Guardar Cambios' : 'Crear Cita'}
             </Button>
-            <Button variant="secondary" onClick={handleClose}>Cancelar</Button>
           </div>
         </Form>
       </Modal.Body>
