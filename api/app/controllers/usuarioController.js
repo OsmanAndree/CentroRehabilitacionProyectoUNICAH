@@ -30,15 +30,29 @@ const insertUsuario = async (req, res) => {
 const updateUsuario = async (req, res) => {
     try {
         const { id_usuario } = req.query;
-        const usuarioData = req.body;
+        const { nombre, email, password, rol, estado } = req.body;
 
         const usuarioToUpdate = await usuario.findByPk(id_usuario);
-        if (usuarioToUpdate) {
-            await usuarioToUpdate.update(usuarioData);
-            res.status(200).json({ message: 'Usuario actualizado exitosamente', data: usuarioToUpdate });
-        } else {
-            res.status(404).json({ error: 'Usuario no encontrado' });
+        if (!usuarioToUpdate) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
         }
+
+        // Verificar si se envió una nueva contraseña
+        let newPassword = usuarioToUpdate.password;
+        if (password && password !== usuarioToUpdate.password) {
+            newPassword = await bcrypt.hash(password, 10);
+        }
+
+        await usuarioToUpdate.update({
+            nombre,
+            email,
+            password: newPassword,
+            rol,
+            estado
+        });
+
+        res.status(200).json({ message: 'Usuario actualizado exitosamente', data: usuarioToUpdate });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
