@@ -3,7 +3,7 @@ import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Container from "react-bootstrap/Container";
-import { FaUserMd, FaUsers, FaCalendarAlt, FaUserFriends, FaBox, FaWarehouse } from "react-icons/fa";
+import { FaUserMd, FaUsers, FaCalendarAlt, FaUserFriends, FaBox, FaWarehouse, FaBuyNLarge } from "react-icons/fa";
 import { FaUserGear } from "react-icons/fa6";
 
 const cardsData = [
@@ -16,6 +16,8 @@ const cardsData = [
   { path: "/bodega", img: "/images/bodega.webp", title: "Control de Bodega", text: "Administra el inventario de productos médicos.", icon: <FaWarehouse size={24} /> },
   { path: "/prestamos", img: "/images/prestamo.webp", title: "Control de Préstamos", text: "Administra los préstamos del sistema.", icon: <FaUserGear size={24} /> },
   { path: "/usuarios", img: "/images/usuario.webp", title: "Control de Usuarios", text: "Administra los usuarios del sistema.", icon: <FaUserGear size={24} /> },
+  { path: "/compras", img: "/images/usuario.webp", title: "Control de Compras", text: "Administra las compras del sistema.", icon: <FaBuyNLarge size={24} /> },
+
 ];
 
 function CardGrids() {
