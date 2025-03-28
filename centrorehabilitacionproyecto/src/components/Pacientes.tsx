@@ -5,8 +5,10 @@ import axios from 'axios';
 import PacientesForm from './Forms/PacientesForm';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import PacientesReport from './PacientesReport'; 
 
-interface Paciente {
+export interface Paciente {
   id_paciente: number;
   nombre: string;
   apellido: string;
@@ -115,27 +117,35 @@ function PacientesTable() {
               Gestión de Pacientes
             </h4>
           </div>
-          <Button 
-            variant="light" 
-            onClick={crearPaciente}
-            className="d-flex align-items-center"
-            style={{
-              borderRadius: "10px",
-              padding: "0.5rem 1rem",
-              fontWeight: "500",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          >
-            <FaPlus className="me-2" /> Nuevo Paciente
-          </Button>
+          <div className="d-flex">
+            <Button 
+              variant="light" 
+              onClick={crearPaciente}
+              className="d-flex align-items-center me-2"
+              style={{
+                borderRadius: "10px",
+                padding: "0.5rem 1rem",
+                fontWeight: "500",
+                transition: "all 0.3s ease"
+              }}
+            >
+              <FaPlus className="me-2" /> Nuevo Paciente
+            </Button>
+            <PDFDownloadLink
+              document={<PacientesReport pacientes={pacientesFiltrados} />}
+              fileName="Reporte_Pacientes.pdf"
+              className="btn btn-success"
+              style={{
+                borderRadius: "10px",
+                padding: "0.5rem 1rem",
+                fontWeight: "500",
+                textDecoration: "none",
+                color: "white",
+              }}
+            >
+              {({ loading }) => (loading ? "Generando PDF..." : "Descargar Reporte")}
+            </PDFDownloadLink>
+          </div>
         </Card.Header>
 
         <Card.Body className="p-4">
