@@ -3,6 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Button, Offcanvas } from "react-bootstrap";
 import { FaCalendarAlt, FaNotesMedical, FaUsers, FaUserFriends, FaClinicMedical, FaMoneyBill, FaSignOutAlt, FaBars } from "react-icons/fa";
+import { FaUserGear } from "react-icons/fa6";
 
 function NavBar() {
   const navigate = useNavigate();
@@ -19,7 +20,8 @@ function NavBar() {
     { path: "/pacientes", icon: <FaUsers size={20} />, text: "Pacientes" },
     { path: "/encargados", icon: <FaUserFriends size={20} />, text: "Encargados" },
     { path: "/terapeutas", icon: <FaClinicMedical size={20} />, text: "Terapeutas" },
-    { path: "/compras", icon: <FaMoneyBill size={20} />, text: "Compras" }
+    { path: "/compras", icon: <FaMoneyBill size={20} />, text: "Compras" },
+    { path: "/usuarios", icon: <FaUserGear size={20} />, text: "Usuarios" }
   ];
 
   return (
