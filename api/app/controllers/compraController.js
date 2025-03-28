@@ -38,7 +38,7 @@ const createCompra = async (req, res) => {
 };
 
 const updateCompra = async (req, res) => {
-  const { id_compra } = req.params;
+  const { id_compra } = req.query;
   const { fecha, donante, total, detalle } = req.body;
   const t = await sequelize.transaction();
   try {
@@ -62,7 +62,7 @@ const updateCompra = async (req, res) => {
 };
 
 const deleteCompra = async (req, res) => {
-  const { id_compra } = req.params;
+  const { id_compra } = req.query;
   try {
     let compraFound = await Compra.findByPk(id_compra);
     if (!compraFound) return res.status(404).json({ error: "Compra no encontrada" });
