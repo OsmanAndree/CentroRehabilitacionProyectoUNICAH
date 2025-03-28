@@ -20,6 +20,11 @@ module.exports = (sequelize) => {
         total: {
             type: DataTypes.FLOAT,
             allowNull: false
+        }, 
+        estado: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         }
     };
 
