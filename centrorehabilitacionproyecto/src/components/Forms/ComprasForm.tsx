@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Modal, Row, Col, Table } from 'react-bootstrap';
 import axios from 'axios';
-import { FaPlus, FaTrash } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaShoppingCart, FaCalendarAlt, FaHandHoldingUsd, FaMoneyBillWave, FaBoxes } from 'react-icons/fa';
 
 interface Detalle {
   id_producto: number;
@@ -58,7 +58,9 @@ function ComprasForm({ compraEditar, show, handleClose, handleSubmit }: ComprasF
         }))
       );
     } else {
-      setFecha('');
+      const today = new Date();
+      const formattedDate = today.toISOString().split('T')[0]; 
+      setFecha(formattedDate);
       setDonante('');
       setDetalle([]);
     }
@@ -112,53 +114,101 @@ function ComprasForm({ compraEditar, show, handleClose, handleSubmit }: ComprasF
   };
 
   return (
-    <Modal show={show} onHide={handleClose} centered size="lg" backdrop="static">
-      <Modal.Header closeButton className="bg-success text-white">
-        <Modal.Title>{compraEditar ? 'Editar Compra' : 'Crear Compra'}</Modal.Title>
+    <Modal 
+      show={show} 
+      onHide={handleClose} 
+      centered 
+      size="lg" 
+      backdrop="static"
+      className="custom-modal"
+    >
+      <Modal.Header 
+        className="border-0 position-relative"
+        style={{
+          background: "linear-gradient(135deg, #2E8B57 0%, #1a5735 100%)",
+          borderRadius: "15px 15px 0 0",
+          padding: "1.5rem"
+        }}
+      >
+        <Modal.Title className="text-white">
+          <div className="d-flex align-items-center">
+            <FaShoppingCart className="me-2" size={24} />
+            <span style={{ fontSize: "1.4rem", fontWeight: "600" }}>
+              {compraEditar ? 'Editar Compra' : 'Nueva Compra'}
+            </span>
+          </div>
+        </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="p-4 bg-light">
+      <Modal.Body style={{ padding: "2rem" }}>
         <Form onSubmit={handleFormSubmit}>
-          <Row className="mb-3">
+          <Row className="mb-4">
             <Col md={4}>
               <Form.Group>
-                <Form.Label>Fecha</Form.Label>
+                <Form.Label className="fw-semibold mb-2">
+                  <FaCalendarAlt className="me-2" />
+                  Fecha
+                </Form.Label>
                 <Form.Control 
                   type="date"
                   value={fecha}
                   onChange={(e) => setFecha(e.target.value)}
                   required
+                  style={{
+                    padding: "0.75rem",
+                    backgroundColor: "#f8f9fa",
+                    borderRadius: "8px"
+                  }}
                 />
               </Form.Group>
             </Col>
             <Col md={4}>
               <Form.Group>
-                <Form.Label>Donante</Form.Label>
+                <Form.Label className="fw-semibold mb-2">
+                  <FaHandHoldingUsd className="me-2" />
+                  Donante
+                </Form.Label>
                 <Form.Control 
                   type="text"
                   placeholder="Ingrese el donante"
                   value={donante}
                   onChange={(e) => setDonante(e.target.value)}
                   required
+                  style={{
+                    padding: "0.75rem",
+                    backgroundColor: "#f8f9fa",
+                    borderRadius: "8px"
+                  }}
                 />
               </Form.Group>
             </Col>
             <Col md={4}>
               <Form.Group>
-                <Form.Label>Total</Form.Label>
+                <Form.Label className="fw-semibold mb-2">
+                  <FaMoneyBillWave className="me-2" />
+                  Total
+                </Form.Label>
                 <Form.Control 
                   type="number"
                   placeholder="Total"
                   value={total || ""}
                   readOnly
+                  style={{
+                    padding: "0.75rem",
+                    backgroundColor: "#f8f9fa",
+                    borderRadius: "8px"
+                  }}
                 />
               </Form.Group>
             </Col>
           </Row>
-          <Row className="mb-3">
+          <Row className="mb-4">
             <Col>
-              <h5 className="mb-3">Detalle Compras</h5>
-              <Table responsive striped bordered hover>
-                <thead>
+              <h5 className="mb-3 fw-semibold d-flex align-items-center">
+                <FaBoxes className="me-2" />
+                Detalle Compras
+              </h5>
+              <Table responsive striped bordered hover className="shadow-sm">
+                <thead className="bg-light">
                   <tr>
                     <th>Producto</th>
                     <th>Cantidad</th>
@@ -174,6 +224,11 @@ function ComprasForm({ compraEditar, show, handleClose, handleSubmit }: ComprasF
                           value={det.id_producto || ""}
                           onChange={(e) => handleDetalleChange(index, 'id_producto', e.target.value)}
                           required
+                          style={{
+                            padding: "0.75rem",
+                            backgroundColor: "#f8f9fa",
+                            borderRadius: "8px"
+                          }}
                         >
                           <option value="">Seleccione un producto</option>
                           {productos.map(p => (
@@ -189,6 +244,11 @@ function ComprasForm({ compraEditar, show, handleClose, handleSubmit }: ComprasF
                           value={det.cantidad || ""}
                           onChange={(e) => handleDetalleChange(index, 'cantidad', e.target.value)}
                           required
+                          style={{
+                            padding: "0.75rem",
+                            backgroundColor: "#f8f9fa",
+                            borderRadius: "8px"
+                          }}
                         />
                       </td>
                       <td>
@@ -198,10 +258,22 @@ function ComprasForm({ compraEditar, show, handleClose, handleSubmit }: ComprasF
                           value={det.costo_unitario || ""}
                           onChange={(e) => handleDetalleChange(index, 'costo_unitario', e.target.value)}
                           required
+                          style={{
+                            padding: "0.75rem",
+                            backgroundColor: "#f8f9fa",
+                            borderRadius: "8px"
+                          }}
                         />
                       </td>
                       <td>
-                        <Button variant="outline-danger" size="sm" onClick={() => handleRemoveDetalle(index)}>
+                        <Button 
+                          variant="outline-danger" 
+                          size="sm" 
+                          onClick={() => handleRemoveDetalle(index)}
+                          style={{
+                            borderRadius: "8px"
+                          }}
+                        >
                           <FaTrash />
                         </Button>
                       </td>
@@ -209,14 +281,41 @@ function ComprasForm({ compraEditar, show, handleClose, handleSubmit }: ComprasF
                   ))}
                 </tbody>
               </Table>
-              <Button variant="outline-primary" size="sm" onClick={handleAddDetalle}>
+              <Button 
+                variant="outline-primary" 
+                size="sm" 
+                onClick={handleAddDetalle}
+                style={{
+                  padding: "0.5rem 1rem",
+                  borderRadius: "8px"
+                }}
+              >
                 <FaPlus className="me-1" /> Agregar Detalle
               </Button>
             </Col>
           </Row>
-          <div className="d-flex justify-content-end gap-2 mt-4">
-            <Button variant="secondary" onClick={handleClose}>Cancelar</Button>
-            <Button variant="success" type="submit">{compraEditar ? 'Guardar Cambios' : 'Crear Compra'}</Button>
+          <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+            <Button 
+              variant="outline-secondary" 
+              onClick={handleClose}
+              style={{
+                padding: "0.75rem 1.5rem",
+                borderRadius: "8px"
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              variant="success" 
+              type="submit"
+              style={{
+                padding: "0.75rem 1.5rem",
+                borderRadius: "8px",
+                backgroundColor: "#2E8B57"
+              }}
+            >
+              {compraEditar ? 'Guardar Cambios' : 'Crear Compra'}
+            </Button>
           </div>
         </Form>
       </Modal.Body>
