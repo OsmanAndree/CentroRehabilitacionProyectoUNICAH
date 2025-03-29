@@ -22,6 +22,11 @@ module.exports = (sequelize) => {
         },
         direccion: {
             type: DataTypes.TEXT
+        },
+        estado: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         }
     };
     const options = {

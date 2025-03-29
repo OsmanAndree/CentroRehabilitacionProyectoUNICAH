@@ -14,7 +14,8 @@ res.status(200).send({result})
 
 const insertencargados = async (req, res) => {
     try {
-        const newencargado = await encargado.create(req.body); 
+        const encargadoData = { ...req.body, estado: true };
+        const newencargado = await encargado.create(encargadoData); 
         res.status(201).json({ message: 'Encargado guardado exitosamente', data: newencargado });
     } catch (error) {
         console.error(error);
@@ -46,9 +47,7 @@ const deleteencargados = async (req, res) => {
 
         const encargadoToDelete = await encargado.findByPk(encargado_id);
         if (encargadoToDelete) {
-            await encargadoToDelete.destroy({ where: { encargado_id } });
-
-            await encargadoToDelete.destroy();
+            await encargadoToDelete.update({ estado: false });
             res.status(200).json({ message: 'Encargado eliminado exitosamente' });
         } else {
             res.status(404).json({ error: 'Encargado no encontrado' });

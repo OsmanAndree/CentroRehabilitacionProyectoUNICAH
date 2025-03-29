@@ -188,7 +188,10 @@ function ProductosTable(){
                             <td className="py-3 px-4">{producto.nombre}</td>
                             <td className="py-3 px-4">{producto.descripcion}</td>
                             <td className="py-3 px-4">
-                              <span className="badge bg-success-light text-success">
+                              <span className="badge bg-success-light text-success" style={{ 
+                                fontSize: '0.95rem',
+                                fontWeight: '800'
+                              }}>
                                 {producto.categoria}
                               </span>
                             </td>

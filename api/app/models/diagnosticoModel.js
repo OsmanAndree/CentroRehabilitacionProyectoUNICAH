@@ -31,6 +31,11 @@ module.exports = (sequelize) => {
         tratamiento: {
             type: DataTypes.TEXT,
             allowNull: false
+        },
+        estado: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         }
     };
     const options = {

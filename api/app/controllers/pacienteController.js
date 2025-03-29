@@ -6,6 +6,7 @@ const encargado = db.encargado;
 
 async function getpacientes(req, res){
 paciente.findAll({
+    where: { estado: true },
     include:[{
         model: encargado,
         attributes: ['nombre','apellido']
@@ -20,7 +21,8 @@ res.status(200).send({result})
 
 const insertpacientes = async (req, res) => {
     try {
-        const newpaciente = await paciente.create(req.body); 
+        const pacienteData = { ...req.body, estado: true };
+        const newpaciente = await paciente.create(pacienteData); 
         res.status(201).json({ message: 'Paciente guardado exitosamente', data: newpaciente });
     } catch (error) {
         console.error(error);
@@ -52,9 +54,7 @@ const deletepacientes = async (req, res) => {
 
         const pacienteToDelete = await paciente.findByPk(paciente_id);
         if (pacienteToDelete) {
-            await pacienteToDelete.destroy({ where: { paciente_id } });
-
-            await pacienteToDelete.destroy();
+            await pacienteToDelete.update({ estado: false });
             res.status(200).json({ message: 'Paciente eliminado exitosamente' });
         } else {
             res.status(404).json({ error: 'Paciente no encontrado' });

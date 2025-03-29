@@ -37,7 +37,6 @@ const updateUsuario = async (req, res) => {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
 
-        // Verificar si se envió una nueva contraseña
         let newPassword = usuarioToUpdate.password;
         if (password && password !== usuarioToUpdate.password) {
             newPassword = await bcrypt.hash(password, 10);

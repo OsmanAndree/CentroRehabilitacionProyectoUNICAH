@@ -49,7 +49,6 @@ function PacientesTable() {
 
   const eliminarPaciente = (id: number) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar este paciente?")) return;
-
     axios.delete(`http://localhost:3002/Api/pacientes/deletepacientes?paciente_id=${id}`)
       .then(() => {
         setPacientes(prev => prev.filter(p => p.id_paciente !== id));

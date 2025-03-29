@@ -33,6 +33,11 @@ module.exports = (sequelize) => {
                 model: 'encargados',
                 key: 'id_encargado'
             }
+        },
+        estado: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         }
     };
     const options = {
