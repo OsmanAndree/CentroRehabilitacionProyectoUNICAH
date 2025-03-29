@@ -4,7 +4,9 @@ const db = require('../config/db');
 const  producto= db.productos;
 
 async function getProductos(req, res){
-producto.findAll()
+producto.findAll({
+    where: { estado: true }
+})
 .then(result=>{
 res.status(200).send({result})
 }).catch(error=> {
@@ -14,6 +16,7 @@ res.status(200).send({result})
 
 const insertProductos = async (req, res) => {
     try {
+        const productoData = { ... req.body, estado: true }
         const newproducto = await producto.create(req.body); 
         res.status(201).json({ message: 'Producto guardado exitosamente', data: newproducto });
     } catch (error) {
@@ -46,9 +49,7 @@ const deleteProductos = async (req, res) => {
 
         const productoToDelete = await producto.findByPk(producto_id);
         if (productoToDelete) {
-            await productoToDelete.destroy({ where: { producto_id } });
-
-            await productoToDelete.destroy();
+            await productoToDelete.update({ estado: false })
             res.status(200).json({ message: 'Producto eliminado exitosamente' });
         } else {
             res.status(404).json({ error: 'Producto no encontrado' });

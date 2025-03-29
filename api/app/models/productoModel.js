@@ -1,6 +1,7 @@
 'use strict';
 
 const { DataTypes } = require('sequelize');
+const { defaultValueSchemable, toDefaultValue } = require('sequelize/lib/utils');
 
 module.exports = (sequelize) => {
     const attributes = {
@@ -21,7 +22,12 @@ module.exports = (sequelize) => {
         },
         cantidad_disponible: {
             type: DataTypes.INTEGER
-        }
+        }, 
+        estado: {
+            type: DataTypes.BOOLEAN, 
+            allowNull: false,
+            defaultValue: true
+        }  
     };
     const options = {
         tableName: 'productos',
