@@ -17,7 +17,7 @@ res.status(200).send({result})
 const insertProductos = async (req, res) => {
     try {
         const productoData = { ... req.body, estado: true }
-        const newproducto = await producto.create(req.body); 
+        const newproducto = await producto.create(productoData); 
         res.status(201).json({ message: 'Producto guardado exitosamente', data: newproducto });
     } catch (error) {
         console.error(error);
