@@ -23,6 +23,11 @@ module.exports = (sequelize) => {
         },
         ubicacion: {
             type: DataTypes.STRING(100)
+        },
+        estado: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         }
     };
     const options = {
