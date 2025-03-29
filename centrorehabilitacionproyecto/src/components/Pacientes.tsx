@@ -6,7 +6,8 @@ import PacientesForm from './Forms/PacientesForm';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import PacientesReport from './PacientesReport'; 
+import PacientesReport from './Reports/PacientesReport'; 
+import { FaFilePdf } from 'react-icons/fa6';
 
 export interface Paciente {
   id_paciente: number;
@@ -127,22 +128,42 @@ function PacientesTable() {
                 fontWeight: "500",
                 transition: "all 0.3s ease"
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             >
               <FaPlus className="me-2" /> Nuevo Paciente
             </Button>
             <PDFDownloadLink
               document={<PacientesReport pacientes={pacientesFiltrados} />}
               fileName="Reporte_Pacientes.pdf"
-              className="btn btn-success"
+              className="btn btn-success ms-2"
               style={{
                 borderRadius: "10px",
                 padding: "0.5rem 1rem",
                 fontWeight: "500",
-                textDecoration: "none",
                 color: "white",
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+            }}
             >
-              {({ loading }) => (loading ? "Generando PDF..." : "Descargar Reporte")}
+              {({ loading }) => (
+                <div className="d-flex align-items-center">
+                    <FaFilePdf className="me-2" />
+                    {loading ? "Generando PDF..." : "Descargar Reporte"}
+                </div>
+              )}
             </PDFDownloadLink>
           </div>
         </Card.Header>

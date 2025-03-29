@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
-import { FaWarehouse, FaSearch, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaWarehouse, FaSearch, FaPlus, FaEdit, FaTrash, FaBox } from 'react-icons/fa';
 import axios from 'axios';
 import BodegasForm from './Forms/BodegasForm';
+import ProductoOut from './Forms/ProductoOut';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -22,6 +23,10 @@ function BodegaTable() {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(null);
   const [search, setSearch] = useState<string>("");
+
+  // Estado para el modal de sacar producto
+  const [showProductoOut, setShowProductoOut] = useState<boolean>(false);
+  const [bodegaParaSacar, setBodegaParaSacar] = useState<Bodega | null>(null);
 
   const obtenerBodega = useCallback(() => {
     setLoading(true);
@@ -75,6 +80,17 @@ function BodegaTable() {
   const cerrarFormulario = () => {
     setShowForm(false);
     setBodegaSeleccionada(null);
+  };
+
+  const sacarProducto = (bodega: Bodega) => {
+    setBodegaParaSacar(bodega);
+    setShowProductoOut(true);
+    toast.info(`Preparando para sacar producto: ${bodega.producto.nombre}`);
+  };
+
+  const cerrarModalSacarProducto = () => {
+    setShowProductoOut(false);
+    setBodegaParaSacar(null);
   };
 
   const bodegasFiltradas = bodega.filter(p =>
@@ -192,16 +208,31 @@ function BodegaTable() {
                             bodega.cantidad > 10 ? 'bg-success' :
                             bodega.cantidad > 5 ? 'bg-warning' :
                             'bg-danger'
-                          }`}>
+                          }`} style={{
+                            fontSize: '0.95rem',
+                            fontWeight: '800'
+                          }}>
                             {bodega.cantidad}
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          <span className="badge bg-success-light text-success">
+                          <span className="badge bg-success-light text-success" style={{ 
+                                fontSize: '0.95rem',
+                                fontWeight: '800'
+                              }}>
                             {bodega.ubicacion}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-center">
+                        <td className="py-3 px- text-center">
+                        <Button 
+                            variant="outline-warning" 
+                            size="sm" 
+                            onClick={() => sacarProducto(bodega)}
+                            className="me-2"
+                            style={{ borderRadius: "8px" }}
+                          >
+                            <FaBox /> Sacar Producto
+                          </Button>
                           <Button 
                             variant="outline-success" 
                             size="sm" 
@@ -242,6 +273,15 @@ function BodegaTable() {
           show={showForm}
           handleClose={cerrarFormulario}
           handleSubmit={handleSubmit}
+        />
+      )}
+
+      {showProductoOut && (
+        <ProductoOut
+          show={showProductoOut}
+          handleClose={cerrarModalSacarProducto}
+          bodega={bodegaParaSacar}
+          onSuccess={obtenerBodega}
         />
       )}
     </Container>

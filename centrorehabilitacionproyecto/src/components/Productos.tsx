@@ -200,7 +200,10 @@ function ProductosTable(){
                                 producto.cantidad_disponible > 10 ? 'bg-success' :
                                 producto.cantidad_disponible > 5 ? 'bg-warning' :
                                 'bg-danger'
-                              }`}>
+                              }`} style={{
+                                fontSize: '0.95rem',
+                                fontWeight: '800'
+                              }}>
                                 {producto.cantidad_disponible}
                               </span>
                             </td>

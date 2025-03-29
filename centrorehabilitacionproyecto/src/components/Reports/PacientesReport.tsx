@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
-import { Paciente } from './Pacientes';
+import { Paciente } from '../Pacientes';
 
 Font.register({
   family: 'Poppins',

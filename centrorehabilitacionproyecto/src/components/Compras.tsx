@@ -27,7 +27,6 @@ function Compras() {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [compraSeleccionada, setCompraSeleccionada] = useState<Compra | null>(null);
   
-  // Nueva vista
   const [showView, setShowView] = useState<boolean>(false);
   const [compraVista, setCompraVista] = useState<Compra | null>(null);
 

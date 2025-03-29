@@ -200,7 +200,10 @@ return (
                 <td className="py-3 px-4">{prestamo.fecha_prestamo}</td>
                 <td className="py-3 px-4">{prestamo.fecha_devolucion}</td>
                 <td className="py-3 px-4">
-                    <span className={`badge ${prestamo.estado === 'Prestado' ? 'bg-success' : 'bg-danger'}`}>
+                    <span className={`badge ${prestamo.estado === 'Prestado' ? 'bg-success' : 'bg-primary '}`} 
+                    style={{ 
+                        fontSize: '0.95rem',
+                        fontWeight: '800'}}>
                         {prestamo.estado}
                     </span>
                 </td>

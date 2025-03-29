@@ -1,17 +1,19 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserFriends } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserFriends, FaFilePdf } from 'react-icons/fa';
 import axios from 'axios';
 import EncargadosForm from './Forms/EncargadosForm';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import EncargadosReport from './Reports/EncargadosReport';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
-interface Encargado {
-  id_encargado: number;
-  nombre: string;
-  apellido: string;
-  telefono: string;
-  direccion: string;
+export interface Encargado {
+    id_encargado: number;
+    nombre: string;
+    apellido: string;
+    telefono: string;
+    direccion: string;
 }
 
 function EncargadosTable(){
@@ -25,11 +27,18 @@ function EncargadosTable(){
         setLoading(true);
         axios.get('http://localhost:3002/Api/encargados/getEncargados')
         .then(response => {
-            setEncargados(response.data.result);
-            toast.success("Encargados cargados exitosamente");
+            if (response.data && Array.isArray(response.data.data)) {
+                setEncargados(response.data.data);
+                toast.success("Encargados cargados exitosamente");
+            } else {
+                console.error("Formato de respuesta inesperado:", response.data);
+                setEncargados([]);
+                toast.error("Formato de respuesta inesperado");
+            }
         })
         .catch(error => {
             console.error("Error al obtener encargados:", error);
+            setEncargados([]); 
             toast.error("No se pudieron cargar los encargados.");
         })
         .finally(() => setLoading(false)); 
@@ -75,7 +84,7 @@ function EncargadosTable(){
         setEncargadoSeleccionado(null);
     }
 
-    const encargadosFiltrados = encargados.filter(e => 
+    const encargadosFiltrados = (encargados || []).filter(e => 
         `${e.nombre} ${e.apellido}`.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -109,15 +118,37 @@ function EncargadosTable(){
                             Gestión de Encargados
                         </h4>
                     </div>
-                    <Button 
-                        variant="light" 
-                        onClick={crearEncargado}
-                        className="d-flex align-items-center"
+                    <div className="d-flex align-items-center">
+                        <Button 
+                            variant="light" 
+                            onClick={crearEncargado}
+                            className="d-flex align-items-center"
+                            style={{
+                                borderRadius: "10px",
+                                padding: "0.5rem 1rem",
+                                fontWeight: "500",
+                                transition: "all 0.3s ease"
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = "translateY(-2px)";
+                                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = "translateY(0)";
+                                e.currentTarget.style.boxShadow = "none";
+                            }}
+                        >
+                            <FaPlus className="me-2" /> Nuevo Encargado
+                        </Button>
+                    <PDFDownloadLink
+                        document={<EncargadosReport encargados={encargadosFiltrados} />}
+                        fileName="Reporte_Encargados.pdf"
+                        className="btn btn-success ms-2"
                         style={{
                             borderRadius: "10px",
                             padding: "0.5rem 1rem",
                             fontWeight: "500",
-                            transition: "all 0.3s ease"
+                            color: "white",
                         }}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.transform = "translateY(-2px)";
@@ -128,8 +159,14 @@ function EncargadosTable(){
                             e.currentTarget.style.boxShadow = "none";
                         }}
                     >
-                        <FaPlus className="me-2" /> Nuevo Encargado
-                    </Button>
+                        {({ loading }) => (
+                            <div className="d-flex align-items-center">
+                                <FaFilePdf className="me-2" />
+                                {loading ? "Generando PDF..." : "Descargar Reporte"}
+                            </div>
+                        )}
+                    </PDFDownloadLink>
+                    </div>
                 </Card.Header>
 
                 <Card.Body className="p-4">

@@ -25,20 +25,16 @@ interface ComprasViewProps {
 
 function ComprasView({ show, handleClose, compra }: ComprasViewProps) {
   if (!compra) return null;
-
-  // Asegurarse de que total sea un número para usar toFixed
   const formatTotal = (total: any) => {
     const numTotal = Number(total);
     return isNaN(numTotal) ? '0.00' : numTotal.toFixed(2);
   };
 
-  // Asegurarse de que costo_unitario sea un número para usar toFixed
   const formatCosto = (costo: any) => {
     const numCosto = Number(costo);
     return isNaN(numCosto) ? '0.00' : numCosto.toFixed(2);
   };
 
-  // Calcular subtotal de manera segura
   const calcularSubtotal = (cantidad: any, costo: any) => {
     const numCantidad = Number(cantidad);
     const numCosto = Number(costo);
