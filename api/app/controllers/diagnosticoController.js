@@ -7,6 +7,7 @@ const Terapeuta = db.terapeuta;
 
 async function getDiagnostico(req, res) {
     diagnostico.findAll({
+        where: { estado: true },
         include: [
             {
                 model: Paciente,
