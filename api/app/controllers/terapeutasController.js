@@ -47,7 +47,7 @@ const deleteTerapeutas = async (req, res) => {
 
         const terapeutaToDelete = await terapeuta.findByPk(terapeuta_id);
         if (terapeutaToDelete) {
-            await terapeutaToDelete.destroy();
+            await terapeutaToDelete.update({ estado: false });
             res.status(200).json({ message: 'Terapeuta eliminado exitosamente' });
         } else {
             res.status(404).json({ error: 'Terapeuta no encontrado' });

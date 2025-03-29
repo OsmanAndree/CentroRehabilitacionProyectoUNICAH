@@ -26,6 +26,11 @@ module.exports = (sequelize) => {
         telefono: {
             type: DataTypes.STRING(20),
             allowNull: false
+        },
+        estado: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         }
     };
     const options = {
