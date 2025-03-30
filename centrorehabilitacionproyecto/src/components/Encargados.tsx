@@ -27,8 +27,8 @@ function EncargadosTable(){
         setLoading(true);
         axios.get('http://localhost:3002/Api/encargados/getEncargados')
         .then(response => {
-            if (response.data && Array.isArray(response.data.data)) {
-                setEncargados(response.data.data);
+            if (response.data && Array.isArray(response.data.result)) {
+                setEncargados(response.data.result);
                 toast.success("Encargados cargados exitosamente");
             } else {
                 console.error("Formato de respuesta inesperado:", response.data);
