@@ -78,10 +78,10 @@ const deleteUsuario = async (req, res) => {
 const loginUsuario = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await usuario.findOne({ where: { email } });
+        const user = await usuario.findOne({ where: { email, estado: true } });
 
         if (!user) {
-            return res.status(401).json({ error: 'Usuario no encontrado' });
+            return res.status(401).json({ error: 'Usuario no encontrado o inactivo' });
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);

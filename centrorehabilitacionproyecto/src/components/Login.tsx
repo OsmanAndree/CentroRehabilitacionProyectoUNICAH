@@ -29,6 +29,12 @@ const Login: React.FC = () => {
         throw new Error(data.error || "Error en el inicio de sesión");
       }
 
+      if (data.usuario && data.usuario.estado === 'inactivo') {
+        toast.error("Este usuario se encuentra inactivo. Contacte al administrador.");
+        setLoading(false);
+        return;
+      }
+
       toast.success("Inicio de sesión exitoso");
       setTimeout(() => navigate("/home"), 1500);
     } catch (error) {
@@ -46,7 +52,10 @@ const Login: React.FC = () => {
       style={{
         minHeight: "100vh",
         width: "100%",
-        background: "linear-gradient(135deg, #287549 0%, #1a5735 100%)",
+        background: `linear-gradient(135deg, rgba(40, 117, 73, 0.7) 0%, rgba(26, 87, 53, 0.7) 100%), url('/images/fotoprincipallogin.webp')`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         position: "fixed",
         top: 0,
         left: 0,
