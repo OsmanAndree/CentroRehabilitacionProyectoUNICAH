@@ -4,15 +4,15 @@ const db = require('../config/db');
 const  encargado= db.encargado;
 
 async function getencargados(req, res){
-    try {
-        const encargados = await encargado.findAll(
-            {where: { estado: true }}
-        );
-        res.status(200).json({ data: encargados });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
-    }
+    encargado.findAll({
+        where: { estado: true }
+    })
+    .then(result => {
+        res.status(200).send({ result });
+    })
+    .catch(error => {
+        res.status(500).send({ message: error.message || "Sucedió un error inesperado" });
+    });
 }
 
 const insertencargados = async (req, res) => {
