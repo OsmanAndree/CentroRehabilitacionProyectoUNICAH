@@ -11,7 +11,7 @@ async function getDiagnostico(req, res) {
         include: [
             {
                 model: Paciente,
-                attributes: ['nombre', 'apellido']
+                attributes: ['nombre', 'apellido', 'fecha_nacimiento']
             },
             {
                 model: Terapeuta,

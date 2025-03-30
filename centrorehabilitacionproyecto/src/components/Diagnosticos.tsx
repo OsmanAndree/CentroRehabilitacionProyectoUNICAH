@@ -1,25 +1,29 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaClipboardList } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaClipboardList, FaFilePdf } from 'react-icons/fa';
 import axios from 'axios';
 import DiagnosticosForm from './Forms/DiagnosticosForm';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import RecetaReport from './Reports/RecetaReport';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
-interface Diagnostico {
+export interface Diagnostico {
   id_diagnostico: number;
   id_paciente: number;
   id_terapeuta: number;
   descripcion: string;
   tratamiento: string;
-  paciente?: {
+  paciente: {
     nombre: string;
     apellido: string;
+    fecha_nacimiento: string;
   };
-  terapeuta?: {
+  terapeuta: {
     nombre: string;
+    apellido: string;
     especialidad: string;
   };
 }
@@ -231,6 +235,19 @@ function DiagnosticosTable() {
                           >
                             <FaTrash /> Eliminar
                           </Button>
+                          <PDFDownloadLink
+                            document={<RecetaReport diagnostico={diagnostico} />}
+                            fileName={`Receta_Diagnostico_${diagnostico.id_diagnostico}.pdf`}
+                            className="btn btn-outline-primary btn-sm ms-2"
+                            style={{ borderRadius: "8px", padding: "0.5rem 1rem" }}
+                          >
+                            {({ loading }) => (
+                              <span>
+                                <FaFilePdf className="me-1" />
+                                {loading ? "Generando..." : "Receta"}
+                              </span>
+                            )}
+                          </PDFDownloadLink>
                         </td>
                       </tr>
                     ))
