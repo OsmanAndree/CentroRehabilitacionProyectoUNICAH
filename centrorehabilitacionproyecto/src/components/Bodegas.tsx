@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
-import { FaWarehouse, FaSearch, FaPlus, FaEdit, FaTrash, FaBox } from 'react-icons/fa';
+import { FaWarehouse, FaSearch, FaPlus, FaEdit, FaTrash, FaBox, FaFilePdf } from 'react-icons/fa';
 import axios from 'axios';
 import BodegasForm from './Forms/BodegasForm';
 import ProductoOut from './Forms/ProductoOut';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import BodegaReport from './Reports/BodegaReport';
 
 interface Bodega {
   id_bodega: number;
@@ -23,8 +25,6 @@ function BodegaTable() {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(null);
   const [search, setSearch] = useState<string>("");
-
-  // Estado para el modal de sacar producto
   const [showProductoOut, setShowProductoOut] = useState<boolean>(false);
   const [bodegaParaSacar, setBodegaParaSacar] = useState<Bodega | null>(null);
 
@@ -127,27 +127,55 @@ function BodegaTable() {
               Gestión de Bodega
             </h4>
           </div>
-          <Button 
-            variant="light" 
-            onClick={crearBodega}
-            className="d-flex align-items-center"
-            style={{
-              borderRadius: "10px",
-              padding: "0.5rem 1rem",
-              fontWeight: "500",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          >
-            <FaPlus className="me-2" /> Nueva Bodega
-          </Button>
+          <div className="d-flex">
+            <Button 
+              variant="light" 
+              onClick={crearBodega}
+              className="d-flex align-items-center me-2"
+              style={{
+                borderRadius: "10px",
+                padding: "0.5rem 1rem",
+                fontWeight: "500",
+                transition: "all 0.3s ease"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              <FaPlus className="me-2" /> Nueva Bodega
+            </Button>
+            <PDFDownloadLink
+              document={<BodegaReport bodegas={bodegasFiltradas.length > 0 ? bodegasFiltradas : bodega} />}
+              fileName="Reporte_Bodega.pdf"
+              className="btn btn-success d-flex align-items-center"
+              style={{
+                borderRadius: "10px",
+                padding: "0.5rem 1rem",
+                fontWeight: "500",
+                transition: "all 0.3s ease"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              {({ loading }) => (
+                <>
+                  <FaFilePdf className="me-2" />
+                  {loading ? 'Generando...' : 'Reporte PDF'}
+                </>
+              )}
+            </PDFDownloadLink>
+          </div>
         </Card.Header>
 
         <Card.Body className="p-4">
