@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
-import { FaUserMd, FaSearch, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaUserMd, FaSearch, FaPlus, FaEdit, FaTrash, FaFilePdf } from 'react-icons/fa';
 import axios from 'axios';
 import TerapeutasForm from './Forms/TerapeutasForm';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import TerapeutasReport from './Reports/TerapeutaReport';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 interface Terapeuta {
   id_terapeuta: number;
@@ -12,6 +14,7 @@ interface Terapeuta {
   apellido: string;
   especialidad: string;
   telefono: string;
+  estado: boolean;
 }
 
 function TerapeutasTable() {
@@ -113,27 +116,55 @@ function TerapeutasTable() {
               Gestión de Terapeutas
             </h4>
           </div>
-          <Button 
-            variant="light" 
-            onClick={crearTerapeuta}
-            className="d-flex align-items-center"
-            style={{
-              borderRadius: "10px",
-              padding: "0.5rem 1rem",
-              fontWeight: "500",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          >
-            <FaPlus className="me-2" /> Nuevo Terapeuta
-          </Button>
+          <div className="d-flex">
+            <Button 
+              variant="light" 
+              onClick={crearTerapeuta}
+              className="d-flex align-items-center me-2"
+              style={{
+                borderRadius: "10px",
+                padding: "0.5rem 1rem",
+                fontWeight: "500",
+                transition: "all 0.3s ease"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              <FaPlus className="me-2" /> Nuevo Terapeuta
+            </Button>
+            <PDFDownloadLink
+              document={<TerapeutasReport terapeutas={terapeutasFiltrados} />}
+              fileName="Reporte_Terapeutas.pdf"
+              className="btn btn-success d-flex align-items-center"
+              style={{
+                borderRadius: "10px",
+                padding: "0.5rem 1rem",
+                fontWeight: "500",
+                transition: "all 0.3s ease"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              {({ loading }) => (
+                <>
+                  <FaFilePdf className="me-2" />
+                  {loading ? 'Generando...' : 'Reporte PDF'}
+                </>
+              )}
+            </PDFDownloadLink>
+          </div>
         </Card.Header>
 
         <Card.Body className="p-4">
