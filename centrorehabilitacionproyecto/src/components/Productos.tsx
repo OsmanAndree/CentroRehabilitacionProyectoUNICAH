@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
-import { FaBox, FaSearch, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaBox, FaSearch, FaPlus, FaEdit, FaTrash, FaFilePdf } from 'react-icons/fa';
 import axios from 'axios';
 import ProductosForm from './Forms/ProductosForm';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import ProductosReport from './Reports/ProductosReport';
 
 interface Producto {
   id_producto: number;
@@ -14,7 +16,7 @@ interface Producto {
   cantidad_disponible: number;
 }
 
-function ProductosTable(){
+function ProductosTable() {
     const [productos, setProductos] = useState<Producto[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [showForm, setShowForm] = useState<boolean>(false);
@@ -62,7 +64,7 @@ function ProductosTable(){
         setProductoSeleccionado(producto);
         setShowForm(true);
         toast.info("Editando producto");
-    }
+    };
 
     const crearProducto = () => {
         setProductoSeleccionado(null);
@@ -73,7 +75,7 @@ function ProductosTable(){
     const cerrarFormulario = () => {
         setShowForm(false);
         setProductoSeleccionado(null);
-    }
+    };
 
     const productosFiltrados = productos.filter(e => 
         `${e.nombre}`.toLowerCase().includes(search.toLowerCase())
@@ -109,27 +111,55 @@ function ProductosTable(){
                   Gestión de Productos
                 </h4>
               </div>
-              <Button 
-                variant="light" 
-                onClick={crearProducto}
-                className="d-flex align-items-center"
-                style={{
-                  borderRadius: "10px",
-                  padding: "0.5rem 1rem",
-                  fontWeight: "500",
-                  transition: "all 0.3s ease"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
-              >
-                <FaPlus className="me-2" /> Nuevo Producto
-              </Button>
+              <div className="d-flex">
+                <Button 
+                  variant="light" 
+                  onClick={crearProducto}
+                  className="d-flex align-items-center me-2"
+                  style={{
+                    borderRadius: "10px",
+                    padding: "0.5rem 1rem",
+                    fontWeight: "500",
+                    transition: "all 0.3s ease"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <FaPlus className="me-2" /> Nuevo Producto
+                </Button>
+                <PDFDownloadLink
+                  document={<ProductosReport productos={productosFiltrados} />}
+                  fileName="Reporte_Productos.pdf"
+                  className="btn btn-success d-flex align-items-center"
+                  style={{
+                    borderRadius: "10px",
+                    padding: "0.5rem 1rem",
+                    fontWeight: "500",
+                    transition: "all 0.3s ease"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  {({ loading }) => (
+                    <>
+                      <FaFilePdf className="me-2" />
+                      {loading ? 'Generando PDF...' : 'Descargar Reporte'}
+                    </>
+                  )}
+                </PDFDownloadLink>
+              </div>
             </Card.Header>
 
             <Card.Body className="p-4">
