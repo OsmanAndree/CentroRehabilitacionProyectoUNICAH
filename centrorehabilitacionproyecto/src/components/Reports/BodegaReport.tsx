@@ -109,7 +109,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   ubicacionBadge: {
-    backgroundColor: '#e8f5e9',
     color: '#2E8B57',
     padding: '2px 5px',
     borderRadius: 3,

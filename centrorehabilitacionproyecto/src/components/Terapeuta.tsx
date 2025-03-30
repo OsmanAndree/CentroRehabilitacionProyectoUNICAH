@@ -160,7 +160,7 @@ function TerapeutasTable() {
               {({ loading }) => (
                 <>
                   <FaFilePdf className="me-2" />
-                  {loading ? 'Generando...' : 'Reporte PDF'}
+                  {loading ? 'Generando...' : 'Descargar Reporte'}
                 </>
               )}
             </PDFDownloadLink>

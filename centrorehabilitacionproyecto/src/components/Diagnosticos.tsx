@@ -239,11 +239,11 @@ function DiagnosticosTable() {
                             document={<RecetaReport diagnostico={diagnostico} />}
                             fileName={`Receta_Diagnostico_${diagnostico.id_diagnostico}.pdf`}
                             className="btn btn-outline-primary btn-sm ms-2"
-                            style={{ borderRadius: "8px", padding: "0.5rem 1rem" }}
+                            style={{ borderRadius: "8px" }}
                           >
                             {({ loading }) => (
                               <span>
-                                <FaFilePdf className="me-1" />
+                                <FaFilePdf className="me-2" />
                                 {loading ? "Generando..." : "Receta"}
                               </span>
                             )}
