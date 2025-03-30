@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Button, Modal, Table, Row, Col, Card } from 'react-bootstrap';
 import { FaShoppingCart, FaCalendarAlt, FaHandHoldingUsd, FaMoneyBillWave, FaBoxes, FaTimes } from 'react-icons/fa';
 
@@ -17,6 +18,11 @@ interface Compra {
   detalle: Detalle[];
 }
 
+interface Producto {
+  id_producto: number;
+  nombre: string;
+}
+
 interface ComprasViewProps {
   show: boolean;
   handleClose: () => void;
@@ -24,6 +30,23 @@ interface ComprasViewProps {
 }
 
 function ComprasView({ show, handleClose, compra }: ComprasViewProps) {
+  const [productos, setProductos] = useState<Producto[]>([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:3002/Api/productos/getProductos')
+      .then(response => {
+        setProductos(response.data.result);
+      })
+      .catch(error => {
+        console.error("Error al obtener productos:", error);
+      });
+  }, []);
+
+  const getNombreProducto = (id: number) => {
+    const producto = productos.find(p => p.id_producto === id);
+    return producto ? producto.nombre : id;
+  };
+
   if (!compra) return null;
   const formatTotal = (total: any) => {
     const numTotal = Number(total);
@@ -130,7 +153,7 @@ function ComprasView({ show, handleClose, compra }: ComprasViewProps) {
             {compra.detalle && compra.detalle.length > 0 ? (
               compra.detalle.map((det, index) => (
                 <tr key={det.id_detalle || index}>
-                  <td>{det.id_producto}</td>
+                  <td>{getNombreProducto(det.id_producto)}</td>
                   <td>{det.cantidad}</td>
                   <td>L. {formatCosto(det.costo_unitario)}</td>
                   <td>L. {calcularSubtotal(det.cantidad, det.costo_unitario)}</td>

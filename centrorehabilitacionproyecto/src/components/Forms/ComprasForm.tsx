@@ -95,23 +95,34 @@ function ComprasForm({ compraEditar, show, handleClose, handleSubmit }: ComprasF
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const compra: Compra = { fecha, donante, total, detalle };
+
+    const compra: Compra = { 
+        fecha, 
+        donante, 
+        total, 
+        detalle: detalle.map(det => ({
+            id_producto: det.id_producto,
+            cantidad: Number(det.cantidad),
+            costo_unitario: Number(det.costo_unitario)
+        }))
+    };
+
     if (compraEditar && compraEditar.id_compra) {
-      axios.put(`http://localhost:3002/Api/compras/updateCompra?id_compra=${compraEditar.id_compra}`, compra)
-        .then(() => {
-          handleSubmit();
-          handleClose();
-        })
-        .catch(error => console.error("Error al actualizar la compra:", error));
+        axios.put(`http://localhost:3002/Api/compras/updateCompra?id_compra=${compraEditar.id_compra}`, compra)
+            .then(() => {
+                handleSubmit();
+                handleClose();
+            })
+            .catch(error => console.error("Error al actualizar la compra:", error));
     } else {
-      axios.post('http://localhost:3002/Api/compras/createCompra', compra)
-        .then(() => {
-          handleSubmit();
-          handleClose();
-        })
-        .catch(error => console.error("Error al crear la compra:", error));
+        axios.post('http://localhost:3002/Api/compras/createCompra', compra)
+            .then(() => {
+                handleSubmit();
+                handleClose();
+            })
+            .catch(error => console.error("Error al crear la compra:", error));
     }
-  };
+};
 
   return (
     <Modal 

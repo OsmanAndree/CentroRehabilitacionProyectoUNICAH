@@ -3,6 +3,7 @@
 const db = require('../config/db');
 const Compra = db.compras;
 const DetalleCompra = db.detallecompras;
+const Producto = db.productos;
 const sequelize = db.sequelizeInstance;
 
 const getCompras = async (req, res) => {
@@ -28,6 +29,16 @@ const createCompra = async (req, res) => {
     if (detalle && detalle.length > 0) {
       detalle.forEach(det => det.id_compra = nuevaCompra.id_compra);
       await DetalleCompra.bulkCreate(detalle, { transaction: t });
+      
+      await Promise.all(detalle.map(async det => {
+        const producto = await Producto.findByPk(det.id_producto, { transaction: t });
+        if (producto) {
+          await producto.update(
+            { cantidad_disponible: producto.cantidad_disponible + det.cantidad },
+            { transaction: t }
+          );
+        }
+      }));
     }
     await t.commit();
     res.status(201).json({ result: nuevaCompra });
@@ -42,17 +53,42 @@ const updateCompra = async (req, res) => {
   const { fecha, donante, total, detalle } = req.body;
   const t = await sequelize.transaction();
   try {
-    let compraFound = await Compra.findByPk(id_compra, { transaction: t });
+    const compraFound = await Compra.findByPk(id_compra, { transaction: t });
     if (!compraFound) {
       await t.rollback();
       return res.status(404).json({ error: "Compra no encontrada" });
     }
+
+    const oldDetalles = await DetalleCompra.findAll({ where: { id_compra }, transaction: t });
+    await Promise.all(oldDetalles.map(async det => {
+      const producto = await Producto.findByPk(det.id_producto, { transaction: t });
+      if (producto) {
+        await producto.update(
+          { cantidad_disponible: producto.cantidad_disponible - det.cantidad },
+          { transaction: t }
+        );
+      }
+    }));
+
     await compraFound.update({ fecha, donante, total }, { transaction: t });
+    
+    await DetalleCompra.destroy({ where: { id_compra }, transaction: t });
+    
     if (detalle && detalle.length > 0) {
-      await DetalleCompra.destroy({ where: { id_compra }, transaction: t });
       detalle.forEach(det => det.id_compra = id_compra);
       await DetalleCompra.bulkCreate(detalle, { transaction: t });
+      
+      await Promise.all(detalle.map(async det => {
+        const producto = await Producto.findByPk(det.id_producto, { transaction: t });
+        if (producto) {
+          await producto.update(
+            { cantidad_disponible: producto.cantidad_disponible + det.cantidad },
+            { transaction: t }
+          );
+        }
+      }));
     }
+    
     await t.commit();
     res.status(200).json({ result: compraFound });
   } catch (error) {
