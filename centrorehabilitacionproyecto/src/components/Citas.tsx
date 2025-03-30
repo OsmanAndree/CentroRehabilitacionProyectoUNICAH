@@ -5,8 +5,12 @@ import axios from 'axios';
 import CitasForm from './Forms/CitasForm';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CitasReport from './Reports/CitasReport';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { FaFilePdf } from 'react-icons/fa6';
 
-interface Cita {
+
+export interface Cita {
   id_cita: number;
   id_paciente: number;
   id_terapeuta: number;
@@ -14,6 +18,8 @@ interface Cita {
   hora_inicio: string;
   hora_fin: string;
   estado: 'Pendiente' | 'Confirmada' | 'Cancelada' | 'Completada';
+  tipo_terapia: 'Fisica' | 'Neurologica'; 
+  duracion_min: number; 
   paciente: {
     id_paciente: number;
     nombre: string;
@@ -127,6 +133,7 @@ function CitasTable() {
               Gestión de Citas
             </h4>
           </div>
+          <div className="d-flex">
           <Button 
             variant="light" 
             onClick={crearCita}
@@ -148,6 +155,34 @@ function CitasTable() {
           >
             <FaPlus className="me-2" /> Nueva Cita
           </Button>
+          <PDFDownloadLink
+              document={<CitasReport citas ={citasFiltradas} />} 
+              fileName="Reporte_Citas.pdf"                         
+              className="btn btn-success ms-2"
+              style={{
+                borderRadius: "10px",
+                padding: "0.5rem 1rem",
+                fontWeight: "500",
+                color: "white",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              {({ loading }) => (
+                <div className="d-flex align-items-center">
+                  <FaFilePdf className="me-2" />
+                  {loading ? "Generando PDF..." : "Descargar Reporte"}
+                </div>
+              )}
+            </PDFDownloadLink>
+          </div>
+          
         </Card.Header>
 
         <Card.Body className="p-4">
