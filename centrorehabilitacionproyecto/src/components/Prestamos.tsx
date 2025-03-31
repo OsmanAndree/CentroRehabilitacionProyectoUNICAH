@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaClipboardList } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaClipboardList, FaFilePdf } from 'react-icons/fa';
 import axios from 'axios';
 import PrestamosForm from './Forms/PrestamosForm';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import PrestamosReport from './Reports/PrestamosReport';
 
 interface Prestamo {
     id_prestamo: number;
@@ -118,27 +120,55 @@ return (
             Gestión de Préstamos
             </h4>
         </div>
-        <Button 
-            variant="light" 
-            onClick={crearPrestamo}
-            className="d-flex align-items-center"
-            style={{
-                borderRadius: "10px",
-                padding: "0.5rem 1rem",
-                fontWeight: "500",
-                transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-            }}
-            onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "none";
-            }}
-        >
-            <FaPlus className="me-2" /> Nuevo Préstamo
+        <div className="d-flex">
+            <Button 
+                variant="light" 
+                onClick={crearPrestamo}
+                className="d-flex align-items-center me-2"
+                style={{
+                    borderRadius: "10px",
+                    padding: "0.5rem 1rem",
+                    fontWeight: "500",
+                    transition: "all 0.3s ease"
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                }}
+            >
+                <FaPlus className="me-2" /> Nuevo Préstamo
             </Button>
+            <PDFDownloadLink
+                document={<PrestamosReport prestamos={prestamosFiltrados} />}
+                fileName="Reporte_Prestamos.pdf"
+                className="btn btn-success d-flex align-items-center"
+                style={{
+                    borderRadius: "10px",
+                    padding: "0.5rem 1rem",
+                    fontWeight: "500",
+                    transition: "all 0.3s ease"
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                }}
+            >
+                {({ loading }) => (
+                    <>
+                        <FaFilePdf className="me-2" />
+                        {loading ? 'Generando...' : 'Descargar Reporte'}
+                    </>
+                )}
+            </PDFDownloadLink>
+        </div>
         </Card.Header>
 
         <Card.Body className="p-4">
@@ -191,52 +221,53 @@ return (
                 </tr>
                 </thead>
                 <tbody>
-    {prestamosFiltrados.length > 0 ? (
-        prestamosFiltrados.map((prestamo, index) => (
-            <tr key={prestamo.id_prestamo}>
-                <td className="py-3 px-4">{index + 1}</td>
-                <td className="py-3 px-4">{`${prestamo.paciente?.nombre} ${prestamo.paciente?.apellido}`}</td>
-                <td className="py-3 px-4">{prestamo.producto?.nombre}</td>
-                <td className="py-3 px-4">{prestamo.fecha_prestamo}</td>
-                <td className="py-3 px-4">{prestamo.fecha_devolucion}</td>
-                <td className="py-3 px-4">
-                    <span className={`badge ${prestamo.estado === 'Prestado' ? 'bg-success' : 'bg-primary '}`} 
-                    style={{ 
-                        fontSize: '0.95rem',
-                        fontWeight: '800'}}>
-                        {prestamo.estado}
-                    </span>
-                </td>
-                <td className="py-3 px-4 text-center">
-                    <Button 
-                        variant="outline-success" 
-                        size="sm" 
-                        onClick={() => editarPrestamo(prestamo)}
-                        className="me-2"
-                        style={{ borderRadius: "8px" }}
-                    >
-                        <FaEdit /> Editar
-                    </Button>
-                    <Button 
-                        variant="outline-danger" 
-                        size="sm" 
-                        onClick={() => eliminarPrestamo(prestamo.id_prestamo)}
-                        style={{ borderRadius: "8px" }}
-                    >
-                        <FaTrash /> Eliminar
-                    </Button>
-                </td>
-            </tr>
-        ))
-    ) : (
-        <tr>
-            <td colSpan={7} className="text-center py-5 text-muted">
-                No se encontraron préstamos que coincidan con la búsqueda.
-            </td>
-        </tr>
-    )}
-</tbody>
-            </Table>
+                    {prestamosFiltrados.length > 0 ? (
+                        prestamosFiltrados.map((prestamo, index) => (
+                            <tr key={prestamo.id_prestamo}>
+                                <td className="py-3 px-4">{index + 1}</td>
+                                <td className="py-3 px-4">{`${prestamo.paciente?.nombre} ${prestamo.paciente?.apellido}`}</td>
+                                <td className="py-3 px-4">{prestamo.producto?.nombre}</td>
+                                <td className="py-3 px-4">{prestamo.fecha_prestamo}</td>
+                                <td className="py-3 px-4">{prestamo.fecha_devolucion}</td>
+                                <td className="py-3 px-4">
+                                    <span className={`badge ${prestamo.estado === 'Prestado' ? 'bg-success' : 'bg-primary'}`} 
+                                    style={{ 
+                                        fontSize: '0.95rem',
+                                        fontWeight: '800'
+                                    }}>
+                                        {prestamo.estado}
+                                    </span>
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                    <Button 
+                                        variant="outline-success" 
+                                        size="sm" 
+                                        onClick={() => editarPrestamo(prestamo)}
+                                        className="me-2"
+                                        style={{ borderRadius: "8px" }}
+                                    >
+                                        <FaEdit /> Editar
+                                    </Button>
+                                    <Button 
+                                        variant="outline-danger" 
+                                        size="sm" 
+                                        onClick={() => eliminarPrestamo(prestamo.id_prestamo)}
+                                        style={{ borderRadius: "8px" }}
+                                    >
+                                        <FaTrash /> Eliminar
+                                    </Button>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan={7} className="text-center py-5 text-muted">
+                                No se encontraron préstamos que coincidan con la búsqueda.
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
+                </Table>
             </div>
             )}
         </Card.Body>
