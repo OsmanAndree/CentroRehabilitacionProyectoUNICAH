@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
 
 const PacientesReport = ({ pacientes }: { pacientes: Paciente[] }) => (
   <Document>
-    <Page size="A4" style={styles.page}>
+    <Page size="A4" style={styles.page} orientation="landscape">
       {/* Encabezado del reporte */}
       <View style={styles.headerContainer}>
         <Text style={styles.headerTitle}>Reporte de Pacientes</Text>
@@ -125,7 +125,7 @@ const PacientesReport = ({ pacientes }: { pacientes: Paciente[] }) => (
             key={paciente.id_paciente}
           >
             <Text style={[styles.tableCell, styles.columnNumber]}>{index + 1}</Text>
-            <Text style={[styles.tableCell, styles.columnName]}>{`${paciente.nombre} ${paciente.apellido}`}</Text>
+            <Text style={[styles.tableCell, styles.columnName]}>{${paciente.nombre} ${paciente.apellido}}</Text>
             <Text style={[styles.tableCell, styles.columnDate]}>
               {new Date(paciente.fecha_nacimiento).toLocaleDateString('es-ES', {
                 day: '2-digit',
