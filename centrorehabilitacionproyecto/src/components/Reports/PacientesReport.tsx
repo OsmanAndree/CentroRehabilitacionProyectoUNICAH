@@ -125,7 +125,7 @@ const PacientesReport = ({ pacientes }: { pacientes: Paciente[] }) => (
             key={paciente.id_paciente}
           >
             <Text style={[styles.tableCell, styles.columnNumber]}>{index + 1}</Text>
-            <Text style={[styles.tableCell, styles.columnName]}>{${paciente.nombre} ${paciente.apellido}}</Text>
+            <Text style={[styles.tableCell, styles.columnName]}>{`${paciente.nombre} ${paciente.apellido}`}</Text>
             <Text style={[styles.tableCell, styles.columnDate]}>
               {new Date(paciente.fecha_nacimiento).toLocaleDateString('es-ES', {
                 day: '2-digit',
