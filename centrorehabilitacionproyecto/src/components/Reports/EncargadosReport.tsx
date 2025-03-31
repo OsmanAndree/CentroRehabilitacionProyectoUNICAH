@@ -2,7 +2,6 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
 import { Encargado } from '../Encargados';
 
-
 Font.register({
     family: 'Poppins',
     fonts: [
@@ -96,7 +95,7 @@ const styles = StyleSheet.create({
 
 const EncargadosReport = ({ encargados }: { encargados: Encargado[] }) => (
     <Document>
-        <Page size="A4" style={styles.page}>
+        <Page size="A4" style={styles.page} orientation="landscape">
             {/* Encabezado del reporte */}
             <View style={styles.headerContainer}>
                 <Text style={styles.headerTitle}>Reporte de Encargados</Text>
@@ -136,7 +135,6 @@ const EncargadosReport = ({ encargados }: { encargados: Encargado[] }) => (
             <Text style={styles.footer}>
                 Generado por el Sistema de Gestión de Encargados - {new Date().toLocaleDateString('es-ES')}
             </Text>
-
         </Page>
     </Document>
 );
