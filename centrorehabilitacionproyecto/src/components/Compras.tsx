@@ -6,6 +6,8 @@ import ComprasForm from './Forms/ComprasForm';
 import ComprasView from './Forms/ComprasView';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import ComprasReport from './Reports/ComprasReport';
 
 interface Compra {
   id_compra: number;
@@ -20,13 +22,18 @@ interface Compra {
   }[];
 }
 
+interface Producto {
+  id_producto: number;
+  nombre: string;
+}
+
 function Compras() {
   const [compras, setCompras] = useState<Compra[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>("");
   const [showForm, setShowForm] = useState<boolean>(false);
   const [compraSeleccionada, setCompraSeleccionada] = useState<Compra | null>(null);
-  
+  const [productos, setProductos] = useState<Producto[]>([]);
   const [showView, setShowView] = useState<boolean>(false);
   const [compraVista, setCompraVista] = useState<Compra | null>(null);
 
@@ -47,7 +54,14 @@ function Compras() {
   useEffect(() => {
     obtenerCompras();
   }, [obtenerCompras]);
-
+  useEffect(() => {
+    axios.get('http://localhost:3002/Api/productos/getProductos')
+      .then(response => {
+        setProductos(response.data.result);
+      })
+      .catch(error => console.error("Error al cargar productos:", error));
+  }, []);
+  
   const eliminarCompra = (id_compra: number) => {
     if (!window.confirm("¿Está seguro que desea inactivar esta compra?")) return;
     axios.delete(`http://localhost:3002/Api/compras/deleteCompra?id_compra=${id_compra}`)
@@ -181,6 +195,16 @@ function Compras() {
                             style={{ borderRadius: "8px" }}>
                             <FaTrash /> Eliminar
                           </Button>
+                                                    <PDFDownloadLink
+                            document={<ComprasReport compra={compra} productos={productos} />}
+                            fileName={`Factura_Compra_${compra.id_compra}.pdf`}
+                            className="btn btn-outline-primary btn-sm ms-2"
+                            style={{ borderRadius: "8px" }}
+                          >
+                            {({ loading }) => (
+                              <span>{loading ? "Generando..." : "Factura"}</span>
+                            )}
+                          </PDFDownloadLink>
                         </td>
                       </tr>
                     ))
