@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Card, Table, Button, Spinner, Form, InputGroup } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaFileInvoice } from 'react-icons/fa';
 import axios from 'axios';
 import ComprasForm from './Forms/ComprasForm';
 import ComprasView from './Forms/ComprasView';
@@ -195,14 +195,14 @@ function Compras() {
                             style={{ borderRadius: "8px" }}>
                             <FaTrash /> Eliminar
                           </Button>
-                                                    <PDFDownloadLink
+                          <PDFDownloadLink
                             document={<ComprasReport compra={compra} productos={productos} />}
                             fileName={`Factura_Compra_${compra.id_compra}.pdf`}
                             className="btn btn-outline-primary btn-sm ms-2"
                             style={{ borderRadius: "8px" }}
                           >
                             {({ loading }) => (
-                              <span>{loading ? "Generando..." : "Factura"}</span>
+                              <span>{loading ? "Generando..." : <><FaFileInvoice /> Factura</>}</span>
                             )}
                           </PDFDownloadLink>
                         </td>
