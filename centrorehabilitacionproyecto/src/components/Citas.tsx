@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaCalendar, FaUserClock } from 'react-icons/fa';
 import axios from 'axios';
@@ -40,6 +40,19 @@ function CitasTable() {
   const [searchPaciente, setSearchPaciente] = useState<string>("");
   const [searchDate, setSearchDate] = useState<string>("");
   const [searchTherapist, setSearchTherapist] = useState<string>("");
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const obtenerCitas = useCallback(() => {
     setLoading(true);
@@ -103,8 +116,11 @@ function CitasTable() {
            terapeutaFull.includes(searchTherapist.toLowerCase());
   });
 
+  // Determinar si estamos en un dispositivo móvil
+  const isMobile = windowWidth < 768;
+
   return (
-    <Container fluid className="px-5 py-4">
+    <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
       <ToastContainer 
         position="top-right" 
         autoClose={3000} 
@@ -121,73 +137,84 @@ function CitasTable() {
         borderRadius: "20px",
         backgroundColor: "#ffffff"
       }}>
-        <Card.Header className="bg-gradient d-flex justify-content-between align-items-center py-3"
+        <Card.Header className="bg-gradient py-3"
           style={{ 
             backgroundColor: "#2E8B57",
             borderRadius: "20px 20px 0 0",
             border: "none"
           }}>
-          <div className="d-flex align-items-center">
-            <FaCalendar size={24} className="text-white me-2" />
-            <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
-              Gestión de Citas
-            </h4>
-          </div>
-          <div className="d-flex">
-          <Button 
-            variant="light" 
-            onClick={crearCita}
-            className="d-flex align-items-center"
-            style={{
-              borderRadius: "10px",
-              padding: "0.5rem 1rem",
-              fontWeight: "500",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          >
-            <FaPlus className="me-2" /> Nueva Cita
-          </Button>
-          <PDFDownloadLink
-              document={<CitasReport citas ={citasFiltradas} />} 
-              fileName="Reporte_Citas.pdf"                         
-              className="btn btn-success ms-2"
-              style={{
-                borderRadius: "10px",
-                padding: "0.5rem 1rem",
-                fontWeight: "500",
-                color: "white",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "none";
-              }}
-            >
-              {({ loading }) => (
-                <div className="d-flex align-items-center">
-                  <FaFilePdf className="me-2" />
-                  {loading ? "Generando PDF..." : "Descargar Reporte"}
-                </div>
-              )}
-            </PDFDownloadLink>
-          </div>
-          
+          <Row className="align-items-center">
+            <Col xs={12} md={6} className="mb-3 mb-md-0">
+              <div className="d-flex align-items-center">
+                <FaCalendar size={24} className="text-white me-2" />
+                <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
+                  Gestión de Citas
+                </h4>
+              </div>
+            </Col>
+            <Col xs={12} md={6}>
+              <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
+                <Button 
+                  variant="light" 
+                  onClick={crearCita}
+                  className="d-flex align-items-center justify-content-center"
+                  style={{
+                    borderRadius: "10px",
+                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                    fontWeight: "500",
+                    transition: "all 0.3s ease",
+                    width: isMobile ? "100%" : "auto",
+                    fontSize: isMobile ? "0.9rem" : "1rem"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <FaPlus className="me-2" /> Nueva Cita
+                </Button>
+                <PDFDownloadLink
+                  document={<CitasReport citas={citasFiltradas} />} 
+                  fileName="Reporte_Citas.pdf"                         
+                  className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
+                  style={{
+                    borderRadius: "10px",
+                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                    fontWeight: "500",
+                    color: "white",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: isMobile ? "0.9rem" : "1rem"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  {({ loading }) => (
+                    <div className="d-flex align-items-center justify-content-center w-100">
+                      <FaFilePdf className="me-2" />
+                      {loading ? "Generando..." : isMobile ? "Descargar" : "Descargar Reporte"}
+                    </div>
+                  )}
+                </PDFDownloadLink>
+              </div>
+            </Col>
+          </Row>
         </Card.Header>
 
-        <Card.Body className="p-4">
-          <Row className="mb-4">
-            <Col md={4}>
+        <Card.Body className="p-3 p-md-4">
+          <Row className="mb-4 g-3">
+            <Col xs={12} md={4}>
               <InputGroup style={{ 
                 boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                 borderRadius: "12px",
@@ -213,32 +240,7 @@ function CitasTable() {
                 />
               </InputGroup>
             </Col>
-            <Col md={4}>
-              <InputGroup style={{ 
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                borderRadius: "12px",
-                overflow: "hidden"
-              }}>
-                <InputGroup.Text style={{ 
-                  backgroundColor: "#f8f9fa",
-                  border: "none",
-                  paddingLeft: "1.2rem"
-                }}>
-                  <FaCalendar className="text-muted" />
-                </InputGroup.Text>
-                <Form.Control
-                  type="date"
-                  value={searchDate}
-                  onChange={(e) => setSearchDate(e.target.value)}
-                  style={{
-                    border: "none",
-                    padding: "0.8rem 1rem",
-                    fontSize: "0.95rem"
-                  }}
-                />
-              </InputGroup>
-            </Col>
-            <Col md={4}>
+            <Col xs={12} md={4}>
               <InputGroup style={{ 
                 boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                 borderRadius: "12px",
@@ -264,87 +266,104 @@ function CitasTable() {
                 />
               </InputGroup>
             </Col>
+            <Col xs={12} md={4}>
+              <InputGroup style={{ 
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                borderRadius: "12px",
+                overflow: "hidden"
+              }}>
+                <InputGroup.Text style={{ 
+                  backgroundColor: "#f8f9fa",
+                  border: "none",
+                  paddingLeft: "1.2rem"
+                }}>
+                  <FaCalendar className="text-muted" />
+                </InputGroup.Text>
+                <Form.Control
+                  type="date"
+                  value={searchDate}
+                  onChange={(e) => setSearchDate(e.target.value)}
+                  style={{
+                    border: "none",
+                    padding: "0.8rem 1rem",
+                    fontSize: "0.95rem"
+                  }}
+                />
+              </InputGroup>
+            </Col>
           </Row>
 
           {loading ? (
-            <div className="text-center my-5">
-              <Spinner animation="border" variant="success" style={{ width: "3rem", height: "3rem" }} />
-              <p className="mt-3 text-muted">Cargando información de citas...</p>
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="success" />
+              <p className="mt-3 text-muted">Cargando citas...</p>
+            </div>
+          ) : citasFiltradas.length === 0 ? (
+            <div className="text-center py-5">
+              <p className="text-muted">No se encontraron citas.</p>
             </div>
           ) : (
-            <div className="table-responsive" style={{ 
-              borderRadius: "15px", 
-              overflow: "auto",
-              maxWidth: "100%",
-              display: "block"
-            }}>
-              <Table hover className="align-middle mb-0" style={{ minWidth: "1000px" }}>
-                <thead>
-                  <tr style={{ backgroundColor: "#f8f9fa" }}>
-                    <th className="py-3 px-4 text-muted">#</th>
-                    <th className="py-3 px-4 text-muted">Fecha</th>
-                    <th className="py-3 px-4 text-muted">Hora Inicio</th>
-                    <th className="py-3 px-4 text-muted">Hora Fin</th>
-                    <th className="py-3 px-4 text-muted">Paciente</th>
-                    <th className="py-3 px-4 text-muted">Terapeuta</th>
-                    <th className="py-3 px-4 text-muted">Estado</th>
-                    <th className="py-3 px-4 text-muted text-center">Acciones</th>
+            <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
+              <Table hover className="align-middle mb-0">
+                <thead style={{ backgroundColor: "#f8f9fa" }}>
+                  <tr>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>#</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Paciente</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Terapeuta</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Fecha</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Hora</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Estado</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Tipo</th>
+                    <th className="py-3 px-4 text-center" style={{ fontWeight: "600" }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {citasFiltradas.length > 0 ? (
-                    citasFiltradas.map((cita, index) => (
-                      <tr key={cita.id_cita}>
-                        <td className="py-3 px-4">{index + 1}</td>
-                        <td className="py-3 px-4">
-                          {new Date(cita.fecha + 'T00:00:00').toLocaleDateString('es-ES', {
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric'
-                          })}
-                        </td>
-                        <td className="py-3 px-4">{cita.hora_inicio}</td>
-                        <td className="py-3 px-4">{cita.hora_fin}</td>
-                        <td className="py-3 px-4">{cita.paciente.nombre} {cita.paciente.apellido}</td>
-                        <td className="py-3 px-4">{cita.terapeuta.nombre} {cita.terapeuta.apellido}</td>
-                        <td className="py-3 px-4">
-                          <span className={`badge bg-${
-                            cita.estado === 'Confirmada' ? 'success' :
-                            cita.estado === 'Pendiente' ? 'warning' :
-                            cita.estado === 'Cancelada' ? 'danger' :
-                            'info'
-                          }`}>
-                            {cita.estado}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-center">
+                  {citasFiltradas.map((cita, index) => (
+                    <tr key={cita.id_cita}>
+                      <td className="py-3 px-4">{index + 1}</td>
+                      <td className="py-3 px-4">{`${cita.paciente.nombre} ${cita.paciente.apellido}`}</td>
+                      <td className="py-3 px-4">{`${cita.terapeuta.nombre} ${cita.terapeuta.apellido}`}</td>
+                      <td className="py-3 px-4">{new Date(cita.fecha).toLocaleDateString()}</td>
+                      <td className="py-3 px-4">{`${cita.hora_inicio} - ${cita.hora_fin}`}</td>
+                      <td className="py-3 px-4">
+                        <span className={`badge ${
+                          cita.estado === 'Confirmada' ? 'bg-success' :
+                          cita.estado === 'Pendiente' ? 'bg-warning' :
+                          cita.estado === 'Cancelada' ? 'bg-danger' :
+                          'bg-info'
+                        }`}>
+                          {cita.estado}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">{cita.tipo_terapia}</td>
+                      <td className="py-3 px-4 text-center">
+                        <div className="d-flex justify-content-center gap-2">
                           <Button 
-                            variant="outline-success" 
+                            variant="outline-primary" 
                             size="sm" 
                             onClick={() => editarCita(cita)}
-                            className="me-2"
-                            style={{ borderRadius: "8px" }}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem"
+                            }}
                           >
-                            <FaEdit /> Editar
+                            <FaEdit />
                           </Button>
                           <Button 
                             variant="outline-danger" 
                             size="sm" 
                             onClick={() => eliminarCita(cita.id_cita)}
-                            style={{ borderRadius: "8px" }}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem"
+                            }}
                           >
-                            <FaTrash /> Eliminar
+                            <FaTrash />
                           </Button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={8} className="text-center py-5 text-muted">
-                        No se encontraron citas que coincidan con la búsqueda.
+                        </div>
                       </td>
                     </tr>
-                  )}
+                  ))}
                 </tbody>
               </Table>
             </div>
@@ -353,11 +372,11 @@ function CitasTable() {
       </Card>
 
       {showForm && (
-        <CitasForm
-          citaEditar={citaSeleccionada}
-          show={showForm}
-          handleClose={cerrarFormulario}
+        <CitasForm 
+          show={showForm} 
+          handleClose={cerrarFormulario} 
           handleSubmit={handleSubmit}
+          citaEditar={citaSeleccionada}
         />
       )}
     </Container>

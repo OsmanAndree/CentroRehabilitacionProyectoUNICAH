@@ -1,13 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserPlus, FaFilter } from 'react-icons/fa';
+import { useEffect, useState, useCallback } from 'react';
+import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserPlus } from 'react-icons/fa';
 import axios from 'axios';
 import PacientesForm from './Forms/PacientesForm';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PacientesReport from './Reports/PacientesReport'; 
-import { FaFilePdf } from 'react-icons/fa6';
+import { FaFilePdf } from 'react-icons/fa';
 
 export interface Paciente {
   id_paciente: number;
@@ -29,6 +29,19 @@ function PacientesTable() {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState<Paciente | null>(null);
   const [search, setSearch] = useState<string>("");
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const obtenerPacientes = useCallback(() => {
     setLoading(true);
@@ -87,8 +100,11 @@ function PacientesTable() {
     `${p.nombre} ${p.apellido}`.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Determinar si estamos en un dispositivo móvil
+  const isMobile = windowWidth < 768;
+
   return (
-    <Container fluid className="px-5 py-4">
+    <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
       <ToastContainer 
         position="top-right" 
         autoClose={3000} 
@@ -105,70 +121,82 @@ function PacientesTable() {
         borderRadius: "20px",
         backgroundColor: "#ffffff"
       }}>
-        <Card.Header className="bg-gradient d-flex justify-content-between align-items-center py-3"
+        <Card.Header className="bg-gradient py-3"
           style={{ 
             backgroundColor: "#2E8B57",
             borderRadius: "20px 20px 0 0",
             border: "none"
           }}>
-          <div className="d-flex align-items-center">
-            <FaUserPlus size={24} className="text-white me-2" />
-            <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
-              Gestión de Pacientes
-            </h4>
-          </div>
-          <div className="d-flex">
-            <Button 
-              variant="light" 
-              onClick={crearPaciente}
-              className="d-flex align-items-center me-2"
-              style={{
-                borderRadius: "10px",
-                padding: "0.5rem 1rem",
-                fontWeight: "500",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "none";
-              }}
-            >
-              <FaPlus className="me-2" /> Nuevo Paciente
-            </Button>
-            <PDFDownloadLink
-              document={<PacientesReport pacientes={pacientesFiltrados} />}
-              fileName="Reporte_Pacientes.pdf"
-              className="btn btn-success ms-2"
-              style={{
-                borderRadius: "10px",
-                padding: "0.5rem 1rem",
-                fontWeight: "500",
-                color: "white",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-            }}
-            onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "none";
-            }}
-            >
-              {({ loading }) => (
-                <div className="d-flex align-items-center">
-                    <FaFilePdf className="me-2" />
-                    {loading ? "Generando PDF..." : "Descargar Reporte"}
-                </div>
-              )}
-            </PDFDownloadLink>
-          </div>
+          <Row className="align-items-center">
+            <Col xs={12} md={6} className="mb-3 mb-md-0">
+              <div className="d-flex align-items-center">
+                <FaUserPlus size={24} className="text-white me-2" />
+                <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
+                  Gestión de Pacientes
+                </h4>
+              </div>
+            </Col>
+            <Col xs={12} md={6}>
+              <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
+                <Button 
+                  variant="light" 
+                  onClick={crearPaciente}
+                  className="d-flex align-items-center justify-content-center"
+                  style={{
+                    borderRadius: "10px",
+                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                    fontWeight: "500",
+                    transition: "all 0.3s ease",
+                    width: isMobile ? "100%" : "auto",
+                    fontSize: isMobile ? "0.9rem" : "1rem"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <FaPlus className="me-2" /> Nuevo Paciente
+                </Button>
+                <PDFDownloadLink
+                  document={<PacientesReport pacientes={pacientesFiltrados} />}
+                  fileName="Reporte_Pacientes.pdf"
+                  className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
+                  style={{
+                    borderRadius: "10px",
+                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                    fontWeight: "500",
+                    color: "white",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: isMobile ? "0.9rem" : "1rem"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  {({ loading }) => (
+                    <div className="d-flex align-items-center justify-content-center w-100">
+                      <FaFilePdf className="me-2" />
+                      {loading ? "Generando..." : isMobile ? "Descargar" : "Descargar Reporte"}
+                    </div>
+                  )}
+                </PDFDownloadLink>
+              </div>
+            </Col>
+          </Row>
         </Card.Header>
 
-        <Card.Body className="p-4">
+        <Card.Body className="p-3 p-md-4">
           <Row className="mb-4">
             <div className="col-md-6 col-lg-4">
               <InputGroup style={{ 
@@ -199,75 +227,63 @@ function PacientesTable() {
           </Row>
 
           {loading ? (
-            <div className="text-center my-5">
-              <Spinner animation="border" variant="success" style={{ width: "3rem", height: "3rem" }} />
-              <p className="mt-3 text-muted">Cargando información de pacientes...</p>
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="success" />
+              <p className="mt-3 text-muted">Cargando pacientes...</p>
+            </div>
+          ) : pacientesFiltrados.length === 0 ? (
+            <div className="text-center py-5">
+              <p className="text-muted">No se encontraron pacientes.</p>
             </div>
           ) : (
-            <div className="table-responsive" style={{ 
-              borderRadius: "15px", 
-              overflow: "auto",
-              maxWidth: "100%",
-              display: "block"
-            }}>
-              <Table hover className="align-middle mb-0" style={{ minWidth: "800px" }}>
-                <thead>
-                  <tr style={{ backgroundColor: "#f8f9fa" }}>
-                    <th className="py-3 px-4 text-muted">#</th>
-                    <th className="py-3 px-4 text-muted">Nombre Completo</th>
-                    <th className="py-3 px-4 text-muted">Fecha de Nacimiento</th>
-                    <th className="py-3 px-4 text-muted">Teléfono</th>
-                    <th className="py-3 px-4 text-muted">Dirección</th>
-                    <th className="py-3 px-4 text-muted">Encargado</th>
-                    <th className="py-3 px-4 text-muted text-center">Acciones</th>
+            <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
+              <Table hover className="align-middle mb-0">
+                <thead style={{ backgroundColor: "#f8f9fa" }}>
+                  <tr>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>#</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Nombre Completo</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Fecha de Nacimiento</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Teléfono</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Encargado</th>
+                    <th className="py-3 px-4 text-center" style={{ fontWeight: "600" }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {pacientesFiltrados.length > 0 ? (
-                    pacientesFiltrados.map((paciente, index) => (
-                      <tr key={paciente.id_paciente}>
-                        <td className="py-3 px-4">{index + 1}</td>
-                        <td className="py-3 px-4">{`${paciente.nombre} ${paciente.apellido}`}</td>
-                        <td className="py-3 px-4">
-                          {new Date(paciente.fecha_nacimiento).toLocaleDateString('es-ES', { 
-                            day: '2-digit', 
-                            month: 'long', 
-                            year: 'numeric' 
-                          })}
-                        </td>
-                        <td className="py-3 px-4">{paciente.telefono}</td>
-                        <td className="py-3 px-4">{paciente.direccion}</td>
-                        <td className="py-3 px-4">
-                          {paciente.encargado.nombre} {paciente.encargado.apellido}
-                        </td>
-                        <td className="py-3 px-4 text-center">
+                  {pacientesFiltrados.map((paciente, index) => (
+                    <tr key={paciente.id_paciente}>
+                      <td className="py-3 px-4">{index + 1}</td>
+                      <td className="py-3 px-4">{`${paciente.nombre} ${paciente.apellido}`}</td>
+                      <td className="py-3 px-4">{new Date(paciente.fecha_nacimiento).toLocaleDateString()}</td>
+                      <td className="py-3 px-4">{paciente.telefono}</td>
+                      <td className="py-3 px-4">{paciente.encargado ? `${paciente.encargado.nombre} ${paciente.encargado.apellido}` : "No asignado"}</td>
+                      <td className="py-3 px-4 text-center">
+                        <div className="d-flex justify-content-center gap-2">
                           <Button 
-                            variant="outline-success" 
+                            variant="outline-primary" 
                             size="sm" 
                             onClick={() => editarPaciente(paciente)}
-                            className="me-2"
-                            style={{ borderRadius: "8px" }}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem"
+                            }}
                           >
-                            <FaEdit /> Editar
+                            <FaEdit />
                           </Button>
                           <Button 
                             variant="outline-danger" 
                             size="sm" 
                             onClick={() => eliminarPaciente(paciente.id_paciente)}
-                            style={{ borderRadius: "8px" }}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem"
+                            }}
                           >
-                            <FaTrash /> Eliminar
+                            <FaTrash />
                           </Button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={8} className="text-center py-5 text-muted">
-                        No se encontraron pacientes que coincidan con la búsqueda.
+                        </div>
                       </td>
                     </tr>
-                  )}
+                  ))}
                 </tbody>
               </Table>
             </div>
@@ -276,11 +292,11 @@ function PacientesTable() {
       </Card>
 
       {showForm && (
-        <PacientesForm
-          pacienteEditar={pacienteSeleccionado}
-          show={showForm}
-          handleClose={cerrarFormulario}
+        <PacientesForm 
+          show={showForm} 
+          handleClose={cerrarFormulario} 
           handleSubmit={handleSubmit}
+          pacienteEditar={pacienteSeleccionado}
         />
       )}
     </Container>

@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
+import { useEffect, useState, useCallback } from 'react';
+import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
 import { FaBox, FaSearch, FaPlus, FaEdit, FaTrash, FaFilePdf } from 'react-icons/fa';
 import axios from 'axios';
 import ProductosForm from './Forms/ProductosForm';
@@ -22,6 +22,19 @@ function ProductosTable() {
     const [showForm, setShowForm] = useState<boolean>(false);
     const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
     const [search, setSearch] = useState<string>("");
+    const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+    
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+        
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
     
     const obtenerProductos = useCallback(() => {
         setLoading(true);
@@ -81,8 +94,11 @@ function ProductosTable() {
         `${e.nombre}`.toLowerCase().includes(search.toLowerCase())
     );
 
+    // Determinar si estamos en un dispositivo móvil
+    const isMobile = windowWidth < 768;
+
     return (
-        <Container fluid className="px-5 py-4">
+        <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
           <ToastContainer 
             position="top-right" 
             autoClose={3000} 
@@ -99,70 +115,82 @@ function ProductosTable() {
             borderRadius: "20px",
             backgroundColor: "#ffffff"
           }}>
-            <Card.Header className="bg-gradient d-flex justify-content-between align-items-center py-3"
+            <Card.Header className="bg-gradient py-3"
               style={{ 
                 backgroundColor: "#2E8B57",
                 borderRadius: "20px 20px 0 0",
                 border: "none"
               }}>
-              <div className="d-flex align-items-center">
-                <FaBox size={24} className="text-white me-2" />
-                <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
-                  Gestión de Productos
-                </h4>
-              </div>
-              <div className="d-flex">
-                <Button 
-                  variant="light" 
-                  onClick={crearProducto}
-                  className="d-flex align-items-center me-2"
-                  style={{
-                    borderRadius: "10px",
-                    padding: "0.5rem 1rem",
-                    fontWeight: "500",
-                    transition: "all 0.3s ease"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  <FaPlus className="me-2" /> Nuevo Producto
-                </Button>
-                <PDFDownloadLink
-                  document={<ProductosReport productos={productosFiltrados} />}
-                  fileName="Reporte_Productos.pdf"
-                  className="btn btn-success d-flex align-items-center"
-                  style={{
-                    borderRadius: "10px",
-                    padding: "0.5rem 1rem",
-                    fontWeight: "500",
-                    transition: "all 0.3s ease"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  {({ loading }) => (
-                    <>
-                      <FaFilePdf className="me-2" />
-                      {loading ? 'Generando PDF...' : 'Descargar Reporte'}
-                    </>
-                  )}
-                </PDFDownloadLink>
-              </div>
+              <Row className="align-items-center">
+                <Col xs={12} md={6} className="mb-3 mb-md-0">
+                  <div className="d-flex align-items-center">
+                    <FaBox size={24} className="text-white me-2" />
+                    <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
+                      Gestión de Productos
+                    </h4>
+                  </div>
+                </Col>
+                <Col xs={12} md={6}>
+                  <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
+                    <Button 
+                      variant="light" 
+                      onClick={crearProducto}
+                      className="d-flex align-items-center justify-content-center"
+                      style={{
+                        borderRadius: "10px",
+                        padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                        fontWeight: "500",
+                        transition: "all 0.3s ease",
+                        width: isMobile ? "100%" : "auto",
+                        fontSize: isMobile ? "0.9rem" : "1rem"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.boxShadow = "none";
+                      }}
+                    >
+                      <FaPlus className="me-2" /> Nuevo Producto
+                    </Button>
+                    <PDFDownloadLink
+                      document={<ProductosReport productos={productosFiltrados} />}
+                      fileName="Reporte_Productos.pdf"
+                      className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
+                      style={{
+                        borderRadius: "10px",
+                        padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                        fontWeight: "500",
+                        color: "white",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: isMobile ? "0.9rem" : "1rem"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.boxShadow = "none";
+                      }}
+                    >
+                      {({ loading }) => (
+                        <div className="d-flex align-items-center justify-content-center w-100">
+                          <FaFilePdf className="me-2" />
+                          {loading ? "Generando..." : isMobile ? "Descargar" : "Descargar Reporte"}
+                        </div>
+                      )}
+                    </PDFDownloadLink>
+                  </div>
+                </Col>
+              </Row>
             </Card.Header>
 
-            <Card.Body className="p-4">
+            <Card.Body className="p-3 p-md-4">
               <Row className="mb-4">
                 <div className="col-md-6 col-lg-4">
                   <InputGroup style={{ 
@@ -193,78 +221,63 @@ function ProductosTable() {
               </Row>
 
               {loading ? (
-                <div className="text-center my-5">
-                  <Spinner animation="border" variant="success" style={{ width: "3rem", height: "3rem" }} />
-                  <p className="mt-3 text-muted">Cargando información de productos...</p>
+                <div className="text-center py-5">
+                  <Spinner animation="border" variant="success" />
+                  <p className="mt-3 text-muted">Cargando productos...</p>
+                </div>
+              ) : productosFiltrados.length === 0 ? (
+                <div className="text-center py-5">
+                  <p className="text-muted">No se encontraron productos.</p>
                 </div>
               ) : (
-                <div className="table-responsive" style={{ borderRadius: "15px", overflow: "hidden" }}>
+                <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
                   <Table hover className="align-middle mb-0">
-                    <thead>
-                      <tr style={{ backgroundColor: "#f8f9fa" }}>
-                        <th className="py-3 px-4 text-muted">#</th>
-                        <th className="py-3 px-4 text-muted">Nombre</th>
-                        <th className="py-3 px-4 text-muted">Descripción</th>
-                        <th className="py-3 px-4 text-muted">Categoría</th>
-                        <th className="py-3 px-4 text-muted text-center">Cantidad</th>
-                        <th className="py-3 px-4 text-muted text-center">Acciones</th>
+                    <thead style={{ backgroundColor: "#f8f9fa" }}>
+                      <tr>
+                        <th className="py-3 px-4" style={{ fontWeight: "600" }}>#</th>
+                        <th className="py-3 px-4" style={{ fontWeight: "600" }}>Nombre</th>
+                        <th className="py-3 px-4" style={{ fontWeight: "600" }}>Descripción</th>
+                        <th className="py-3 px-4" style={{ fontWeight: "600" }}>Categoría</th>
+                        <th className="py-3 px-4" style={{ fontWeight: "600" }}>Cantidad</th>
+                        <th className="py-3 px-4 text-center" style={{ fontWeight: "600" }}>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {productosFiltrados.length > 0 ? (
-                        productosFiltrados.map((producto, index) => (
-                          <tr key={producto.id_producto}>
-                            <td className="py-3 px-4">{index + 1}</td>
-                            <td className="py-3 px-4">{producto.nombre}</td>
-                            <td className="py-3 px-4">{producto.descripcion}</td>
-                            <td className="py-3 px-4">
-                              <span className="badge bg-success-light text-success" style={{ 
-                                fontSize: '0.95rem',
-                                fontWeight: '800'
-                              }}>
-                                {producto.categoria}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              <span className={`badge ${
-                                producto.cantidad_disponible > 10 ? 'bg-success' :
-                                producto.cantidad_disponible > 5 ? 'bg-warning' :
-                                'bg-danger'
-                              }`} style={{
-                                fontSize: '0.95rem',
-                                fontWeight: '800'
-                              }}>
-                                {producto.cantidad_disponible}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4 text-center">
+                      {productosFiltrados.map((producto, index) => (
+                        <tr key={producto.id_producto}>
+                          <td className="py-3 px-4">{index + 1}</td>
+                          <td className="py-3 px-4">{producto.nombre}</td>
+                          <td className="py-3 px-4">{producto.descripcion}</td>
+                          <td className="py-3 px-4">{producto.categoria}</td>
+                          <td className="py-3 px-4">{producto.cantidad_disponible}</td>
+                          <td className="py-3 px-4 text-center">
+                            <div className="d-flex justify-content-center gap-2">
                               <Button 
-                                variant="outline-success" 
+                                variant="outline-primary" 
                                 size="sm" 
                                 onClick={() => editarProducto(producto)}
-                                className="me-2"
-                                style={{ borderRadius: "8px" }}
+                                style={{ 
+                                  borderRadius: "8px",
+                                  padding: "0.4rem 0.6rem"
+                                }}
                               >
-                                <FaEdit /> Editar
+                                <FaEdit />
                               </Button>
                               <Button 
                                 variant="outline-danger" 
                                 size="sm" 
                                 onClick={() => eliminarProducto(producto.id_producto)}
-                                style={{ borderRadius: "8px" }}
+                                style={{ 
+                                  borderRadius: "8px",
+                                  padding: "0.4rem 0.6rem"
+                                }}
                               >
-                                <FaTrash /> Eliminar
+                                <FaTrash />
                               </Button>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={6} className="text-center py-5 text-muted">
-                            No se encontraron productos que coincidan con la búsqueda.
+                            </div>
                           </td>
                         </tr>
-                      )}
+                      ))}
                     </tbody>
                   </Table>
                 </div>
@@ -273,15 +286,15 @@ function ProductosTable() {
           </Card>
 
           {showForm && (
-            <ProductosForm
-              productoEditar={productoSeleccionado}
-              show={showForm}
-              handleClose={cerrarFormulario}
+            <ProductosForm 
+              show={showForm} 
+              handleClose={cerrarFormulario} 
               handleSubmit={handleSubmit}
+              productoEditar={productoSeleccionado}
             />
           )}
         </Container>
-      );
-    }
-    
-    export default ProductosTable;
+    );
+}
+
+export default ProductosTable;

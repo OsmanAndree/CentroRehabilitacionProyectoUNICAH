@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Row, Card, Table, Button, Spinner, Form, InputGroup } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaFileInvoice } from 'react-icons/fa';
+import { useState, useEffect, useCallback } from 'react';
+import { Container, Row, Card, Table, Button, Spinner, Form, InputGroup, Col } from 'react-bootstrap';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaFileInvoice, FaShoppingCart } from 'react-icons/fa';
 import axios from 'axios';
 import ComprasForm from './Forms/ComprasForm';
 import ComprasView from './Forms/ComprasView';
@@ -36,6 +36,19 @@ function Compras() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [showView, setShowView] = useState<boolean>(false);
   const [compraVista, setCompraVista] = useState<Compra | null>(null);
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const obtenerCompras = useCallback(() => {
     setLoading(true);
@@ -54,6 +67,7 @@ function Compras() {
   useEffect(() => {
     obtenerCompras();
   }, [obtenerCompras]);
+  
   useEffect(() => {
     axios.get('http://localhost:3002/Api/productos/getProductos')
       .then(response => {
@@ -111,24 +125,52 @@ function Compras() {
     c.donante.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Determinar si estamos en un dispositivo móvil
+  const isMobile = windowWidth < 768;
+
   return (
-    <Container fluid className="px-5 py-4">
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+    <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar theme="colored" />
       <Card className="shadow-lg border-0" style={{ borderRadius: "20px", backgroundColor: "#ffffff" }}>
-        <Card.Header className="bg-gradient d-flex justify-content-between align-items-center py-3"
+        <Card.Header className="bg-gradient py-3"
           style={{ backgroundColor: "#2E8B57", borderRadius: "20px 20px 0 0", border: "none" }}>
-          <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>Gestión de Compras</h4>
-          <Button variant="light" onClick={crearCompra} className="d-flex align-items-center"
-            style={{
-              borderRadius: "10px",
-              padding: "0.5rem 1rem",
-              fontWeight: "500",
-              transition: "all 0.3s ease"
-            }}>
-            <FaPlus className="me-2" /> Nueva Compra
-          </Button>
+          <Row className="align-items-center">
+            <Col xs={12} md={6} className="mb-3 mb-md-0">
+              <div className="d-flex align-items-center">
+                <FaShoppingCart size={24} className="text-white me-2" />
+                <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
+                  Gestión de Compras
+                </h4>
+              </div>
+            </Col>
+            <Col xs={12} md={6} className="d-flex justify-content-md-end">
+              <Button 
+                variant="light" 
+                onClick={crearCompra} 
+                className="d-flex align-items-center justify-content-center"
+                style={{
+                  borderRadius: "10px",
+                  padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                  fontWeight: "500",
+                  transition: "all 0.3s ease",
+                  width: isMobile ? "100%" : "auto",
+                  fontSize: isMobile ? "0.9rem" : "1rem"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+                <FaPlus className="me-2" /> Nueva Compra
+              </Button>
+            </Col>
+          </Row>
         </Card.Header>
-        <Card.Body className="p-4">
+        <Card.Body className="p-3 p-md-4">
           <Row className="mb-4">
             <div className="col-md-6 col-lg-4">
               <InputGroup style={{
@@ -158,63 +200,91 @@ function Compras() {
             </div>
           </Row>
           {loading ? (
-            <div className="text-center my-5">
-              <Spinner animation="border" variant="success" style={{ width: "3rem", height: "3rem" }} />
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="success" />
               <p className="mt-3 text-muted">Cargando compras...</p>
             </div>
+          ) : comprasFiltradas.length === 0 ? (
+            <div className="text-center py-5">
+              <p className="text-muted">No se encontraron compras</p>
+            </div>
           ) : (
-            <div className="table-responsive" style={{ borderRadius: "15px", overflow: "hidden" }}>
+            <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
               <Table hover className="align-middle mb-0">
                 <thead style={{ backgroundColor: "#f8f9fa" }}>
                   <tr>
-                    <th className="py-3 px-4 text-muted">#</th>
-                    <th className="py-3 px-4 text-muted">Fecha</th>
-                    <th className="py-3 px-4 text-muted">Donante</th>
-                    <th className="py-3 px-4 text-muted">Total</th>
-                    <th className="py-3 px-4 text-muted text-center">Acciones</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>#</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Fecha</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Donante</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Total</th>
+                    <th className="py-3 px-4 text-center" style={{ fontWeight: "600" }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {comprasFiltradas.length > 0 ? (
-                    comprasFiltradas.map((compra, index) => (
-                      <tr key={compra.id_compra}>
-                        <td className="py-3 px-4">{index + 1}</td>
-                        <td className="py-3 px-4">{new Date(compra.fecha + 'T00:00:00').toLocaleDateString('es-ES')}</td>
-                        <td className="py-3 px-4">{compra.donante}</td>
-                        <td className="py-3 px-4">{compra.total}</td>
-                        <td className="py-3 px-4 text-center">
-                          <Button variant="outline-info" size="sm" onClick={() => verCompra(compra)}
-                            className="me-2" style={{ borderRadius: "8px" }}>
-                            <FaEye /> Ver
+                  {comprasFiltradas.map((compra, index) => (
+                    <tr key={compra.id_compra}>
+                      <td className="py-3 px-4">{index + 1}</td>
+                      <td className="py-3 px-4">{new Date(compra.fecha + 'T00:00:00').toLocaleDateString('es-ES')}</td>
+                      <td className="py-3 px-4">{compra.donante}</td>
+                      <td className="py-3 px-4">{compra.total.toFixed(2)}</td>
+                      <td className="py-3 px-4">
+                        <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-center'}`} style={{ gap: isMobile ? '8px' : '6px' }}>
+                          <Button 
+                            variant="outline-info" 
+                            size="sm" 
+                            onClick={() => verCompra(compra)}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem",
+                              width: isMobile ? "100%" : "auto"
+                            }}
+                          >
+                            <FaEye className={isMobile ? "me-2" : ""} /> {isMobile && "Ver"}
                           </Button>
-                          <Button variant="outline-success" size="sm" onClick={() => editarCompra(compra)}
-                            className="me-2" style={{ borderRadius: "8px" }}>
-                            <FaEdit /> Editar
+                          <Button 
+                            variant="outline-success" 
+                            size="sm" 
+                            onClick={() => editarCompra(compra)}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem",
+                              width: isMobile ? "100%" : "auto"
+                            }}
+                          >
+                            <FaEdit className={isMobile ? "me-2" : ""} /> {isMobile && "Editar"}
                           </Button>
-                          <Button variant="outline-danger" size="sm" onClick={() => eliminarCompra(compra.id_compra)}
-                            style={{ borderRadius: "8px" }}>
-                            <FaTrash /> Eliminar
+                          <Button 
+                            variant="outline-danger" 
+                            size="sm" 
+                            onClick={() => eliminarCompra(compra.id_compra)}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem",
+                              width: isMobile ? "100%" : "auto"
+                            }}
+                          >
+                            <FaTrash className={isMobile ? "me-2" : ""} /> {isMobile && "Eliminar"}
                           </Button>
                           <PDFDownloadLink
                             document={<ComprasReport compra={compra} productos={productos} />}
                             fileName={`Factura_Compra_${compra.id_compra}.pdf`}
-                            className="btn btn-outline-primary btn-sm ms-2"
-                            style={{ borderRadius: "8px" }}
+                            className={`btn btn-outline-primary btn-sm ${isMobile ? 'w-100' : ''}`}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem"
+                            }}
                           >
                             {({ loading }) => (
-                              <span>{loading ? "Generando..." : <><FaFileInvoice /> Factura</>}</span>
+                              <span>
+                                <FaFileInvoice className={isMobile ? "me-2" : ""} /> 
+                                {loading ? "Generando..." : (isMobile ? "Factura" : "")}
+                              </span>
                             )}
                           </PDFDownloadLink>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={5} className="text-center py-5 text-muted">
-                        No se encontraron compras
+                        </div>
                       </td>
                     </tr>
-                  )}
+                  ))}
                 </tbody>
               </Table>
             </div>

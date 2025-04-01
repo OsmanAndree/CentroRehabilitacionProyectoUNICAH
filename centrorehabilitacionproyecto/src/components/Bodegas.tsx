@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
+import { useEffect, useState, useCallback } from 'react';
+import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
 import { FaWarehouse, FaSearch, FaPlus, FaEdit, FaTrash, FaBox, FaFilePdf } from 'react-icons/fa';
 import axios from 'axios';
 import BodegasForm from './Forms/BodegasForm';
@@ -27,6 +27,19 @@ function BodegaTable() {
   const [search, setSearch] = useState<string>("");
   const [showProductoOut, setShowProductoOut] = useState<boolean>(false);
   const [bodegaParaSacar, setBodegaParaSacar] = useState<Bodega | null>(null);
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const obtenerBodega = useCallback(() => {
     setLoading(true);
@@ -97,8 +110,11 @@ function BodegaTable() {
     `${p.id_producto}`.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Determinar si estamos en un dispositivo móvil
+  const isMobile = windowWidth < 768;
+
   return (
-    <Container fluid className="px-5 py-4">
+    <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
       <ToastContainer 
         position="top-right" 
         autoClose={3000} 
@@ -115,70 +131,82 @@ function BodegaTable() {
         borderRadius: "20px",
         backgroundColor: "#ffffff"
       }}>
-        <Card.Header className="bg-gradient d-flex justify-content-between align-items-center py-3"
+        <Card.Header className="bg-gradient py-3"
           style={{ 
             backgroundColor: "#2E8B57",
             borderRadius: "20px 20px 0 0",
             border: "none"
           }}>
-          <div className="d-flex align-items-center">
-            <FaWarehouse size={24} className="text-white me-2" />
-            <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
-              Gestión de Bodega
-            </h4>
-          </div>
-          <div className="d-flex">
-            <Button 
-              variant="light" 
-              onClick={crearBodega}
-              className="d-flex align-items-center me-2"
-              style={{
-                borderRadius: "10px",
-                padding: "0.5rem 1rem",
-                fontWeight: "500",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "none";
-              }}
-            >
-              <FaPlus className="me-2" /> Nueva Bodega
-            </Button>
-            <PDFDownloadLink
-              document={<BodegaReport bodegas={bodegasFiltradas.length > 0 ? bodegasFiltradas : bodega} />}
-              fileName="Reporte_Bodega.pdf"
-              className="btn btn-success d-flex align-items-center"
-              style={{
-                borderRadius: "10px",
-                padding: "0.5rem 1rem",
-                fontWeight: "500",
-                transition: "all 0.3s ease"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "none";
-              }}
-            >
-              {({ loading }) => (
-                <>
-                  <FaFilePdf className="me-2" />
-                  {loading ? 'Generando...' : 'Descargar Reporte'}
-                </>
-              )}
-            </PDFDownloadLink>
-          </div>
+          <Row className="align-items-center">
+            <Col xs={12} md={6} className="mb-3 mb-md-0">
+              <div className="d-flex align-items-center">
+                <FaWarehouse size={24} className="text-white me-2" />
+                <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
+                  Gestión de Bodega
+                </h4>
+              </div>
+            </Col>
+            <Col xs={12} md={6}>
+              <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
+                <Button 
+                  variant="light" 
+                  onClick={crearBodega}
+                  className="d-flex align-items-center justify-content-center"
+                  style={{
+                    borderRadius: "10px",
+                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                    fontWeight: "500",
+                    transition: "all 0.3s ease",
+                    width: isMobile ? "100%" : "auto",
+                    fontSize: isMobile ? "0.9rem" : "1rem"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <FaPlus className="me-2" /> Nueva Bodega
+                </Button>
+                <PDFDownloadLink
+                  document={<BodegaReport bodegas={bodegasFiltradas.length > 0 ? bodegasFiltradas : bodega} />}
+                  fileName="Reporte_Bodega.pdf"
+                  className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
+                  style={{
+                    borderRadius: "10px",
+                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                    fontWeight: "500",
+                    color: "white",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: isMobile ? "0.9rem" : "1rem"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  {({ loading }) => (
+                    <div className="d-flex align-items-center justify-content-center w-100">
+                      <FaFilePdf className="me-2" />
+                      {loading ? "Generando..." : isMobile ? "Descargar" : "Descargar Reporte"}
+                    </div>
+                  )}
+                </PDFDownloadLink>
+              </div>
+            </Col>
+          </Row>
         </Card.Header>
 
-        <Card.Body className="p-4">
+        <Card.Body className="p-3 p-md-4">
           <Row className="mb-4">
             <div className="col-md-6 col-lg-4">
               <InputGroup style={{ 
@@ -209,85 +237,93 @@ function BodegaTable() {
           </Row>
 
           {loading ? (
-            <div className="text-center my-5">
-              <Spinner animation="border" variant="success" style={{ width: "3rem", height: "3rem" }} />
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="success" />
               <p className="mt-3 text-muted">Cargando información de bodega...</p>
             </div>
+          ) : bodegasFiltradas.length === 0 ? (
+            <div className="text-center py-5">
+              <p className="text-muted">No se encontraron registros en bodega.</p>
+            </div>
           ) : (
-            <div className="table-responsive" style={{ borderRadius: "15px", overflow: "hidden" }}>
+            <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
               <Table hover className="align-middle mb-0">
-                <thead>
-                  <tr style={{ backgroundColor: "#f8f9fa" }}>
-                    <th className="py-3 px-4 text-muted">#</th>
-                    <th className="py-3 px-4 text-muted">Producto</th>
-                    <th className="py-3 px-4 text-muted text-center">Cantidad</th>
-                    <th className="py-3 px-4 text-muted">Ubicación</th>
-                    <th className="py-3 px-4 text-muted text-center">Acciones</th>
+                <thead style={{ backgroundColor: "#f8f9fa" }}>
+                  <tr>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>#</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Producto</th>
+                    <th className="py-3 px-4 text-center" style={{ fontWeight: "600" }}>Cantidad</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Ubicación</th>
+                    <th className="py-3 px-4 text-center" style={{ fontWeight: "600" }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {bodegasFiltradas.length > 0 ? (
-                    bodegasFiltradas.map((bodega, index) => (
-                      <tr key={bodega.id_bodega}>
-                        <td className="py-3 px-4">{index + 1}</td>
-                        <td className="py-3 px-4">{bodega.producto?.nombre ?? 'Sin producto'}</td>
-                        <td className="py-3 px-4 text-center">
-                          <span className={`badge ${
-                            bodega.cantidad > 10 ? 'bg-success' :
-                            bodega.cantidad > 5 ? 'bg-warning' :
-                            'bg-danger'
-                          }`} style={{
-                            fontSize: '0.95rem',
-                            fontWeight: '800'
-                          }}>
-                            {bodega.cantidad}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className="badge bg-success-light text-success" style={{ 
-                                fontSize: '0.95rem',
-                                fontWeight: '800'
-                              }}>
-                            {bodega.ubicacion}
-                          </span>
-                        </td>
-                        <td className="py-3 px- text-center">
-                        <Button 
+                  {bodegasFiltradas.map((bodega, index) => (
+                    <tr key={bodega.id_bodega}>
+                      <td className="py-3 px-4">{index + 1}</td>
+                      <td className="py-3 px-4">{bodega.producto?.nombre ?? 'Sin producto'}</td>
+                      <td className="py-3 px-4 text-center">
+                        <span className={`badge ${
+                          bodega.cantidad > 10 ? 'bg-success' :
+                          bodega.cantidad > 5 ? 'bg-warning' :
+                          'bg-danger'
+                        }`} style={{
+                          fontSize: '0.95rem',
+                          fontWeight: '800'
+                        }}>
+                          {bodega.cantidad}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="badge bg-success-light text-success" style={{ 
+                              fontSize: '0.95rem',
+                              fontWeight: '800'
+                            }}>
+                          {bodega.ubicacion}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-center'}`} style={{ gap: isMobile ? '8px' : '6px' }}>
+                          <Button 
                             variant="outline-warning" 
                             size="sm" 
                             onClick={() => sacarProducto(bodega)}
-                            className="me-2"
-                            style={{ borderRadius: "8px" }}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem",
+                              width: isMobile ? "100%" : "auto"
+                            }}
                           >
-                            <FaBox /> Sacar Producto
+                            <FaBox className={isMobile ? "me-2" : ""} /> {isMobile ? "Sacar Producto" : ""}
                           </Button>
                           <Button 
                             variant="outline-success" 
                             size="sm" 
                             onClick={() => editarBodega(bodega)}
-                            className="me-2"
-                            style={{ borderRadius: "8px" }}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem",
+                              width: isMobile ? "100%" : "auto"
+                            }}
                           >
-                            <FaEdit /> Editar
+                            <FaEdit className={isMobile ? "me-2" : ""} /> {isMobile ? "Editar" : ""}
                           </Button>
                           <Button 
                             variant="outline-danger" 
                             size="sm" 
                             onClick={() => eliminarBodega(bodega.id_bodega)}
-                            style={{ borderRadius: "8px" }}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem",
+                              width: isMobile ? "100%" : "auto"
+                            }}
                           >
-                            <FaTrash /> Eliminar
+                            <FaTrash className={isMobile ? "me-2" : ""} /> {isMobile ? "Eliminar" : ""}
                           </Button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={5} className="text-center py-5 text-muted">
-                        No se encontraron registros en bodega.
+                        </div>
                       </td>
                     </tr>
-                  )}
+                  ))}
                 </tbody>
               </Table>
             </div>

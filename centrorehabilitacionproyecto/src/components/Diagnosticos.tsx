@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
+import { useEffect, useState, useCallback } from 'react';
+import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaClipboardList, FaFilePdf } from 'react-icons/fa';
 import axios from 'axios';
 import DiagnosticosForm from './Forms/DiagnosticosForm';
@@ -34,6 +34,19 @@ function DiagnosticosTable() {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [diagnosticoSeleccionado, setDiagnosticoSeleccionado] = useState<Diagnostico | null>(null);
   const [search, setSearch] = useState<string>("");
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const obtenerDiagnosticos = useCallback(() => {
     setLoading(true);
@@ -93,8 +106,11 @@ function DiagnosticosTable() {
     `${d.paciente?.nombre} ${d.paciente?.apellido} ${d.terapeuta?.nombre}`.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Determinar si estamos en un dispositivo móvil
+  const isMobile = windowWidth < 768;
+
   return (
-    <Container fluid className="px-5 py-4">
+    <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
       <ToastContainer 
         position="top-right" 
         autoClose={3000} 
@@ -111,42 +127,52 @@ function DiagnosticosTable() {
         borderRadius: "20px",
         backgroundColor: "#ffffff"
       }}>
-        <Card.Header className="bg-gradient d-flex justify-content-between align-items-center py-3"
+        <Card.Header className="bg-gradient py-3"
           style={{ 
             backgroundColor: "#2E8B57",
             borderRadius: "20px 20px 0 0",
             border: "none"
           }}>
-          <div className="d-flex align-items-center">
-            <FaClipboardList size={24} className="text-white me-2" />
-            <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
-              Gestión de Diagnósticos
-            </h4>
-          </div>
-          <Button 
-            variant="light" 
-            onClick={crearDiagnostico}
-            className="d-flex align-items-center"
-            style={{
-              borderRadius: "10px",
-              padding: "0.5rem 1rem",
-              fontWeight: "500",
-              transition: "all 0.3s ease"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          >
-            <FaPlus className="me-2" /> Nuevo Diagnóstico
-          </Button>
+          <Row className="align-items-center">
+            <Col xs={12} md={6} className="mb-3 mb-md-0">
+              <div className="d-flex align-items-center">
+                <FaClipboardList size={24} className="text-white me-2" />
+                <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
+                  Gestión de Diagnósticos
+                </h4>
+              </div>
+            </Col>
+            <Col xs={12} md={6}>
+              <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
+                <Button 
+                  variant="light" 
+                  onClick={crearDiagnostico}
+                  className="d-flex align-items-center justify-content-center"
+                  style={{
+                    borderRadius: "10px",
+                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                    fontWeight: "500",
+                    transition: "all 0.3s ease",
+                    width: isMobile ? "100%" : "auto",
+                    fontSize: isMobile ? "0.9rem" : "1rem"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <FaPlus className="me-2" /> Nuevo Diagnóstico
+                </Button>
+              </div>
+            </Col>
+          </Row>
         </Card.Header>
 
-        <Card.Body className="p-4">
+        <Card.Body className="p-3 p-md-4">
           <Row className="mb-4">
             <div className="col-md-6 col-lg-4">
               <InputGroup style={{ 
@@ -177,87 +203,106 @@ function DiagnosticosTable() {
           </Row>
 
           {loading ? (
-            <div className="text-center my-5">
-              <Spinner animation="border" variant="success" style={{ width: "3rem", height: "3rem" }} />
-              <p className="mt-3 text-muted">Cargando información de diagnósticos...</p>
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="success" />
+              <p className="mt-3 text-muted">Cargando diagnósticos...</p>
+            </div>
+          ) : diagnosticosFiltrados.length === 0 ? (
+            <div className="text-center py-5">
+              <p className="text-muted">No se encontraron diagnósticos.</p>
             </div>
           ) : (
-            <div className="table-responsive" style={{ 
-              borderRadius: "15px", 
-              overflow: "auto",
-              maxWidth: "100%",
-              display: "block"
-            }}>
-              <Table hover className="align-middle mb-0" style={{ minWidth: "800px" }}>
-                <thead>
-                  <tr style={{ backgroundColor: "#f8f9fa" }}>
-                    <th className="py-3 px-4 text-muted">#</th>
-                    <th className="py-3 px-4 text-muted">Paciente</th>
-                    <th className="py-3 px-4 text-muted">Terapeuta</th>
-                    <th className="py-3 px-4 text-muted">Especialidad</th>
-                    <th className="py-3 px-4 text-muted" style={{ width: "20%" }}>Descripción</th> {/* Ajusta el ancho */}
-                    <th className="py-3 px-4 text-muted">Tratamiento</th>
-                    <th className="py-3 px-4 text-muted text-center">Acciones</th>
+            <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
+              <Table hover className="align-middle mb-0">
+                <thead style={{ backgroundColor: "#f8f9fa" }}>
+                  <tr>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>#</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Paciente</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Terapeuta</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Especialidad</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600", width: "20%" }}>Descripción</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Tratamiento</th>
+                    <th className="py-3 px-4 text-center" style={{ fontWeight: "600" }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {diagnosticosFiltrados.length > 0 ? (
-                    diagnosticosFiltrados.map((diagnostico, index) => (
-                      <tr key={diagnostico.id_diagnostico}>
-                        <td className="py-3 px-4">{index + 1}</td>
-                        <td className="py-3 px-4">{`${diagnostico.paciente?.nombre} ${diagnostico.paciente?.apellido}`}</td>
-                        <td className="py-3 px-4">{diagnostico.terapeuta?.nombre}</td>
-                        <td className="py-3 px-4">{diagnostico.terapeuta?.especialidad}</td>
-                        <td className="py-3 px-4 text-truncate" style={{ maxWidth: "200px" }}>
-                          <OverlayTrigger
-                            placement="top"
-                            overlay={<Tooltip>{diagnostico.descripcion}</Tooltip>}
-                          >
-                            <span>{diagnostico.descripcion}</span>
-                          </OverlayTrigger>
-                        </td>
-                        <td className="py-3 px-4">{diagnostico.tratamiento}</td>
-                        <td className="py-3 px-4 text-center">
+                  {diagnosticosFiltrados.map((diagnostico, index) => (
+                    <tr key={diagnostico.id_diagnostico}>
+                      <td className="py-3 px-4">{index + 1}</td>
+                      <td className="py-3 px-4">{`${diagnostico.paciente?.nombre || ''} ${diagnostico.paciente?.apellido || ''}`}</td>
+                      <td className="py-3 px-4">{`${diagnostico.terapeuta?.nombre || ''} ${diagnostico.terapeuta?.apellido || ''}`}</td>
+                      <td className="py-3 px-4">{diagnostico.terapeuta?.especialidad || ''}</td>
+                      <td className="py-3 px-4">
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip id={`tooltip-${diagnostico.id_diagnostico}`}>{diagnostico.descripcion}</Tooltip>}
+                        >
+                          <div style={{ 
+                            maxWidth: "100%", 
+                            overflow: "hidden", 
+                            textOverflow: "ellipsis", 
+                            whiteSpace: "nowrap" 
+                          }}>
+                            {diagnostico.descripcion}
+                          </div>
+                        </OverlayTrigger>
+                      </td>
+                      <td className="py-3 px-4">
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip id={`tooltip-tratamiento-${diagnostico.id_diagnostico}`}>{diagnostico.tratamiento}</Tooltip>}
+                        >
+                          <div style={{ 
+                            maxWidth: "100%", 
+                            overflow: "hidden", 
+                            textOverflow: "ellipsis", 
+                            whiteSpace: "nowrap" 
+                          }}>
+                            {diagnostico.tratamiento}
+                          </div>
+                        </OverlayTrigger>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <div className="d-flex justify-content-center gap-2">
                           <Button 
-                            variant="outline-success" 
+                            variant="outline-primary" 
                             size="sm" 
                             onClick={() => editarDiagnostico(diagnostico)}
-                            className="me-2"
-                            style={{ borderRadius: "8px" }}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem"
+                            }}
                           >
-                            <FaEdit /> Editar
+                            <FaEdit />
                           </Button>
                           <Button 
                             variant="outline-danger" 
                             size="sm" 
                             onClick={() => eliminarDiagnostico(diagnostico.id_diagnostico)}
-                            style={{ borderRadius: "8px" }}
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem"
+                            }}
                           >
-                            <FaTrash /> Eliminar
+                            <FaTrash />
                           </Button>
                           <PDFDownloadLink
                             document={<RecetaReport diagnostico={diagnostico} />}
-                            fileName={`Receta_Diagnostico_${diagnostico.id_diagnostico}.pdf`}
-                            className="btn btn-outline-primary btn-sm ms-2"
-                            style={{ borderRadius: "8px" }}
+                            fileName={`Receta_${diagnostico.paciente?.nombre || ''}_${diagnostico.paciente?.apellido || ''}.pdf`}
+                            className="btn btn-outline-success btn-sm"
+                            style={{ 
+                              borderRadius: "8px",
+                              padding: "0.4rem 0.6rem"
+                            }}
                           >
                             {({ loading }) => (
-                              <span>
-                                <FaFilePdf className="me-2" />
-                                {loading ? "Generando..." : "Receta"}
-                              </span>
+                              loading ? <Spinner animation="border" size="sm" /> : <FaFilePdf />
                             )}
                           </PDFDownloadLink>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={7} className="text-center py-5 text-muted">
-                        No se encontraron diagnósticos que coincidan con la búsqueda.
+                        </div>
                       </td>
                     </tr>
-                  )}
+                  ))}
                 </tbody>
               </Table>
             </div>
@@ -266,11 +311,11 @@ function DiagnosticosTable() {
       </Card>
 
       {showForm && (
-        <DiagnosticosForm
-          diagnosticoEditar={diagnosticoSeleccionado}
-          show={showForm}
-          handleClose={cerrarFormulario}
+        <DiagnosticosForm 
+          show={showForm} 
+          handleClose={cerrarFormulario} 
           handleSubmit={handleSubmit}
+          diagnosticoEditar={diagnosticoSeleccionado}
         />
       )}
     </Container>
