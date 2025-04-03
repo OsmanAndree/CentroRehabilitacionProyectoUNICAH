@@ -11,7 +11,7 @@ interface Usuario {
     nombre: string;
     email: string;
     password: string;
-    rol: 'Administrador' | 'Terapeuta' | 'Encargado';
+    rol: 'Administrador' | 'Terapeuta' ;
     estado: 'Activo' | 'Inactivo';
     created_at?: Date;
 }

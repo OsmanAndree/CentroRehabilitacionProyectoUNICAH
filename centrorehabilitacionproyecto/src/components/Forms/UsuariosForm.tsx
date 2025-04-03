@@ -8,7 +8,7 @@ interface Usuario {
     nombre: string;
     email: string;
     password: string;
-    rol: 'Administrador' | 'Terapeuta' | 'Encargado';
+    rol: 'Administrador' | 'Terapeuta';
     estado: 'Activo' | 'Inactivo';
 }
 
@@ -28,7 +28,7 @@ function UsuariosForm({
     const [nombre, setNombre] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [rol, setRol] = useState<'Administrador' | 'Terapeuta' | 'Encargado'>('Encargado');
+    const [rol, setRol] = useState<'Administrador' | 'Terapeuta' >('Terapeuta');
     const [estado, setEstado] = useState<'Activo' | 'Inactivo'>('Activo');
     const [showPassword, setShowPassword] = useState(false);
 
@@ -43,7 +43,7 @@ function UsuariosForm({
             setNombre('');
             setEmail('');
             setPassword('');
-            setRol('Encargado');
+            setRol('Terapeuta');
             setEstado('Activo');
         }
     }, [usuarioEditar]);
@@ -209,7 +209,7 @@ function UsuariosForm({
                                 </Form.Label>
                                 <Form.Select
                                     value={rol}
-                                    onChange={(e) => setRol(e.target.value as 'Administrador' | 'Terapeuta' | 'Encargado')}
+                                    onChange={(e) => setRol(e.target.value as 'Administrador' | 'Terapeuta')}
                                     required
                                     style={{
                                         padding: "0.75rem",
@@ -217,8 +217,7 @@ function UsuariosForm({
                                     }}
                                 >
                                     <option value="Administrador">Administrador</option>
-                                    <option value="Terapeuta">Terapeuta</option>
-                                    <option value="Encargado">Encargado</option>
+                                    <option value="Terapeuta">Terapeuta</option>                      
                                 </Form.Select>
                             </Form.Group>
                         </Col>
