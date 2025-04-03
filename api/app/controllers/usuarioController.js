@@ -90,8 +90,16 @@ const loginUsuario = async (req, res) => {
         }
 
         const token = jwt.createToken(user);
-
-        res.status(200).json({ message: 'Login exitoso', token });
+        const rol = user.rol;
+        var idRol;
+        
+        if (rol === 'Administrador') {
+            idRol = 1;
+        }else{
+            idRol = 0;
+        }
+        console.log(idRol.toString());
+        res.status(200).json({ message: 'Login exitoso', token , idRol });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });

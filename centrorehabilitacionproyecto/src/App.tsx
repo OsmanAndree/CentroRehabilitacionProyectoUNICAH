@@ -18,6 +18,7 @@ import PrestamosTable from "./components/Prestamos";
 import ComprasTable from "./components/Compras";
 import './toast-custom.css';
 import ScrollToTop from './components/ScrollToTop';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -48,19 +49,42 @@ function AppContent() {
       />
       {location.pathname !== '/' && <NavBar />}
       <main className="main-content" style={{ overflow: 'auto', height: '100%' }}>
-        <Routes>
+      <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<Home />} />
           <Route path="/pacientes" element={<PacientesTable />} />
           <Route path="/terapeutas" element={<TerapeutasTable />} />
           <Route path="/citas" element={<CitasTable />} />
           <Route path="/encargados" element={<EncargadosTable />} />
-          <Route path="/productos" element={<ProductosTable />} />
-          <Route path="/bodega" element={<BodegaTable />} />
-          <Route path="/usuarios" element={<UsuariosTable />} />
+
+          {/* Rutas protegidas para roles diferentes a "1". En este caso solo se permite rol "1" */}
+          <Route path="/productos" element={
+            <ProtectedRoute allowedRoles={["1"]}>
+              <ProductosTable />
+            </ProtectedRoute>
+          } />
+          <Route path="/compras" element={
+            <ProtectedRoute allowedRoles={["1"]}>
+              <ComprasTable />
+            </ProtectedRoute>
+          } />
+          <Route path="/bodega" element={
+            <ProtectedRoute allowedRoles={["1"]}>
+              <BodegaTable />
+            </ProtectedRoute>
+          } />
+          <Route path="/usuarios" element={
+            <ProtectedRoute allowedRoles={["1"]}>
+              <UsuariosTable />
+            </ProtectedRoute>
+          } />
           <Route path="/diagnosticos" element={<DiagnosticosTable />} />
-          <Route path="/prestamos" element={<PrestamosTable />} />
-          <Route path="/compras" element={<ComprasTable />} />
+
+          <Route path="/prestamos" element={
+            <ProtectedRoute allowedRoles={["1"]}>
+              <PrestamosTable />
+            </ProtectedRoute>
+          } />
         </Routes>
       </main>
     </>

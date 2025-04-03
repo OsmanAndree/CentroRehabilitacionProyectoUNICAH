@@ -24,17 +24,19 @@ const Login: React.FC = () => {
       });
 
       const data = await response.json();
-
+      console.log(data);
       if (!response.ok) {
         throw new Error(data.error || "Error en el inicio de sesión");
       }
 
-      if (data.usuario && data.usuario.estado === 'inactivo') {
+      if (data.usuario && data.estado === 'Inactivo') {
         toast.error("Este usuario se encuentra inactivo. Contacte al administrador.");
         setLoading(false);
         return;
       }
-
+         
+      localStorage.setItem("idRol", data.idRol.toString());
+        
       toast.success("Inicio de sesión exitoso");
       setTimeout(() => navigate("/home"), 1500);
     } catch (error) {

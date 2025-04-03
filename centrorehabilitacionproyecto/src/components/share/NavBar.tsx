@@ -58,7 +58,14 @@ function NavBar() {
     { path: "/compras", icon: <FaMoneyBill size={getIconSize(20)} />, text: "Compras" },
     { path: "/usuarios", icon: <FaUserGear size={getIconSize(20)} />, text: "Usuarios" }
   ];
+  const userRole = localStorage.getItem("idRol")?.toString();
 
+  const unallowedPathsForRole1 = [ "/compras", "/usuarios"];
+  //ADMINISRADOR = 1
+  const filteredMenuItems =
+    userRole === "1"
+      ? menuItems
+      : menuItems.filter((card) => !unallowedPathsForRole1.includes(card.path)); 
   return (
     <>
       <Navbar expand="xl" fixed="top" className="shadow-lg" style={{ 
@@ -128,7 +135,7 @@ function NavBar() {
             overflow: 'hidden'
           }} className="d-none d-xl-flex">
             <Nav className="d-flex align-items-center justify-content-center flex-wrap" style={{ gap: windowWidth < 1400 ? "0.3rem" : "0.5rem" }}>
-              {menuItems.map((item, index) => (
+              {filteredMenuItems.map((item, index) => (
                 <Nav.Link 
                   key={index}
                   onClick={() => handleNavClick(item.path)}
@@ -229,7 +236,7 @@ function NavBar() {
         </Offcanvas.Header>
         <Offcanvas.Body className="pt-2 pb-4">
           <Nav className="flex-column" style={{ gap: isMobileDevice ? "0.5rem" : "0.75rem" }}>
-            {menuItems.map((item, index) => (
+            {filteredMenuItems.map((item, index) => (
               <Nav.Link
                 key={index}
                 onClick={() => handleNavClick(item.path)}
@@ -278,7 +285,7 @@ function NavBar() {
                 border: "1px solid rgba(255, 255, 255, 0.3)",
                 opacity: "0",
                 transform: "translateX(20px)",
-                animation: `slideIn 0.3s ease forwards ${menuItems.length * 0.08}s`,
+                animation: `slideIn 0.3s ease forwards ${filteredMenuItems.length * 0.08}s`,
                 fontSize: isMobileDevice ? "0.9rem" : "1rem"
               }}
               onMouseEnter={(e) => {

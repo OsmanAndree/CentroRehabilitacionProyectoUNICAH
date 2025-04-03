@@ -21,7 +21,14 @@ const cardsData = [
 
 function CardGrids() {
   const navigate = useNavigate();
-
+   const userRole = localStorage.getItem("idRol")?.toString();
+    console.log(" userRole desde el Home", userRole);
+  const unallowedPathsForRole1 = ["/productos", "/compras", "/bodega", "/prestamos", "/usuarios"];
+  //ADMINISTRADOR = 1
+  const filteredCards =
+    userRole === "1"
+      ? cardsData 
+      : cardsData.filter((card) => !unallowedPathsForRole1.includes(card.path)); 
   return (
     <div className="min-vh-100 position-relative d-flex" style={{ 
       overflow: 'hidden',
@@ -49,7 +56,7 @@ function CardGrids() {
         </div>
         
         <Row xs={1} md={2} lg={3} className="g-4">
-          {cardsData.map((card, index) => (
+          {filteredCards.map((card, index) => (
             <Col key={index}>
               <div className={`card-animate delay-${index}`}>
                 <Card
