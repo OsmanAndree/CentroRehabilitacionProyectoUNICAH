@@ -60,9 +60,30 @@ const deleteProductos = async (req, res) => {
     }
 };
 
+const updateProductoStock = async (req, res) => {
+    const { producto_id } = req.query;
+    const { cantidad_a_sumar } = req.body; 
+
+    try {
+    if (cantidad_a_sumar <= 0) {
+        return res.status(400).json({ success: false, message: "Cantidad inválida" });
+    }
+
+    await db.productos.increment('cantidad_disponible', {
+        by: cantidad_a_sumar,
+        where: { id_producto: producto_id }
+    });
+
+    res.json({ success: true });
+    } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports={
     getProductos,
     insertProductos,
     updateProductos,
-    deleteProductos
+    deleteProductos,
+    updateProductoStock
 } 

@@ -10,8 +10,7 @@ async function getBodegas(req, res) {
         include: [{
             model: Producto,
             as: 'producto', 
-            attributes: ['nombre']
-        }]
+            attributes: ['id_producto', 'nombre'],        }]
     })
     .then(result => {
         res.status(200).send({ result });
