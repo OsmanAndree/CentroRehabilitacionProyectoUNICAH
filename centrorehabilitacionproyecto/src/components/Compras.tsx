@@ -191,6 +191,7 @@ function Compras() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   style={{
+                    
                     border: "none",
                     padding: "0.8rem 1rem",
                     fontSize: "0.95rem"
@@ -226,7 +227,7 @@ function Compras() {
                       <td className="py-3 px-4">{index + 1}</td>
                       <td className="py-3 px-4">{new Date(compra.fecha + 'T00:00:00').toLocaleDateString('es-ES')}</td>
                       <td className="py-3 px-4">{compra.donante}</td>
-                      <td className="py-3 px-4">{compra.total.toFixed(2)}</td>
+                      <td className="py-3 px-4">{isNaN(Number(compra.total)) ? "N/A" : Number(compra.total).toFixed(2)}</td>
                       <td className="py-3 px-4">
                         <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-center'}`} style={{ gap: isMobile ? '8px' : '6px' }}>
                           <Button 
