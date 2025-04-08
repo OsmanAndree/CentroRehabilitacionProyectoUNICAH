@@ -65,7 +65,7 @@ function BodegaTable() {
     axios.delete(`http://localhost:3002/Api/bodega/DeleteBodega?bodega_id=${id}`)
       .then(() => {
         setBodega(prev => prev.filter(p => p.id_bodega !== id));
-        toast.success("Registro de bodega eliminado con éxito.");
+        toast.success("Registro de bodega eliminado con éxito."); // Solo un toast aquí
       })
       .catch(error => {
         console.error("Error al eliminar bodega:", error);
@@ -171,36 +171,38 @@ function BodegaTable() {
                 >
                   <FaPlus className="me-2" /> Nueva Bodega
                 </Button>
-                <PDFDownloadLink
-                  document={<BodegaReport bodegas={bodegasFiltradas.length > 0 ? bodegasFiltradas : bodega} />}
-                  fileName="Reporte_Bodega.pdf"
-                  className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
-                  style={{
-                    borderRadius: "10px",
-                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                    fontWeight: "500",
-                    color: "white",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: isMobile ? "0.9rem" : "1rem"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  {({ loading }) => (
-                    <div className="d-flex align-items-center justify-content-center w-100">
-                      <FaFilePdf className="me-2" />
-                      {loading ? "Generando..." : isMobile ? "Descargar" : "Descargar Reporte"}
-                    </div>
-                  )}
-                </PDFDownloadLink>
+                {bodegasFiltradas.length > 0 && (
+                  <PDFDownloadLink
+                    document={<BodegaReport bodegas={bodegasFiltradas} />}
+                    fileName="Reporte_Bodega.pdf"
+                    className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
+                    style={{
+                      borderRadius: "10px",
+                      padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                      fontWeight: "500",
+                      color: "white",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: isMobile ? "0.9rem" : "1rem"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    {({ loading }) => (
+                      <div className="d-flex align-items-center justify-content-center w-100">
+                        <FaFilePdf className="me-2" />
+                        {loading ? "Generando..." : isMobile ? "Descargar" : "Descargar Reporte"}
+                      </div>
+                    )}
+                  </PDFDownloadLink>
+                )}
               </div>
             </Col>
           </Row>

@@ -161,36 +161,30 @@ function PacientesTable() {
                 >
                   <FaPlus className="me-2" /> Nuevo Paciente
                 </Button>
-                <PDFDownloadLink
-                  document={<PacientesReport pacientes={pacientesFiltrados} />}
-                  fileName="Reporte_Pacientes.pdf"
-                  className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
-                  style={{
-                    borderRadius: "10px",
-                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                    fontWeight: "500",
-                    color: "white",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: isMobile ? "0.9rem" : "1rem"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  {({ loading }) => (
-                    <div className="d-flex align-items-center justify-content-center w-100">
-                      <FaFilePdf className="me-2" />
-                      {loading ? "Generando..." : isMobile ? "Descargar" : "Descargar Reporte"}
-                    </div>
-                  )}
-                </PDFDownloadLink>
+                {pacientesFiltrados.length > 0 && (
+                  <PDFDownloadLink
+                    document={<PacientesReport pacientes={pacientesFiltrados} />}
+                    fileName="Reporte_Pacientes.pdf"
+                    className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
+                    style={{
+                      borderRadius: "10px",
+                      padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                      fontWeight: "500",
+                      color: "white",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: isMobile ? "0.9rem" : "1rem"
+                    }}
+                  >
+                    {({ loading }) => (
+                      <div className="d-flex align-items-center justify-content-center w-100">
+                        <FaFilePdf className="me-2" />
+                        {loading ? "Generando..." : isMobile ? "Descargar" : "Descargar Reporte"}
+                      </div>
+                    )}
+                  </PDFDownloadLink>
+                )}
               </div>
             </Col>
           </Row>
