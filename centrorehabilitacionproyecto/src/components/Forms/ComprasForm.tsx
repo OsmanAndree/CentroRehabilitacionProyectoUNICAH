@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Form, Modal, Row, Col, Table } from 'react-bootstrap';
 import axios from 'axios';
 import { FaPlus, FaTrash, FaShoppingCart, FaCalendarAlt, FaHandHoldingUsd, FaMoneyBillWave, FaBoxes } from 'react-icons/fa';
+import ProductosForm from './ProductosForm'; 
 
 interface Detalle {
   id_producto: number;
@@ -27,14 +28,16 @@ interface ComprasFormModalProps {
   show: boolean;
   handleClose: () => void;
   handleSubmit: () => void;
+  abrirFormularioProductos: () => void; 
 }
 
-function ComprasForm({ compraEditar, show, handleClose, handleSubmit }: ComprasFormModalProps) {
+function ComprasForm({ compraEditar, show, handleClose, handleSubmit, abrirFormularioProductos }: ComprasFormModalProps) {
   const [fecha, setFecha] = useState('');
   const [donante, setDonante] = useState('');
   const [total, setTotal] = useState<number>(0);
   const [detalle, setDetalle] = useState<Detalle[]>([]);
   const [productos, setProductos] = useState<Producto[]>([]);
+  const [showProductosForm, setShowProductosForm] = useState(false);
 
   useEffect(() => {
     axios.get('http://localhost:3002/Api/productos/getProductos')
@@ -122,14 +125,28 @@ function ComprasForm({ compraEditar, show, handleClose, handleSubmit }: ComprasF
             })
             .catch(error => console.error("Error al crear la compra:", error));
     }
-};
+  };
+
+  const handleProductoCreado = () => {
+    axios.get('http://localhost:3002/Api/productos/getProductos')
+      .then(response => {
+        setProductos(response.data.result);
+        setShowProductosForm(false);
+        handleClose();
+      })
+      .catch(error => console.error("Error al obtener productos:", error));
+  };
+
+  const abrirFormularioProductosLocal = () => {
+    abrirFormularioProductos(); 
+  };
 
   return (
     <Modal 
       show={show} 
       onHide={handleClose} 
       centered 
-      size="lg" 
+      size="xl" 
       backdrop="static"
       className="custom-modal"
     >
@@ -231,23 +248,36 @@ function ComprasForm({ compraEditar, show, handleClose, handleSubmit }: ComprasF
                   {detalle.map((det, index) => (
                     <tr key={index}>
                       <td>
-                        <Form.Select
-                          value={det.id_producto || ""}
-                          onChange={(e) => handleDetalleChange(index, 'id_producto', e.target.value)}
-                          required
-                          style={{
-                            padding: "0.75rem",
-                            backgroundColor: "#f8f9fa",
-                            borderRadius: "8px"
-                          }}
-                        >
-                          <option value="">Seleccione un producto</option>
-                          {productos.map(p => (
-                            <option key={p.id_producto} value={p.id_producto}>
-                              {p.nombre}
-                            </option>
-                          ))}
-                        </Form.Select>
+                        <div className="d-flex align-items-center gap-2">
+                          <Form.Select
+                            value={det.id_producto || ""}
+                            onChange={(e) => handleDetalleChange(index, 'id_producto', e.target.value)}
+                            required
+                            style={{
+                              padding: "0.75rem",
+                              backgroundColor: "#f8f9fa",
+                              borderRadius: "8px"
+                            }}
+                          >
+                            <option value="">Seleccione un producto</option>
+                            {productos.map(p => (
+                              <option key={p.id_producto} value={p.id_producto}>
+                                {p.nombre}
+                              </option>
+                            ))}
+                          </Form.Select>
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            onClick={abrirFormularioProductos} 
+                            style={{
+                              padding: "0.2rem 0.6rem",
+                              borderRadius: "8px"
+                            }}
+                          >
+                            <FaPlus /> Nuevo
+                          </Button>
+                        </div>
                       </td>
                       <td>
                         <Form.Control
@@ -276,17 +306,19 @@ function ComprasForm({ compraEditar, show, handleClose, handleSubmit }: ComprasF
                           }}
                         />
                       </td>
-                      <td>
-                        <Button 
-                          variant="outline-danger" 
-                          size="sm" 
-                          onClick={() => handleRemoveDetalle(index)}
-                          style={{
-                            borderRadius: "8px"
-                          }}
-                        >
-                          <FaTrash />
-                        </Button>
+                      <td className="text-center align-middle">
+                        <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
+                          <Button 
+                            variant="outline-danger" 
+                            size="sm" 
+                            onClick={() => handleRemoveDetalle(index)}
+                            style={{
+                              borderRadius: "8px"
+                            }}
+                          >
+                            <FaTrash />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -330,6 +362,15 @@ function ComprasForm({ compraEditar, show, handleClose, handleSubmit }: ComprasF
           </div>
         </Form>
       </Modal.Body>
+      {/* Modal para crear un nuevo producto */}
+      {showProductosForm && (
+        <ProductosForm
+          productoEditar={null}
+          show={showProductosForm}
+          handleClose={() => setShowProductosForm(false)} 
+          handleSubmit={handleProductoCreado} 
+        />
+      )}
     </Modal>
   );
 }

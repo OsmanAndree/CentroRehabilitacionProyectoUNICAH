@@ -4,6 +4,7 @@ import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaFileInvoice, FaShoppingCart
 import axios from 'axios';
 import ComprasForm from './Forms/ComprasForm';
 import ComprasView from './Forms/ComprasView';
+import ProductosForm from './Forms/ProductosForm';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -31,13 +32,15 @@ function Compras() {
   const [compras, setCompras] = useState<Compra[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>("");
-  const [showForm, setShowForm] = useState<boolean>(false);
+  const [showForm, setShowForm] = useState(false);
+  const [showProductosForm, setShowProductosForm] = useState(false);
+  const [reabrirFormulario, setReabrirFormulario] = useState(false);
   const [compraSeleccionada, setCompraSeleccionada] = useState<Compra | null>(null);
   const [productos, setProductos] = useState<Producto[]>([]);
   const [showView, setShowView] = useState<boolean>(false);
   const [compraVista, setCompraVista] = useState<Compra | null>(null);
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
-  
+
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
@@ -94,6 +97,11 @@ function Compras() {
     toast.success("Compra guardada exitosamente");
   };
 
+  const handleProductoCreado = () => {
+    obtenerCompras();
+    toast.success("Producto creado exitosamente");
+  };
+
   const editarCompra = (compra: Compra) => {
     setCompraSeleccionada(compra);
     setShowForm(true);
@@ -119,6 +127,20 @@ function Compras() {
   const cerrarVista = () => {
     setShowView(false);
     setCompraVista(null);
+  };
+
+  const abrirFormularioProductos = () => {
+    setShowForm(false); 
+    setReabrirFormulario(true); 
+    setShowProductosForm(true);
+  };
+
+  const cerrarFormularioProductos = () => {
+    setShowProductosForm(false); 
+    if (reabrirFormulario) {
+      setShowForm(true); 
+      setReabrirFormulario(false); 
+    }
   };
 
   const comprasFiltradas = compras.filter(c =>
@@ -292,14 +314,25 @@ function Compras() {
           )}
         </Card.Body>
       </Card>
-      {showForm && (
-        <ComprasForm
-          compraEditar={compraSeleccionada}
-          show={showForm}
-          handleClose={cerrarFormulario}
-          handleSubmit={handleSubmit}
-        />
-      )}
+      <>
+        {showForm && (
+          <ComprasForm
+            compraEditar={compraSeleccionada}
+            show={showForm}
+            handleClose={() => setShowForm(false)}
+            handleSubmit={handleSubmit}
+            abrirFormularioProductos={abrirFormularioProductos}
+          />
+        )}
+        {showProductosForm && (
+          <ProductosForm
+            productoEditar={null}
+            show={showProductosForm}
+            handleClose={cerrarFormularioProductos}
+            handleSubmit={handleProductoCreado}
+          />
+        )}
+      </>
       {showView && (
         <ComprasView
           compra={compraVista}

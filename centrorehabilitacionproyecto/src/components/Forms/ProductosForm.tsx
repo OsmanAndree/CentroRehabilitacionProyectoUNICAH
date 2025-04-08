@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Modal, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
-import { FaBox, FaFileAlt, FaTag, FaWarehouse } from 'react-icons/fa';
+import { FaBox, FaFileAlt, FaTag, FaWarehouse, FaPlus } from 'react-icons/fa';
 
 interface Producto {
     id_producto?: number;
@@ -12,30 +12,18 @@ interface Producto {
 }
 
 interface ProductosFormModalProps {
-  productoEditar: Producto | null;
-  show: boolean;
-  handleClose: () => void;
-  handleSubmit: () => void;
-}
-
-interface ProductosFormModalProps {
     productoEditar: Producto | null;
     show: boolean;
     handleClose: () => void;
-    handleSubmit: () => void;   
+    handleSubmit: () => void;
 }
 
-function ProductosForm({
-    show,
-    handleClose,
-    handleSubmit,
-    productoEditar,   
-}: ProductosFormModalProps) {
+function ProductosForm({ show, handleClose, handleSubmit, productoEditar }: ProductosFormModalProps) {
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [categoria, setCategoria] = useState('');
     const [cantidad_disponible, setCantidadDisponible] = useState<number>(0);
-    
+
     useEffect(() => {
         if (productoEditar) {
             setNombre(productoEditar.nombre);
@@ -46,41 +34,34 @@ function ProductosForm({
             setNombre('');
             setDescripcion('');
             setCategoria('');
-            setCantidadDisponible(0);}
+            setCantidadDisponible(0);
+        }
     }, [productoEditar]);
 
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
-        const producto: Producto = {
-            nombre,
-            descripcion,
-            categoria,
-            cantidad_disponible,
-        };
-        
+        const producto: Producto = { nombre, descripcion, categoria, cantidad_disponible };
         if (productoEditar && productoEditar.id_producto) {
             axios.put(`http://localhost:3002/Api/productos/updateProductos?producto_id=${productoEditar.id_producto}`, producto)
                 .then(() => {
                     handleSubmit();
                     handleClose();
                 })
-                .catch(error => {
-                    console.error('Error al editar producto:', error);
-                });
+                .catch(error => console.error('Error al editar producto:', error));
         } else {
             axios.post('http://localhost:3002/Api/productos/insertProductos', producto)
-            .then(() => {
-                handleSubmit();
-                handleClose();
-            })
-            .catch(error => {
-                console.error('Error al insertar producto:', error);
-            });
+                .then(() => {
+                    handleSubmit();
+                    handleClose();
+                })
+                .catch(error => console.error('Error al insertar producto:', error));
         }
     };
-    
-return (
+
+    const abrirFormularioProductos = () => {
+    };
+
+    return (
         <Modal 
             show={show} 
             onHide={handleClose} 
@@ -88,11 +69,14 @@ return (
             size="lg"
             backdrop="static"
             className="custom-modal"
+            style={{
+                boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)"
+            }}
         >
             <Modal.Header 
                 className="border-0 position-relative"
                 style={{
-                    background: "linear-gradient(135deg, #2E8B57 0%, #1a5735 100%)",
+                    background: "linear-gradient(135deg, #007BFF 0%, #0056b3 100%)", 
                     borderRadius: "15px 15px 0 0",
                     padding: "1.5rem"
                 }}
@@ -105,9 +89,19 @@ return (
                         </span>
                     </div>
                 </Modal.Title>
+                <Button 
+                    variant="outline-primary" 
+                    size="sm" 
+                    onClick={abrirFormularioProductos}
+                    style={{
+                        padding: "0.4rem 0.6rem",
+                        borderRadius: "8px"
+                    }}
+                >
+                    <FaPlus /> Nuevo
+                </Button>
             </Modal.Header>
-
-            <Modal.Body style={{ padding: "2rem" }}>
+            <Modal.Body style={{ padding: "2rem", backgroundColor: "#f8f9fa" }}>
                 <Form onSubmit={handleFormSubmit}>
                     <Row className="mb-4">
                         <Col md={6}>
@@ -124,7 +118,7 @@ return (
                                     required
                                     style={{
                                         padding: "0.75rem",
-                                        backgroundColor: "#f8f9fa",
+                                        backgroundColor: "#ffffff",
                                         borderRadius: "8px"
                                     }}
                                 />
@@ -143,14 +137,13 @@ return (
                                     onChange={(e) => setDescripcion(e.target.value)}
                                     style={{
                                         padding: "0.75rem",
-                                        backgroundColor: "#f8f9fa",
+                                        backgroundColor: "#ffffff",
                                         borderRadius: "8px"
                                     }}
                                 />
                             </Form.Group>
                         </Col>
                     </Row>
-
                     <Row className="mb-4">
                         <Col md={6}>
                             <Form.Group>
@@ -166,7 +159,7 @@ return (
                                     required
                                     style={{
                                         padding: "0.75rem",
-                                        backgroundColor: "#f8f9fa",
+                                        backgroundColor: "#ffffff",
                                         borderRadius: "8px"
                                     }}
                                 />
@@ -186,7 +179,7 @@ return (
                                     required
                                     style={{
                                         padding: "0.75rem",
-                                        backgroundColor: "#f8f9fa",
+                                        backgroundColor: "#ffffff",
                                         borderRadius: "8px",
                                         textAlign: "center",
                                         fontSize: "1rem"
@@ -195,7 +188,6 @@ return (
                             </Form.Group>
                         </Col>
                     </Row>
-
                     <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                         <Button 
                             variant="outline-secondary" 
@@ -208,12 +200,12 @@ return (
                             Cancelar
                         </Button>
                         <Button 
-                            variant="success" 
+                            variant="primary" 
                             type="submit"
                             style={{
                                 padding: "0.75rem 1.5rem",
                                 borderRadius: "8px",
-                                backgroundColor: "#2E8B57"
+                                backgroundColor: "#007BFF"
                             }}
                         >
                             {productoEditar ? 'Guardar Cambios' : 'Crear Producto'}
