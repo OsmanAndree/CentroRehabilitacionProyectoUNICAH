@@ -1,13 +1,15 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserPlus } from 'react-icons/fa';
-import axios from 'axios';
-import PacientesForm from './Forms/PacientesForm';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserPlus, FaFilePdf } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useSelector, useDispatch } from 'react-redux';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import PacientesReport from './Reports/PacientesReport'; 
-import { FaFilePdf } from 'react-icons/fa';
+
+import { AppDispatch, RootState } from '../app/store';
+import { fetchPacientes, deletePaciente } from '../features/pacientes/pacientesSlice';
+import PacientesForm from './Forms/PacientesForm';
+import PacientesReport from './Reports/PacientesReport';
 
 export interface Paciente {
   id_paciente: number;
@@ -24,71 +26,47 @@ export interface Paciente {
 }
 
 function PacientesTable() {
-  const [pacientes, setPacientes] = useState<Paciente[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const dispatch: AppDispatch = useDispatch();
+  const { pacientes, status, error } = useSelector((state: RootState) => state.pacientes);
+
   const [showForm, setShowForm] = useState<boolean>(false);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState<Paciente | null>(null);
   const [search, setSearch] = useState<string>("");
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 
   useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-    
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  const obtenerPacientes = useCallback(() => {
-    setLoading(true);
-    axios.get('http://localhost:3002/Api/pacientes/getpacientes')
-      .then(response => {
-        setPacientes(response.data.result);
-        toast.success("Pacientes cargados exitosamente");
-      })
-      .catch(error => {
-        console.error("Error al obtener pacientes:", error);
-        toast.error("No se pudieron cargar los pacientes.");
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    if (status === 'idle') {
+      dispatch(fetchPacientes());
+    }
+  }, [status, dispatch]);
 
   useEffect(() => {
-    obtenerPacientes();
-  }, [obtenerPacientes]);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const eliminarPaciente = (id: number) => {
+  const eliminarPacienteHandler = (id: number) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar este paciente?")) return;
-    axios.delete(`http://localhost:3002/Api/pacientes/deletepacientes?paciente_id=${id}`)
-      .then(() => {
-        setPacientes(prev => prev.filter(p => p.id_paciente !== id));
-        toast.success("Paciente eliminado con éxito.");
-      })
-      .catch(error => {
-        console.error("Error al eliminar paciente:", error);
-        toast.error("Hubo un problema al eliminar el paciente.");
-      });
+    dispatch(deletePaciente(id))
+      .unwrap()
+      .then(() => toast.success("Paciente eliminado con éxito."))
+      .catch((err) => toast.error(`Hubo un problema al eliminar: ${err.message || 'Error desconocido'}`));
   };
 
   const handleSubmit = () => {
-    obtenerPacientes();
-    toast.success("Paciente guardado con éxito.");
+    dispatch(fetchPacientes());
+    toast.success("Operación guardada con éxito.");
   };
 
   const editarPaciente = (paciente: Paciente) => {
     setPacienteSeleccionado(paciente);
     setShowForm(true);
-    toast.info("Editando paciente");
   };
 
   const crearPaciente = () => {
     setPacienteSeleccionado(null);
     setShowForm(true);
-    toast.info("Creando nuevo paciente");
   };
 
   const cerrarFormulario = () => {
@@ -100,40 +78,18 @@ function PacientesTable() {
     `${p.nombre} ${p.apellido}`.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Determinar si estamos en un dispositivo móvil
   const isMobile = windowWidth < 768;
 
   return (
     <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
-      <ToastContainer 
-        position="top-right" 
-        autoClose={3000} 
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-      <Card className="shadow-lg border-0" style={{ 
-        borderRadius: "20px",
-        backgroundColor: "#ffffff"
-      }}>
-        <Card.Header className="bg-gradient py-3"
-          style={{ 
-            backgroundColor: "#2E8B57",
-            borderRadius: "20px 20px 0 0",
-            border: "none"
-          }}>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar theme="colored" />
+      <Card className="shadow-lg border-0" style={{ borderRadius: "20px", backgroundColor: "#ffffff" }}>
+        <Card.Header className="bg-gradient py-3" style={{ backgroundColor: "#2E8B57", borderRadius: "20px 20px 0 0", border: "none" }}>
           <Row className="align-items-center">
             <Col xs={12} md={6} className="mb-3 mb-md-0">
               <div className="d-flex align-items-center">
                 <FaUserPlus size={24} className="text-white me-2" />
-                <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
-                  Gestión de Pacientes
-                </h4>
+                <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>Gestión de Pacientes</h4>
               </div>
             </Col>
             <Col xs={12} md={6}>
@@ -180,7 +136,7 @@ function PacientesTable() {
                     {({ loading }) => (
                       <div className="d-flex align-items-center justify-content-center w-100">
                         <FaFilePdf className="me-2" />
-                        {loading ? "Generando..." : isMobile ? "Descargar" : "Descargar Reporte"}
+                        {loading ? "Generando..." : "Descargar Reporte"}
                       </div>
                     )}
                   </PDFDownloadLink>
@@ -189,20 +145,11 @@ function PacientesTable() {
             </Col>
           </Row>
         </Card.Header>
-
         <Card.Body className="p-3 p-md-4">
           <Row className="mb-4">
             <div className="col-md-6 col-lg-4">
-              <InputGroup style={{ 
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                borderRadius: "12px",
-                overflow: "hidden"
-              }}>
-                <InputGroup.Text style={{ 
-                  backgroundColor: "#f8f9fa",
-                  border: "none",
-                  paddingLeft: "1.2rem"
-                }}>
+              <InputGroup style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.05)", borderRadius: "12px", overflow: "hidden" }}>
+                <InputGroup.Text style={{ backgroundColor: "#f8f9fa", border: "none", paddingLeft: "1.2rem" }}>
                   <FaSearch className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control
@@ -210,25 +157,15 @@ function PacientesTable() {
                   placeholder="Buscar paciente..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  style={{
-                    border: "none",
-                    padding: "0.8rem 1rem",
-                    fontSize: "0.95rem"
-                  }}
+                  style={{ border: "none", padding: "0.8rem 1rem", fontSize: "0.95rem" }}
                 />
               </InputGroup>
             </div>
           </Row>
-
-          {loading ? (
-            <div className="text-center py-5">
-              <Spinner animation="border" variant="success" />
-              <p className="mt-3 text-muted">Cargando pacientes...</p>
-            </div>
-          ) : pacientesFiltrados.length === 0 ? (
-            <div className="text-center py-5">
-              <p className="text-muted">No se encontraron pacientes.</p>
-            </div>
+          {status === 'loading' ? (
+            <div className="text-center py-5"><Spinner animation="border" variant="success" /><p className="mt-3 text-muted">Cargando pacientes...</p></div>
+          ) : status === 'failed' ? (
+            <div className="text-center py-5"><p className="text-danger">Error: {error}</p></div>
           ) : (
             <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
               <Table hover className="align-middle mb-0">
@@ -243,52 +180,39 @@ function PacientesTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pacientesFiltrados.map((paciente, index) => (
-                    <tr key={paciente.id_paciente}>
-                      <td className="py-3 px-4">{index + 1}</td>
-                      <td className="py-3 px-4">{`${paciente.nombre} ${paciente.apellido}`}</td>
-                      <td className="py-3 px-4">{new Date(paciente.fecha_nacimiento).toLocaleDateString()}</td>
-                      <td className="py-3 px-4">{paciente.telefono}</td>
-                      <td className="py-3 px-4">{paciente.encargado ? `${paciente.encargado.nombre} ${paciente.encargado.apellido}` : "No asignado"}</td>
-                      <td className="py-3 px-4 text-center">
-                        <div className="d-flex justify-content-center gap-2">
-                          <Button 
-                            variant="outline-primary" 
-                            size="sm" 
-                            onClick={() => editarPaciente(paciente)}
-                            style={{ 
-                              borderRadius: "8px",
-                              padding: "0.4rem 0.6rem"
-                            }}
-                          >
-                            <FaEdit />
-                          </Button>
-                          <Button 
-                            variant="outline-danger" 
-                            size="sm" 
-                            onClick={() => eliminarPaciente(paciente.id_paciente)}
-                            style={{ 
-                              borderRadius: "8px",
-                              padding: "0.4rem 0.6rem"
-                            }}
-                          >
-                            <FaTrash />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {pacientesFiltrados.length > 0 ? (
+                    pacientesFiltrados.map((paciente, index) => (
+                      <tr key={paciente.id_paciente}>
+                        <td className="py-3 px-4">{index + 1}</td>
+                        <td className="py-3 px-4">{`${paciente.nombre} ${paciente.apellido}`}</td>
+                        <td className="py-3 px-4">{new Date(paciente.fecha_nacimiento).toLocaleDateString()}</td>
+                        <td className="py-3 px-4">{paciente.telefono}</td>
+                        <td className="py-3 px-4">{paciente.encargado ? `${paciente.encargado.nombre} ${paciente.encargado.apellido}` : "No asignado"}</td>
+                        <td className="py-3 px-4 text-center">
+                          <div className="d-flex justify-content-center gap-2">
+                            <Button variant="outline-primary" size="sm" onClick={() => editarPaciente(paciente)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                              <FaEdit />
+                            </Button>
+                            <Button variant="outline-danger" size="sm" onClick={() => eliminarPacienteHandler(paciente.id_paciente)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                              <FaTrash />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan={6} className="text-center py-5 text-muted">No se encontraron pacientes.</td></tr>
+                  )}
                 </tbody>
               </Table>
             </div>
           )}
         </Card.Body>
       </Card>
-
       {showForm && (
-        <PacientesForm 
-          show={showForm} 
-          handleClose={cerrarFormulario} 
+        <PacientesForm
+          show={showForm}
+          handleClose={cerrarFormulario}
           handleSubmit={handleSubmit}
           pacienteEditar={pacienteSeleccionado}
         />

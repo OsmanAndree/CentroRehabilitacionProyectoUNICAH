@@ -1,18 +1,19 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
+import { Prestamo } from '../Prestamos';
 
 Font.register({
     family: 'Poppins',
     fonts: [
-        { src: '../../src/assets/fonts/Poppins-Regular.ttf' }, 
-        { src: '../../src/assets/fonts/Poppins-Bold.ttf', fontWeight: 'bold' }, 
+        { src: '/fonts/Poppins-Regular.ttf' },
+        { src: '/fonts/Poppins-Bold.ttf', fontWeight: 'bold' },
     ],
 });
 
 const styles = StyleSheet.create({
     page: {
         padding: 30,
-        fontSize: 12,
+        fontSize: 10,
         fontFamily: 'Poppins',
         backgroundColor: '#f8f9fa',
     },
@@ -27,20 +28,10 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 22,
         fontWeight: 'bold',
-        fontFamily: 'Poppins',
         textTransform: 'uppercase',
-    },
-    headerSubtitle: {
-        fontSize: 12,
-        marginTop: 5,
     },
     table: {
         width: '100%',
-        borderStyle: 'solid',
-        borderWidth: 1,
-        borderColor: '#dcdcdc',
-        borderRadius: 8,
-        overflow: 'hidden',
     },
     tableHeader: {
         backgroundColor: '#2E8B57',
@@ -52,173 +43,80 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         borderBottomWidth: 1,
         borderBottomColor: '#dcdcdc',
-        borderBottomStyle: 'solid',
+        alignItems: 'center',
+        paddingVertical: 4,
     },
     tableRowAlternate: {
         backgroundColor: '#f1f1f1',
     },
-    tableCellHeader: {
-        padding: 8,
-        fontSize: 10,
-        textAlign: 'center',
-        width: '100%',
-    },
     tableCell: {
-        padding: 8,
-        fontSize: 10,
+        padding: 6,
         textAlign: 'center',
-        width: '100%',
     },
-    columnNumber: {
-        width: '5%',
-    },
-    columnPaciente: {
-        width: '25%',
-    },
-    columnProducto: {
-        width: '25%',
-    },
-    columnFechaPrestamo: {
-        width: '15%',
-    },
-    columnFechaDevolucion: {
-        width: '15%',
-    },
-    columnEstado: {
-        width: '15%',
-    },
-    estadoPrestado: {
-        color: '#28a745',
-        fontWeight: 'bold',
-    },
-    estadoDevuelto: {
-        color: '#007bff',
-        fontWeight: 'bold',
-    },
-    footer: {
-        marginTop: 20,
-        textAlign: 'center',
-        fontSize: 10,
-        color: '#6c757d',
-        fontFamily: 'Poppins',
-    },
-    cellContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+    colNum: { width: '5%' },
+    colPaciente: { width: '25%', textAlign: 'left' },
+    colProducto: { width: '25%', textAlign: 'left' },
+    colFechaP: { width: '15%' },
+    colFechaD: { width: '15%' },
+    colEstado: { width: '15%' },
+    estadoPrestado: { color: '#28a745', fontWeight: 'bold' },
+    estadoDevuelto: { color: '#007bff', fontWeight: 'bold' },
 });
-
-interface Prestamo {
-    id_prestamo: number;
-    id_paciente: number;
-    id_producto: number;
-    fecha_prestamo: string;
-    fecha_devolucion: string;
-    estado: 'Prestado' | 'Devuelto';
-    paciente?: {
-        nombre: string;
-        apellido: string;
-    };
-    producto?: {
-        nombre: string;
-        descripcion: string;
-    };
-}
 
 const formatDate = (dateString: string) => {
     if (!dateString) return 'Pendiente';
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
+    return date.toLocaleDateString('es-ES');
 };
 
 const PrestamosReport = ({ prestamos }: { prestamos: Prestamo[] }) => (
     <Document>
         <Page size="A4" style={styles.page} orientation="landscape">
-            {/* Encabezado del reporte */}
             <View style={styles.headerContainer}>
                 <Text style={styles.headerTitle}>Reporte de Préstamos</Text>
-                <Text style={styles.headerSubtitle}>
-                    Generado el {new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}
-                </Text>
             </View>
 
-            {/* Tabla de préstamos */}
             <View style={styles.table}>
-                {/* Encabezados de la tabla */}
                 <View style={styles.tableHeader}>
-                    <View style={[styles.cellContainer, styles.columnNumber]}>
-                        <Text style={styles.tableCellHeader}>#</Text>
-                    </View>
-                    <View style={[styles.cellContainer, styles.columnPaciente]}>
-                        <Text style={styles.tableCellHeader}>Paciente</Text>
-                    </View>
-                    <View style={[styles.cellContainer, styles.columnProducto]}>
-                        <Text style={styles.tableCellHeader}>Producto</Text>
-                    </View>
-                    <View style={[styles.cellContainer, styles.columnFechaPrestamo]}>
-                        <Text style={styles.tableCellHeader}>Fecha Préstamo</Text>
-                    </View>
-                    <View style={[styles.cellContainer, styles.columnFechaDevolucion]}>
-                        <Text style={styles.tableCellHeader}>Fecha Devolución</Text>
-                    </View>
-                    <View style={[styles.cellContainer, styles.columnEstado]}>
-                        <Text style={styles.tableCellHeader}>Estado</Text>
-                    </View>
+                    <Text style={[styles.tableCell, styles.colNum]}>#</Text>
+                    <Text style={[styles.tableCell, styles.colPaciente]}>Paciente</Text>
+                    <Text style={[styles.tableCell, styles.colProducto]}>Producto</Text>
+                    <Text style={[styles.tableCell, styles.colFechaP]}>F. Préstamo</Text>
+                    <Text style={[styles.tableCell, styles.colFechaD]}>F. Devolución</Text>
+                    <Text style={[styles.tableCell, styles.colEstado]}>Estado</Text>
                 </View>
 
-                {/* Filas de la tabla */}
                 {prestamos.map((prestamo, index) => (
                     <View
                         style={[
                             styles.tableRow,
-                            index % 2 !== 0 ? styles.tableRowAlternate : {}, 
+                            index % 2 !== 0 ? styles.tableRowAlternate : {},
                         ]}
                         key={prestamo.id_prestamo}
                     >
-                        <View style={[styles.cellContainer, styles.columnNumber]}>
-                            <Text style={styles.tableCell}>{index + 1}</Text>
-                        </View>
-                        <View style={[styles.cellContainer, styles.columnPaciente]}>
-                            <Text style={styles.tableCell}>
-                                {prestamo.paciente ? `${prestamo.paciente.nombre} ${prestamo.paciente.apellido}` : 'N/A'}
-                            </Text>
-                        </View>
-                        <View style={[styles.cellContainer, styles.columnProducto]}>
-                            <Text style={styles.tableCell}>
-                                {prestamo.producto ? prestamo.producto.nombre : 'N/A'}
-                            </Text>
-                        </View>
-                        <View style={[styles.cellContainer, styles.columnFechaPrestamo]}>
-                            <Text style={styles.tableCell}>
-                                {formatDate(prestamo.fecha_prestamo)}
-                            </Text>
-                        </View>
-                        <View style={[styles.cellContainer, styles.columnFechaDevolucion]}>
-                            <Text style={styles.tableCell}>
-                                {formatDate(prestamo.fecha_devolucion)}
-                            </Text>
-                        </View>
-                        <View style={[styles.cellContainer, styles.columnEstado]}>
-                            <Text style={[
-                                styles.tableCell, 
-                                prestamo.estado === 'Prestado' ? styles.estadoPrestado : styles.estadoDevuelto
-                            ]}>
-                                {prestamo.estado}
-                            </Text>
-                        </View>
+                        <Text style={[styles.tableCell, styles.colNum]}>{index + 1}</Text>
+                        <Text style={[styles.tableCell, styles.colPaciente]}>
+                            {prestamo.paciente ? `${prestamo.paciente.nombre} ${prestamo.paciente.apellido}` : 'N/A'}
+                        </Text>
+                        <Text style={[styles.tableCell, styles.colProducto]}>
+                            {prestamo.producto ? prestamo.producto.nombre : 'N/A'}
+                        </Text>
+                        <Text style={[styles.tableCell, styles.colFechaP]}>
+                            {formatDate(prestamo.fecha_prestamo)}
+                        </Text>
+                        <Text style={[styles.tableCell, styles.colFechaD]}>
+                            {formatDate(prestamo.fecha_devolucion)}
+                        </Text>
+                        <Text style={[
+                            styles.tableCell,
+                            styles.colEstado,
+                            prestamo.estado === 'Prestado' ? styles.estadoPrestado : styles.estadoDevuelto
+                        ]}>
+                            {prestamo.estado}
+                        </Text>
                     </View>
                 ))}
             </View>
-
-            {/* Pie de página */}
-            <Text style={styles.footer}>
-                Generado por el Sistema de Gestión de Préstamos - {new Date().toLocaleDateString('es-ES')}
-            </Text>
         </Page>
     </Document>
 );

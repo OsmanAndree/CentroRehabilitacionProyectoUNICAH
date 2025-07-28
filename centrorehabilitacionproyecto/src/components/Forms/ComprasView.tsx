@@ -1,53 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 import { Button, Modal, Table, Row, Col, Card } from 'react-bootstrap';
 import { FaShoppingCart, FaCalendarAlt, FaHandHoldingUsd, FaMoneyBillWave, FaBoxes, FaTimes } from 'react-icons/fa';
-
-interface Detalle {
-  id_detalle: number;
-  id_producto: number;
-  cantidad: number;
-  costo_unitario: number;
-}
-
-interface Compra {
-  id_compra: number;
-  fecha: string;
-  donante: string;
-  total: number;  
-  detalle: Detalle[];
-}
-
-interface Producto {
-  id_producto: number;
-  nombre: string;
-}
+import { Compra } from '../Compras'; 
+import { Producto } from '../../features/productos/productosSlice'; 
 
 interface ComprasViewProps {
   show: boolean;
   handleClose: () => void;
   compra: Compra | null;
+  productos: Producto[]; 
 }
 
-function ComprasView({ show, handleClose, compra }: ComprasViewProps) {
-  const [productos, setProductos] = useState<Producto[]>([]);
+function ComprasView({ show, handleClose, compra, productos }: ComprasViewProps) {
 
-  useEffect(() => {
-    axios.get('http://localhost:3002/Api/productos/getProductos')
-      .then(response => {
-        setProductos(response.data.result);
-      })
-      .catch(error => {
-        console.error("Error al obtener productos:", error);
-      });
-  }, []);
-
-  const getNombreProducto = (id: number) => {
+  const getNombreProducto = (id: number): string => {
     const producto = productos.find(p => p.id_producto === id);
-    return producto ? producto.nombre : id;
+    return producto ? producto.nombre : `ID: ${id}`;
   };
 
-  if (!compra) return null;
+  if (!compra) {
+    return null;
+  }
+
   const formatTotal = (total: any) => {
     const numTotal = Number(total);
     return isNaN(numTotal) ? '0.00' : numTotal.toFixed(2);
@@ -61,11 +35,9 @@ function ComprasView({ show, handleClose, compra }: ComprasViewProps) {
   const calcularSubtotal = (cantidad: any, costo: any) => {
     const numCantidad = Number(cantidad);
     const numCosto = Number(costo);
-    
     if (isNaN(numCantidad) || isNaN(numCosto)) {
       return '0.00';
     }
-    
     return (numCantidad * numCosto).toFixed(2);
   };
 
@@ -78,7 +50,7 @@ function ComprasView({ show, handleClose, compra }: ComprasViewProps) {
       className="custom-modal"
     >
       <Modal.Header 
-        className="border-0 position-relative"
+        className="border-0"
         style={{
           background: "linear-gradient(135deg, #2E8B57 0%, #1a5735 100%)",
           borderRadius: "15px 15px 0 0",
@@ -89,7 +61,7 @@ function ComprasView({ show, handleClose, compra }: ComprasViewProps) {
           <div className="d-flex align-items-center">
             <FaShoppingCart className="me-2" size={24} />
             <span style={{ fontSize: "1.4rem", fontWeight: "600" }}>
-              Detalles de Compra
+              Detalles de Compra - Folio #{String(compra.id_compra).padStart(3, '0')}
             </span>
           </div>
         </Modal.Title>

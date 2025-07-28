@@ -1,15 +1,18 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
 import { FaWarehouse, FaSearch, FaPlus, FaEdit, FaTrash, FaBox, FaFilePdf } from 'react-icons/fa';
-import axios from 'axios';
-import BodegasForm from './Forms/BodegasForm';
-import ProductoOut from './Forms/ProductoOut';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useSelector, useDispatch } from 'react-redux';
 import { PDFDownloadLink } from '@react-pdf/renderer';
+
+import { AppDispatch, RootState } from '../app/store';
+import { fetchBodegas, deleteBodega } from '../features/bodegas/bodegasSlice';
+import BodegasForm from './Forms/BodegasForm';
+import ProductoOut from './Forms/ProductoOut';
 import BodegaReport from './Reports/BodegaReport';
 
-interface Bodega {
+export interface Bodega {
   id_bodega: number;
   id_producto: number;
   cantidad: number;
@@ -20,8 +23,9 @@ interface Bodega {
 }
 
 function BodegaTable() {
-  const [bodega, setBodega] = useState<Bodega[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const dispatch: AppDispatch = useDispatch();
+  const { bodegas, status, error } = useSelector((state: RootState) => state.bodegas);
+  
   const [showForm, setShowForm] = useState<boolean>(false);
   const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(null);
   const [search, setSearch] = useState<string>("");
@@ -30,64 +34,39 @@ function BodegaTable() {
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
   
   useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-    
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  const obtenerBodega = useCallback(() => {
-    setLoading(true);
-    axios.get('http://localhost:3002/Api/bodega/GetBodegas')
-      .then(response => {
-        setBodega(response.data.result);
-        toast.success("Registros de bodega cargados exitosamente");
-      })
-      .catch(error => {
-        console.error("Error al obtener bodegas:", error);
-        toast.error("No se pudieron cargar los registros de bodega.");
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    if (status === 'idle') {
+      dispatch(fetchBodegas());
+    }
+  }, [status, dispatch]);
 
   useEffect(() => {
-    obtenerBodega();
-  }, [obtenerBodega]);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const eliminarBodega = (id: number) => {
-    if (!window.confirm("¿Estás seguro de que deseas eliminar esta registro de bodega?")) return;
+  const eliminarBodegaHandler = (id: number) => {
+    if (!window.confirm("¿Estás seguro de que deseas eliminar este registro de bodega?")) return;
 
-    axios.delete(`http://localhost:3002/Api/bodega/DeleteBodega?bodega_id=${id}`)
-      .then(() => {
-        setBodega(prev => prev.filter(p => p.id_bodega !== id));
-        toast.success("Registro de bodega eliminado con éxito."); // Solo un toast aquí
-      })
-      .catch(error => {
-        console.error("Error al eliminar bodega:", error);
-        toast.error("Hubo un problema al eliminar el registro de bodega.");
-      });
+    dispatch(deleteBodega(id))
+      .unwrap()
+      .then(() => toast.success("Registro eliminado con éxito."))
+      .catch((err) => toast.error(`Hubo un problema al eliminar: ${err.message || 'Error desconocido'}`));
   };
 
   const handleSubmit = () => {
-    obtenerBodega();
-    toast.success("Registro de bodega guardado con éxito.");
+    dispatch(fetchBodegas());
+    toast.success("Operación guardada con éxito.");
   };
 
   const editarBodega = (bodega: Bodega) => {
     setBodegaSeleccionada(bodega);
     setShowForm(true);
-    toast.info("Editando registro de bodega");
   };
 
   const crearBodega = () => {
     setBodegaSeleccionada(null);
     setShowForm(true);
-    toast.info("Creando nuevo registro de bodega");
   };
 
   const cerrarFormulario = () => {
@@ -98,7 +77,6 @@ function BodegaTable() {
   const sacarProducto = (bodega: Bodega) => {
     setBodegaParaSacar(bodega);
     setShowProductoOut(true);
-    toast.info(`Preparando para sacar producto: ${bodega.producto.nombre}`);
   };
 
   const cerrarModalSacarProducto = () => {
@@ -106,44 +84,22 @@ function BodegaTable() {
     setBodegaParaSacar(null);
   };
 
-  const bodegasFiltradas = bodega.filter(p =>
-    `${p.id_producto}`.toLowerCase().includes(search.toLowerCase())
+  const bodegasFiltradas = bodegas.filter(b =>
+    b.producto?.nombre.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Determinar si estamos en un dispositivo móvil
   const isMobile = windowWidth < 768;
 
   return (
     <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
-      <ToastContainer 
-        position="top-right" 
-        autoClose={3000} 
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-      <Card className="shadow-lg border-0" style={{ 
-        borderRadius: "20px",
-        backgroundColor: "#ffffff"
-      }}>
-        <Card.Header className="bg-gradient py-3"
-          style={{ 
-            backgroundColor: "#2E8B57",
-            borderRadius: "20px 20px 0 0",
-            border: "none"
-          }}>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar theme="colored" />
+      <Card className="shadow-lg border-0" style={{ borderRadius: "20px", backgroundColor: "#ffffff" }}>
+        <Card.Header className="bg-gradient py-3" style={{ backgroundColor: "#2E8B57", borderRadius: "20px 20px 0 0", border: "none" }}>
           <Row className="align-items-center">
             <Col xs={12} md={6} className="mb-3 mb-md-0">
               <div className="d-flex align-items-center">
                 <FaWarehouse size={24} className="text-white me-2" />
-                <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>
-                  Gestión de Bodega
-                </h4>
+                <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>Gestión de Bodega</h4>
               </div>
             </Col>
             <Col xs={12} md={6}>
@@ -169,7 +125,7 @@ function BodegaTable() {
                     e.currentTarget.style.boxShadow = "none";
                   }}
                 >
-                  <FaPlus className="me-2" /> Nueva Bodega
+                  <FaPlus className="me-2" /> Ingreso
                 </Button>
                 {bodegasFiltradas.length > 0 && (
                   <PDFDownloadLink
@@ -186,19 +142,11 @@ function BodegaTable() {
                       justifyContent: "center",
                       fontSize: isMobile ? "0.9rem" : "1rem"
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow = "none";
-                    }}
                   >
                     {({ loading }) => (
                       <div className="d-flex align-items-center justify-content-center w-100">
                         <FaFilePdf className="me-2" />
-                        {loading ? "Generando..." : isMobile ? "Descargar" : "Descargar Reporte"}
+                        {loading ? "Generando..." : "Reporte"}
                       </div>
                     )}
                   </PDFDownloadLink>
@@ -211,41 +159,27 @@ function BodegaTable() {
         <Card.Body className="p-3 p-md-4">
           <Row className="mb-4">
             <div className="col-md-6 col-lg-4">
-              <InputGroup style={{ 
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                borderRadius: "12px",
-                overflow: "hidden"
-              }}>
-                <InputGroup.Text style={{ 
-                  backgroundColor: "#f8f9fa",
-                  border: "none",
-                  paddingLeft: "1.2rem"
-                }}>
+              <InputGroup style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.05)", borderRadius: "12px", overflow: "hidden" }}>
+                <InputGroup.Text style={{ backgroundColor: "#f8f9fa", border: "none", paddingLeft: "1.2rem" }}>
                   <FaSearch className="text-muted" />
                 </InputGroup.Text>
                 <Form.Control
                   type="text"
-                  placeholder="Buscar en bodega..."
+                  placeholder="Buscar por nombre de producto..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  style={{
-                    border: "none",
-                    padding: "0.8rem 1rem",
-                    fontSize: "0.95rem"
-                  }}
+                  style={{ border: "none", padding: "0.8rem 1rem", fontSize: "0.95rem" }}
                 />
               </InputGroup>
             </div>
           </Row>
 
-          {loading ? (
-            <div className="text-center py-5">
-              <Spinner animation="border" variant="success" />
-              <p className="mt-3 text-muted">Cargando información de bodega...</p>
-            </div>
-          ) : bodegasFiltradas.length === 0 ? (
-            <div className="text-center py-5">
-              <p className="text-muted">No se encontraron registros en bodega.</p>
+          {status === 'loading' ? (
+            <div className="text-center py-5"><Spinner animation="border" variant="success" /><p className="mt-3 text-muted">Cargando registros de bodega...</p></div>
+          ) : status === 'failed' ? (
+             <div className="text-center py-5">
+              <p className="text-danger">Error: {error}</p>
+              <Button variant="secondary" size="sm" onClick={() => dispatch(fetchBodegas())}>Reintentar</Button>
             </div>
           ) : (
             <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
@@ -260,72 +194,39 @@ function BodegaTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {bodegasFiltradas.map((bodega, index) => (
-                    <tr key={bodega.id_bodega}>
+                  {bodegasFiltradas.length > 0 ? (
+                    bodegasFiltradas.map((item, index) => (
+                    <tr key={item.id_bodega}>
                       <td className="py-3 px-4">{index + 1}</td>
-                      <td className="py-3 px-4">{bodega.producto?.nombre ?? 'Sin producto'}</td>
+                      <td className="py-3 px-4">{item.producto?.nombre ?? 'Sin producto'}</td>
                       <td className="py-3 px-4 text-center">
                         <span className={`badge ${
-                          bodega.cantidad > 10 ? 'bg-success' :
-                          bodega.cantidad > 5 ? 'bg-warning' :
+                          item.cantidad > 10 ? 'bg-success' :
+                          item.cantidad > 5 ? 'bg-warning' :
                           'bg-danger'
-                        }`} style={{
-                          fontSize: '0.95rem',
-                          fontWeight: '800'
-                        }}>
-                          {bodega.cantidad}
+                        }`} style={{ fontSize: '0.9rem' }}>
+                          {item.cantidad}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
-                        <span className="badge bg-success-light text-success" style={{ 
-                              fontSize: '0.95rem',
-                              fontWeight: '800'
-                            }}>
-                          {bodega.ubicacion}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-center'}`} style={{ gap: isMobile ? '8px' : '6px' }}>
-                          <Button 
-                            variant="outline-warning" 
-                            size="sm" 
-                            onClick={() => sacarProducto(bodega)}
-                            style={{ 
-                              borderRadius: "8px",
-                              padding: "0.4rem 0.6rem",
-                              width: isMobile ? "100%" : "auto"
-                            }}
-                          >
-                            <FaBox className={isMobile ? "me-2" : ""} /> {isMobile ? "Sacar Producto" : ""}
+                      <td className="py-3 px-4">{item.ubicacion}</td>
+                      <td className="py-3 px-4 text-center">
+                        <div className="d-flex justify-content-center gap-2">
+                          <Button variant="outline-warning" size="sm" onClick={() => sacarProducto(item)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                            <FaBox />
                           </Button>
-                          <Button 
-                            variant="outline-success" 
-                            size="sm" 
-                            onClick={() => editarBodega(bodega)}
-                            style={{ 
-                              borderRadius: "8px",
-                              padding: "0.4rem 0.6rem",
-                              width: isMobile ? "100%" : "auto"
-                            }}
-                          >
-                            <FaEdit className={isMobile ? "me-2" : ""} /> {isMobile ? "Editar" : ""}
+                          <Button variant="outline-primary" size="sm" onClick={() => editarBodega(item)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                            <FaEdit />
                           </Button>
-                          <Button 
-                            variant="outline-danger" 
-                            size="sm" 
-                            onClick={() => eliminarBodega(bodega.id_bodega)}
-                            style={{ 
-                              borderRadius: "8px",
-                              padding: "0.4rem 0.6rem",
-                              width: isMobile ? "100%" : "auto"
-                            }}
-                          >
-                            <FaTrash className={isMobile ? "me-2" : ""} /> {isMobile ? "Eliminar" : ""}
+                          <Button variant="outline-danger" size="sm" onClick={() => eliminarBodegaHandler(item.id_bodega)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                            <FaTrash />
                           </Button>
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  ))
+                  ) : (
+                    <tr><td colSpan={5} className="text-center py-5 text-muted">No se encontraron registros que coincidan.</td></tr>
+                  )}
                 </tbody>
               </Table>
             </div>
@@ -347,7 +248,7 @@ function BodegaTable() {
           show={showProductoOut}
           handleClose={cerrarModalSacarProducto}
           bodega={bodegaParaSacar}
-          onSuccess={obtenerBodega}
+          onSuccess={handleSubmit}
         />
       )}
     </Container>

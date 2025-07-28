@@ -1,37 +1,15 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Font, Image } from '@react-pdf/renderer';
+import { Diagnostico } from '../Diagnosticos';
 
-// Interfaces de datos
-interface Paciente {
-  nombre: string;
-  apellido: string;
-  fecha_nacimiento: string;
-}
-
-interface Terapeuta {
-  nombre: string;
-  apellido: string;
-}
-
-interface Diagnostico {
-  id_diagnostico: number;
-  descripcion: string;
-  tratamiento: string;
- 
-  paciente: Paciente;
-  terapeuta: Terapeuta;
-}
-
-// Registro de fuentes
 Font.register({
   family: 'Poppins',
   fonts: [
-    { src: '../../src/assets/fonts/Poppins-Regular.ttf' },
-    { src: '../../src/assets/fonts/Poppins-Bold.ttf', fontWeight: 'bold' },
+    { src: '/fonts/Poppins-Regular.ttf' },
+    { src: '/fonts/Poppins-Bold.ttf', fontWeight: 'bold' },
   ],
 });
 
-// Funciones auxiliares
 const calculateAge = (birthDateStr: string): number | null => {
   const birthDate = new Date(birthDateStr);
   if (isNaN(birthDate.getTime())) return null;
@@ -53,67 +31,73 @@ const formatDate = (dateStr: string): string => {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
+    padding: 40,
     fontFamily: 'Poppins',
-    fontSize: 10,
-    lineHeight: 1.4,
+    fontSize: 11,
+    lineHeight: 1.5,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#000',
-    paddingBottom: 8,
+    marginBottom: 20,
+    borderBottomWidth: 2,
+    borderBottomColor: '#333',
+    paddingBottom: 10,
+    alignItems: 'center',
   },
   leftHeader: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  headerText: {
-    marginLeft: 10,
-  },
   logo: {
     width: 70,
     height: 70,
-    // marginBottom: 10, // elimina el marginBottom para que no empuje el logo hacia abajo
+  },
+  headerText: {
+    marginLeft: 15,
   },
   institution: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   doctorInfo: {
-    fontSize: 9,
-    marginTop: 4,
+    fontSize: 10,
+    marginTop: 5,
   },
-  patientRow: {
-    flexDirection: 'row',
-    gap: 15,
-    marginVertical: 8,
+  patientSection: {
+    marginTop: 20,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   bold: {
     fontWeight: 'bold',
   },
-  underlined: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#000',
-    marginHorizontal: 3,
+  section: {
+    marginTop: 25,
   },
-  medicationList: {
-    marginVertical: 10,
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#555',
+    paddingBottom: 3,
   },
   footer: {
     position: 'absolute',
-    bottom: 30,
-    left: 30,
-    right: 30,
-    fontSize: 9,
+    bottom: 40,
+    left: 40,
+    right: 40,
+    textAlign: 'center',
+    fontSize: 10,
   },
   signatureLine: {
-    width: '60%',
-    borderBottomWidth: 1,
-    borderBottomColor: '#000',
-    marginTop: 80,
+    width: '250px',
+    borderTopWidth: 1,
+    borderTopColor: '#000',
+    margin: '60px auto 10px auto',
+    paddingTop: 5,
   },
 });
 
@@ -121,69 +105,42 @@ const RecetaReport = ({ diagnostico }: { diagnostico: Diagnostico }) => {
   const edad = calculateAge(diagnostico.paciente.fecha_nacimiento);
   const fechaReporte = formatDate(new Date().toISOString());
 
-  
-  const medicalData = {
-    folio: diagnostico.id_diagnostico.toString().padStart(3, '0'),
-    indicaciones: diagnostico.tratamiento.split('. '),
-    direccion: "Costado sur de la iglesia Católica, edificio de 2 plantas color beige con café.",
-    telefono: "9599-4035"
-  };
-
   return (
     <Document>
-      <Page size="A4" style={styles.page} orientation='landscape'>
-        {/* Encabezado */}
+      <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-  <View style={styles.leftHeader}>
-    <Image style={styles.logo} src="../../../public/logo.png" />
-    <View style={styles.headerText}>
-      <Text style={styles.institution}>
-        CENTRO DE REHABILITACIÓN GABRIELA ALVARADO
-      </Text>
-      <Text style={styles.doctorInfo}>
-      Terapeuta: {`${diagnostico.terapeuta.nombre}`}<br /> 
-      </Text>
-    </View>
-  </View>
-  <Text>FOLIO: {medicalData.folio}</Text>
-</View>
-
-
-        {/* Datos del Paciente */}
-        <View style={styles.patientRow}>
-          <Text style={styles.bold}>Nombre: </Text>
-          <Text>{`${diagnostico.paciente.nombre} ${diagnostico.paciente.apellido}`}</Text>
-          <Text style={styles.bold}>Edad: </Text>
-          <Text style={styles.underlined}>{edad ?? 'N/A'}a</Text>         
+          <View style={styles.leftHeader}>
+            <Image style={styles.logo} src="/logo.png" />
+            <View style={styles.headerText}>
+              <Text style={styles.institution}>CENTRO DE REHABILITACIÓN GABRIELA ALVARADO</Text>
+              <Text style={styles.doctorInfo}>
+                Terapeuta: {`${diagnostico.terapeuta.nombre} ${diagnostico.terapeuta.apellido}`}
+              </Text>
+            </View>
+          </View>
+          <Text>FOLIO: {String(diagnostico.id_diagnostico).padStart(3, '0')}</Text>
         </View>
 
-        {/* Sección Médica */}
-        <View style={{ marginVertical: 10 }}>
-          <Text style={styles.bold}>Diagnóstico:</Text>
+        <View style={styles.patientSection}>
+          <Text><Text style={styles.bold}>Paciente:</Text> {`${diagnostico.paciente.nombre} ${diagnostico.paciente.apellido}`}</Text>
+          <Text><Text style={styles.bold}>Edad:</Text> {edad ?? 'N/A'} años</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Diagnóstico</Text>
           <Text>{diagnostico.descripcion}</Text>
         </View>
 
-        {/* Tratamiento como medicamentos */}
-        <View style={styles.medicationList}>
-          <Text style={styles.bold}>Tratamiento:</Text>
-          {medicalData.indicaciones.map((line, i) => (
-            <Text key={i}>• {line.trim()}</Text>
-          ))}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Tratamiento Recomendado</Text>
+          <Text>{diagnostico.tratamiento}</Text>
         </View>
 
-        {/* Indicaciones */}
-        <View style={{ marginTop: 15 }}>
-          <Text style={styles.bold}>Indicaciones generales:</Text>
-         
-        </View>
-
-        {/* Pie de página */}
         <View style={styles.footer}>
-          <Text>{medicalData.direccion}</Text>
-          <Text>Tel: {medicalData.telefono}</Text>
-          <Text>Fecha: {fechaReporte}</Text>
-          <View style={styles.signatureLine} />
-          <Text>Firma del profesional</Text>
+          <Text>Fecha de Emisión: {fechaReporte}</Text>
+          <View style={styles.signatureLine}>
+            <Text>Firma del Profesional</Text>
+          </View>
         </View>
       </Page>
     </Document>

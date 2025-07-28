@@ -1,20 +1,12 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
-
-export interface Terapeuta {
-  id_terapeuta: number;
-  nombre: string;
-  apellido: string;
-  especialidad: string;
-  telefono: string;
-  estado: boolean;
-}
+import { Terapeuta } from '../Terapeuta';
 
 Font.register({
   family: 'Poppins',
   fonts: [
-    { src: '../../src/assets/fonts/Poppins-Regular.ttf' },
-    { src: '../../src/assets/fonts/Poppins-Bold.ttf', fontWeight: 'bold' },
+    { src: '/fonts/Poppins-Regular.ttf' },
+    { src: '/fonts/Poppins-Bold.ttf', fontWeight: 'bold' },
   ],
 });
 
@@ -38,137 +30,70 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textTransform: 'uppercase',
   },
-  headerSubtitle: {
-    fontSize: 12,
-    marginTop: 5,
-  },
   table: {
     width: '100%',
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderColor: '#dcdcdc',
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginBottom: 10,
   },
   tableHeader: {
     backgroundColor: '#2E8B57',
     flexDirection: 'row',
     color: 'white',
     fontWeight: 'bold',
-    textAlign: 'center',
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#dcdcdc',
-    borderBottomStyle: 'solid',
+    alignItems: 'center',
+    paddingVertical: 4,
   },
   tableRowAlternate: {
     backgroundColor: '#f1f1f1',
   },
-  tableCellHeader: {
-    padding: 5,
-    fontSize: 8,
-    textAlign: 'center',
-  },
   tableCell: {
     padding: 5,
-    fontSize: 8,
+    fontSize: 9,
     textAlign: 'center',
   },
-  columnNumber: {
-    flex: 0.5,
-  },
-  columnNombre: {
-    flex: 2,
-  },
-  columnEspecialidad: {
-    flex: 2,
-  },
-  columnTelefono: {
-    flex: 1.5,
-  },
-  columnEstado: {
-    flex: 1,
-  },
-  footer: {
-    marginTop: 20,
-    textAlign: 'center',
-    fontSize: 8,
-    color: '#6c757d',
-  },
-  statusActive: {
-    color: '#2E8B57',
-    fontWeight: 'bold',
-  },
-  statusInactive: {
-    color: '#dc3545',
-    fontWeight: 'bold',
-  },
+  colNum: { width: '5%' },
+  colName: { width: '30%', textAlign: 'left' },
+  colSpec: { width: '30%', textAlign: 'left' },
+  colPhone: { width: '20%' },
+  colState: { width: '15%' },
+  statusActive: { color: '#2E8B57', fontWeight: 'bold' },
+  statusInactive: { color: '#dc3545', fontWeight: 'bold' },
 });
 
 const TerapeutasReport = ({ terapeutas }: { terapeutas: Terapeuta[] }) => (
   <Document>
     <Page size="A4" style={styles.page} orientation="landscape">
-      {/* Encabezado del reporte */}
       <View style={styles.headerContainer}>
         <Text style={styles.headerTitle}>Reporte de Terapeutas</Text>
-        <Text style={styles.headerSubtitle}>
-          Generado el {new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}
-        </Text>
       </View>
 
-      {/* Tabla de terapeutas */}
       <View style={styles.table}>
-        {/* Encabezados de la tabla */}
         <View style={styles.tableHeader}>
-          <Text style={[styles.tableCellHeader, styles.columnNumber]}>#</Text>
-          <Text style={[styles.tableCellHeader, styles.columnNombre]}>Nombre Completo</Text>
-          <Text style={[styles.tableCellHeader, styles.columnEspecialidad]}>Especialidad</Text>
-          <Text style={[styles.tableCellHeader, styles.columnTelefono]}>Teléfono</Text>
+          <Text style={[styles.tableCell, styles.colNum]}>#</Text>
+          <Text style={[styles.tableCell, styles.colName]}>Nombre Completo</Text>
+          <Text style={[styles.tableCell, styles.colSpec]}>Especialidad</Text>
+          <Text style={[styles.tableCell, styles.colPhone]}>Teléfono</Text>
+          <Text style={[styles.tableCell, styles.colState]}>Estado</Text>
         </View>
 
-        {/* Filas de la tabla */}
         {terapeutas.map((terapeuta, index) => (
           <View
-            style={[
-              styles.tableRow,
-              index % 2 !== 0 ? styles.tableRowAlternate : {},
-            ]}
+            style={[styles.tableRow, index % 2 !== 0 ? styles.tableRowAlternate : {}]}
             key={terapeuta.id_terapeuta}
           >
-            <Text style={[styles.tableCell, styles.columnNumber]}>{index + 1}</Text>
-            <Text style={[styles.tableCell, styles.columnNombre]}>
-              {`${terapeuta.nombre} ${terapeuta.apellido}`}
-            </Text>
-            <Text style={[styles.tableCell, styles.columnEspecialidad]}>
-              {terapeuta.especialidad}
-            </Text>
-            <Text style={[styles.tableCell, styles.columnTelefono]}>
-              {terapeuta.telefono}
+            <Text style={[styles.tableCell, styles.colNum]}>{index + 1}</Text>
+            <Text style={[styles.tableCell, styles.colName]}>{`${terapeuta.nombre} ${terapeuta.apellido}`}</Text>
+            <Text style={[styles.tableCell, styles.colSpec]}>{terapeuta.especialidad}</Text>
+            <Text style={[styles.tableCell, styles.colPhone]}>{terapeuta.telefono}</Text>
+            <Text style={[styles.tableCell, styles.colState, terapeuta.estado ? styles.statusActive : styles.statusInactive]}>
+              {terapeuta.estado ? 'Activo' : 'Inactivo'}
             </Text>
           </View>
         ))}
       </View>
-
-      {/* Resumen estadístico */}
-      <View style={{ marginTop: 15, flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={{ fontSize: 9 }}>
-          Total de terapeutas: {terapeutas.length}
-        </Text>
-        <Text style={{ fontSize: 9 }}>
-          Terapeutas activos: {terapeutas.filter(t => t.estado).length}
-        </Text>
-        <Text style={{ fontSize: 9 }}>
-          Terapeutas inactivos: {terapeutas.filter(t => !t.estado).length}
-        </Text>
-      </View>
-
-      {/* Pie de página */}
-      <Text style={styles.footer}>
-        Generado por el Sistema de Gestión de Terapeutas - {new Date().toLocaleDateString('es-ES')}
-      </Text>
     </Page>
   </Document>
 );

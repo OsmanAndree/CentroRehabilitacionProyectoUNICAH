@@ -1,7 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
 
-// Interfaces
 interface Detail {
   id_detalle: number;
   id_producto: number;
@@ -22,16 +21,14 @@ export interface Compra {
   detalle: Detail[];
 }
 
-// Registro de fuentes
 Font.register({
   family: 'Poppins',
   fonts: [
-    { src: '../../src/assets/fonts/Poppins-Regular.ttf' },
-    { src: '../../src/assets/fonts/Poppins-Bold.ttf', fontWeight: 'bold' },
+    { src: '/fonts/Poppins-Regular.ttf' },
+    { src: '/fonts/Poppins-Bold.ttf', fontWeight: 'bold' },
   ],
 });
 
-// Estilos para el reporte
 const styles = StyleSheet.create({
   page: {
     padding: 30,
@@ -46,14 +43,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     paddingBottom: 8,
+    alignItems: 'center',
   },
   leftHeader: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   logo: {
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
   },
   headerText: {
     marginLeft: 10,
@@ -73,57 +71,55 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   table: {
-    display: 'flex',
     width: '100%',
-    borderWidth: 1,
-    borderColor: '#dcdcdc',
     marginTop: 10,
+  },
+  tableHeader: {
+    backgroundColor: '#f2f2f2',
+    fontWeight: 'bold',
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#dcdcdc',
-    padding: 5,
-  },
-  tableHeader: {
-    backgroundColor: '#f8f9fa',
-    fontWeight: 'bold',
+    paddingVertical: 4,
+    alignItems: 'center',
   },
   cell: {
-    flex: 1,
     textAlign: 'center',
-    padding: 3,
+    padding: 4,
   },
+  colNum: { width: '10%' },
+  colProd: { width: '35%', textAlign: 'left' },
+  colQty: { width: '15%' },
+  colCost: { width: '20%' },
+  colSub: { width: '20%' },
 });
 
-// Función auxiliar para formatear fechas
 const formatDate = (dateStr: string): string => {
   const date = new Date(dateStr);
-  return isNaN(date.getTime())
-    ? 'N/A'
-    : date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+  return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString('es-ES');
 };
 
-// ComprasReport: Recibe una compra y la lista de productos para buscar el nombre del producto.
 const ComprasReport = ({ compra, productos }: { compra: Compra; productos: Producto[] }) => {
   const calculateSubtotal = (cantidad: number, costo: number): number => cantidad * costo;
-
-  // Función para obtener el nombre del producto usando su id
   const getNombreProducto = (id: number): string => {
     const prod = productos.find(p => p.id_producto === id);
-    return prod ? prod.nombre : String(id);
+    return prod ? prod.nombre : `ID ${id}`;
   };
 
   return (
     <Document>
-      <Page size="A4" style={styles.page} orientation="portrait">
-        {/* Encabezado */}
+      <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View style={styles.leftHeader}>
-            <Image style={styles.logo} src="../../../public/logo.png" />
+            <Image style={styles.logo} src="/logo.png" />
             <View style={styles.headerText}>
-              <Text style={styles.institution}>CENTRO DE REHABILITACIÓN GABRIELA ALVARADO</Text>
-              <Text style={styles.invoiceInfo}>Factura de Compra</Text>
+              <Text style={styles.institution}>CENTRO DE REHABILITACIÓN</Text>
+              <Text style={styles.invoiceInfo}>Factura de Compra / Donación</Text>
             </View>
           </View>
           <View>
@@ -132,36 +128,35 @@ const ComprasReport = ({ compra, productos }: { compra: Compra; productos: Produ
           </View>
         </View>
 
-        {/* Información de la compra */}
         <View style={styles.section}>
-          <Text style={styles.bold}>Donante:</Text>
-          <Text>{compra.donante}</Text>
-        </View>
-        <View style={[styles.section, { flexDirection: 'row', alignItems: 'center' }]}>
-          <Text style={styles.bold}>Total: </Text>
-          <Text style={{ marginLeft: 5 }}>{Number(compra.total).toFixed(2)}</Text>
+          <Text><Text style={styles.bold}>Donante/Proveedor:</Text> {compra.donante}</Text>
         </View>
 
-        {/* Detalles de la compra */}
         <View style={styles.table}>
-          <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={[styles.cell, { flex: 0.5 }]}>#</Text>
-            <Text style={[styles.cell, { flex: 1 }]}>Producto</Text>
-            <Text style={[styles.cell, { flex: 0.8 }]}>Cantidad</Text>
-            <Text style={[styles.cell, { flex: 1 }]}>Costo Unitario</Text>
-            <Text style={[styles.cell, { flex: 1 }]}>Subtotal</Text>
+          <View style={styles.tableHeader}>
+            <Text style={[styles.cell, styles.colNum]}>#</Text>
+            <Text style={[styles.cell, styles.colProd]}>Producto</Text>
+            <Text style={[styles.cell, styles.colQty]}>Cantidad</Text>
+            <Text style={[styles.cell, styles.colCost]}>Costo Unitario</Text>
+            <Text style={[styles.cell, styles.colSub]}>Subtotal</Text>
           </View>
           {compra.detalle.map((det, index) => (
             <View key={det.id_detalle} style={styles.tableRow}>
-              <Text style={[styles.cell, { flex: 0.5 }]}>{index + 1}</Text>
-              <Text style={[styles.cell, { flex: 1 }]}>{getNombreProducto(det.id_producto)}</Text>
-              <Text style={[styles.cell, { flex: 0.8 }]}>{det.cantidad}</Text>
-              <Text style={[styles.cell, { flex: 1 }]}>{det.costo_unitario.toFixed(2)}</Text>
-              <Text style={[styles.cell, { flex: 1 }]}>
+              <Text style={[styles.cell, styles.colNum]}>{index + 1}</Text>
+              <Text style={[styles.cell, styles.colProd]}>{getNombreProducto(det.id_producto)}</Text>
+              <Text style={[styles.cell, styles.colQty]}>{det.cantidad}</Text>
+              <Text style={[styles.cell, styles.colCost]}>{Number(det.costo_unitario).toFixed(2)}</Text>
+              <Text style={[styles.cell, styles.colSub]}>
                 {calculateSubtotal(det.cantidad, det.costo_unitario).toFixed(2)}
               </Text>
             </View>
           ))}
+        </View>
+
+        <View style={{ marginTop: 20, textAlign: 'right' }}>
+            <Text style={{ fontSize: 14, fontWeight: 'bold' }}>
+                Total: {Number(compra.total).toFixed(2)}
+            </Text>
         </View>
       </Page>
     </Document>
