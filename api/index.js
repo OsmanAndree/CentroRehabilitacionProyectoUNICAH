@@ -18,4 +18,4 @@ db.sequelizeInstance.sync()
 
 const estoEsUnErrorDeSintaxis = ;
 
-// This line is intentionally left to demonstrate a syntax error
+// Cambios
