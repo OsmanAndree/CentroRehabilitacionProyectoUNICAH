@@ -61,6 +61,7 @@ function DiagnosticosTable() {
   const handleSubmit = () => {
     dispatch(fetchDiagnosticos());
     toast.success("Diagnóstico guardado con éxito.");
+    cerrarFormulario(); // Cierra el formulario después de guardar
   };
 
   const editarDiagnostico = (diagnostico: Diagnostico) => {
@@ -86,7 +87,8 @@ function DiagnosticosTable() {
 
   return (
     <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar theme="colored" />
+      {/* Añadimos el ToastContainer local con el z-index para que funcione */}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} theme="colored" style={{ zIndex: 99999 }} />
       <Card className="shadow-lg border-0" style={{ borderRadius: "20px", backgroundColor: "#ffffff" }}>
         <Card.Header className="bg-gradient py-3" style={{ backgroundColor: "#2E8B57", borderRadius: "20px 20px 0 0", border: "none" }}>
           <Row className="align-items-center">
@@ -109,14 +111,6 @@ function DiagnosticosTable() {
                     transition: "all 0.3s ease",
                     width: isMobile ? "100%" : "auto",
                     fontSize: isMobile ? "0.9rem" : "1rem"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
                   }}
                 >
                   <FaPlus className="me-2" /> Nuevo Diagnóstico
@@ -149,7 +143,9 @@ function DiagnosticosTable() {
           ) : status === 'failed' ? (
             <div className="text-center py-5"><p className="text-danger">Error: {error}</p></div>
           ) : (
-            <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
+            // ✅ CORRECCIÓN: Se eliminó el style={{ overflow: "hidden" }} de este div.
+            // La clase "table-responsive" ahora puede funcionar correctamente.
+            <div className="table-responsive" style={{ borderRadius: "12px" }}>
               <Table hover className="align-middle mb-0">
                 <thead style={{ backgroundColor: "#f8f9fa" }}>
                   <tr>
@@ -157,8 +153,8 @@ function DiagnosticosTable() {
                     <th className="py-3 px-4" style={{ fontWeight: "600" }}>Paciente</th>
                     <th className="py-3 px-4" style={{ fontWeight: "600" }}>Terapeuta</th>
                     <th className="py-3 px-4" style={{ fontWeight: "600" }}>Especialidad</th>
-                    <th className="py-3 px-4" style={{ fontWeight: "600", width: "20%" }}>Descripción</th>
-                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Tratamiento</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600", minWidth: '200px' }}>Descripción</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600", minWidth: '200px' }}>Tratamiento</th>
                     <th className="py-3 px-4 text-center" style={{ fontWeight: "600" }}>Acciones</th>
                   </tr>
                 </thead>
@@ -172,14 +168,14 @@ function DiagnosticosTable() {
                         <td className="py-3 px-4">{diagnostico.terapeuta?.especialidad || ''}</td>
                         <td className="py-3 px-4">
                           <OverlayTrigger placement="top" overlay={<Tooltip>{diagnostico.descripcion}</Tooltip>}>
-                            <div style={{ maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            <div style={{ maxWidth: "250px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                               {diagnostico.descripcion}
                             </div>
                           </OverlayTrigger>
                         </td>
                         <td className="py-3 px-4">
                           <OverlayTrigger placement="top" overlay={<Tooltip>{diagnostico.tratamiento}</Tooltip>}>
-                            <div style={{ maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            <div style={{ maxWidth: "250px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                               {diagnostico.tratamiento}
                             </div>
                           </OverlayTrigger>
