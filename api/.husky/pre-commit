@@ -1,8 +1,4 @@
 #!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
 
-echo "********************************************"
-echo "HOOK PRE-COMMIT SÍ SE ESTÁ EJECUTANDO."
-echo "AHORA VOY A CANCELAR EL COMMIT."
-echo "********************************************"
-
-exit 1 # Esto le dice a Git que falle, ¡siempre!
+npx lint-staged

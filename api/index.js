@@ -15,5 +15,3 @@ db.sequelizeInstance.sync()
 });
 })
 .catch(error => console.error(error));
-
-//Cambio para probar
