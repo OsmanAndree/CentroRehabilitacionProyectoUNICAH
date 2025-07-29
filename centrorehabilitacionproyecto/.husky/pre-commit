@@ -1,4 +1,14 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+echo "🔍 Ejecutando pre-commit hooks..."
+
+# Ejecutar lint-staged para archivos modificados
+echo "📝 Ejecutando ESLint en archivos modificados..."
 npx lint-staged
+
+# Verificar que el build funcione
+echo "🔨 Verificando que el proyecto compile..."
+npm run build
+
+echo "✅ Pre-commit hooks completados con éxito"

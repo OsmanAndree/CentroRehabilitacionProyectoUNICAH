@@ -1,0 +1,64 @@
+{
+  "types": [
+    {
+      "type": "feat",
+      "section": "✨ Nuevas Funcionalidades"
+    },
+    {
+      "type": "fix",
+      "section": "🐛 Corrección de Errores"
+    },
+    {
+      "type": "docs",
+      "section": "📚 Documentación"
+    },
+    {
+      "type": "style",
+      "section": "💄 Estilos"
+    },
+    {
+      "type": "refactor",
+      "section": "♻️ Refactorización"
+    },
+    {
+      "type": "perf",
+      "section": "⚡ Optimización de Rendimiento"
+    },
+    {
+      "type": "test",
+      "section": "🧪 Tests"
+    },
+    {
+      "type": "build",
+      "section": "🏗️ Build System"
+    },
+    {
+      "type": "ci",
+      "section": "👷 CI/CD"
+    },
+    {
+      "type": "chore",
+      "section": "🔧 Mantenimiento",
+      "hidden": false
+    }
+  ],
+  "commitUrlFormat": "{{host}}/{{owner}}/{{repository}}/commit/{{hash}}",
+  "compareUrlFormat": "{{host}}/{{owner}}/{{repository}}/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "{{host}}/{{owner}}/{{repository}}/issues/{{id}}",
+  "userUrlFormat": "{{host}}/{{user}}",
+  "releaseCommitMessageFormat": "chore(release): {{currentTag}}",
+  "issuePrefixes": ["#"],
+  "header": "# Changelog\n\nTodos los cambios notables de este proyecto serán documentados en este archivo.\n\n",
+  "packageFiles": [
+    {
+      "filename": "package.json",
+      "type": "json"
+    }
+  ],
+  "bumpFiles": [
+    {
+      "filename": "package.json",
+      "type": "json"
+    }
+  ]
+}

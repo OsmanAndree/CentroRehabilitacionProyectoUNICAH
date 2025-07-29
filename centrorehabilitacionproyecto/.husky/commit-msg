@@ -1,0 +1,38 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Obtiene el mensaje del commit del archivo que Git pasa como argumento
+commit_message=$(cat "$1")
+
+# Patrones para validar el mensaje del commit
+# Formato: tipo(scope): descripción
+# Ejemplos: feat: nueva funcionalidad, fix: corrección de bug, docs: actualización de documentación
+commit_pattern="^(feat|fix|docs|style|refactor|perf|test|chore|ci|build)(\(.+\))?: .{1,50}"
+
+if ! echo "$commit_message" | grep -qE "$commit_pattern"; then
+  echo "❌ Mensaje de commit inválido!"
+  echo ""
+  echo "El mensaje debe seguir el formato: tipo(scope): descripción"
+  echo ""
+  echo "Tipos válidos:"
+  echo "  feat:     Nueva funcionalidad"
+  echo "  fix:      Corrección de bugs"
+  echo "  docs:     Cambios en documentación"
+  echo "  style:    Cambios de formato (espacios, comas, etc.)"
+  echo "  refactor: Refactorización de código"
+  echo "  perf:     Mejoras de rendimiento"
+  echo "  test:     Agregar o modificar tests"
+  echo "  chore:    Cambios en herramientas de build"
+  echo "  ci:       Cambios en CI/CD"
+  echo "  build:    Cambios en sistema de build"
+  echo ""
+  echo "Ejemplos válidos:"
+  echo "  feat: agregar login de usuario"
+  echo "  fix(auth): corregir validación de email"
+  echo "  docs: actualizar README"
+  echo ""
+  echo "Tu mensaje: $commit_message"
+  exit 1
+fi
+
+echo "✅ Mensaje de commit válido"
