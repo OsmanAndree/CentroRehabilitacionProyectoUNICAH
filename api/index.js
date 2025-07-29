@@ -1,6 +1,8 @@
 'use strict'
 
-const prueba = 'Hola Mundo'
+const prueba = 'Hola Mundo';
+
+
 
 const db= require('./app/config/db')
 const App = require ('./app/app');
