@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserFriends, FaFilePdf } from 'react-icons/fa';
-import { ToastContainer, toast } from 'react-toastify';
+// ✅ Asegúrate de importar ToastContainer aquí
+import { ToastContainer, toast } from 'react-toastify'; 
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -28,6 +29,7 @@ function EncargadosTable() {
     const [search, setSearch] = useState<string>("");
     const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 
+    // Volvemos a la lógica simple que funciona
     useEffect(() => {
         if (status === 'idle') {
             dispatch(fetchEncargados());
@@ -42,26 +44,28 @@ function EncargadosTable() {
 
     const eliminarEncargadoHandler = (id: number) => {
         if (!window.confirm("¿Estás seguro de que deseas eliminar este encargado?")) return;
-
         dispatch(deleteEncargado(id))
             .unwrap()
             .then(() => toast.success("Encargado eliminado con éxito."))
-            .catch((err) => toast.error(`Error al eliminar: ${err.message}`));
+            .catch((err) => toast.error(`Error al eliminar: ${err.message || 'Error desconocido'}`));
     };
 
     const handleSubmit = () => {
         dispatch(fetchEncargados());
         toast.success("Encargado guardado con éxito.");
+        cerrarFormulario();
     };
 
     const editarEncargado = (encargado: Encargado) => {
         setEncargadoSeleccionado(encargado);
         setShowForm(true);
+        toast.info("Editando encargado");
     }
 
     const crearEncargado = () => {
         setEncargadoSeleccionado(null);
         setShowForm(true);
+        toast.info("Creando nuevo encargado");
     };
 
     const cerrarFormulario = () => {
@@ -77,8 +81,8 @@ function EncargadosTable() {
 
     return (
         <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
-            <ToastContainer position="top-right" autoClose={3000} hideProgressBar theme="colored" />
             <Card className="shadow-lg border-0" style={{ borderRadius: "20px", backgroundColor: "#ffffff" }}>
+                {/* El resto de tu JSX no necesita cambios */}
                 <Card.Header className="bg-gradient py-3" style={{ backgroundColor: "#2E8B57", borderRadius: "20px 20px 0 0", border: "none" }}>
                     <Row className="align-items-center">
                         <Col xs={12} md={6} className="mb-3 mb-md-0">
@@ -89,27 +93,7 @@ function EncargadosTable() {
                         </Col>
                         <Col xs={12} md={6}>
                             <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
-                                <Button
-                                    variant="light"
-                                    onClick={crearEncargado}
-                                    className="d-flex align-items-center justify-content-center"
-                                    style={{
-                                        borderRadius: "10px",
-                                        padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                                        fontWeight: "500",
-                                        transition: "all 0.3s ease",
-                                        width: isMobile ? "100%" : "auto",
-                                        fontSize: isMobile ? "0.9rem" : "1rem"
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = "translateY(-2px)";
-                                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = "translateY(0)";
-                                        e.currentTarget.style.boxShadow = "none";
-                                    }}
-                                >
+                                <Button variant="light" onClick={crearEncargado} className="d-flex align-items-center justify-content-center">
                                     <FaPlus className="me-2" /> Nuevo Encargado
                                 </Button>
                                 {encargadosFiltrados.length > 0 && (
@@ -117,16 +101,6 @@ function EncargadosTable() {
                                         document={<EncargadosReport encargados={encargadosFiltrados} />}
                                         fileName="Reporte_Encargados.pdf"
                                         className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
-                                        style={{
-                                            borderRadius: "10px",
-                                            padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                                            fontWeight: "500",
-                                            color: "white",
-                                            display: "inline-flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            fontSize: isMobile ? "0.9rem" : "1rem"
-                                        }}
                                     >
                                         {({ loading }) => (
                                             <div className="d-flex align-items-center justify-content-center w-100">
@@ -140,7 +114,6 @@ function EncargadosTable() {
                         </Col>
                     </Row>
                 </Card.Header>
-
                 <Card.Body className="p-3 p-md-4">
                     <Row className="mb-4">
                         <div className="col-md-6 col-lg-4">
@@ -159,7 +132,7 @@ function EncargadosTable() {
                         </div>
                     </Row>
 
-                    {status === 'loading' ? (
+                    {status === 'loading' && encargados.length === 0 ? (
                         <div className="text-center py-5"><Spinner animation="border" variant="success" /><p className="mt-3 text-muted">Cargando encargados...</p></div>
                     ) : status === 'failed' ? (
                         <div className="text-center py-5"><p className="text-danger">Error: {error}</p></div>

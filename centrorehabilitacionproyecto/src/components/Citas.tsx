@@ -108,7 +108,6 @@ function CitasTable() {
 
   return (
     <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar theme="colored" />
       <Card className="shadow-lg border-0" style={{ borderRadius: "20px", backgroundColor: "#ffffff" }}>
         <Card.Header className="bg-gradient py-3" style={{ backgroundColor: "#2E8B57", borderRadius: "20px 20px 0 0", border: "none" }}>
           <Row className="align-items-center">

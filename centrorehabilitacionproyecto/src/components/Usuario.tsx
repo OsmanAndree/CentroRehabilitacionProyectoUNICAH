@@ -3,8 +3,7 @@ import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from '
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaUsers } from 'react-icons/fa';
 import axios from 'axios';
 import UsuariosForm from './Forms/UsuariosForm';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// Se eliminan las importaciones de react-toastify
 
 interface Usuario {
     id_usuario: number;
@@ -28,11 +27,11 @@ function UsuariosTable() {
         axios.get('http://localhost:3002/Api/usuarios/getusuarios')
             .then(response => {
                 setUsuarios(response.data.result);
-                toast.success("Usuarios cargados exitosamente");
+                // toast.success("Usuarios cargados exitosamente"); // <--- Eliminado
             })
             .catch(error => {
                 console.error("Error al obtener usuarios:", error);
-                toast.error("No se pudieron cargar los usuarios.");
+                // toast.error("No se pudieron cargar los usuarios."); // <--- Eliminado
             })
             .finally(() => setLoading(false));
     }, []);
@@ -47,29 +46,29 @@ function UsuariosTable() {
         axios.delete(`http://localhost:3002/Api/usuarios/deleteusuarios?id_usuario=${id}`)
             .then(() => {
                 setUsuarios(prev => prev.filter(u => u.id_usuario !== id));
-                toast.success("Usuario eliminado con éxito.");
+                // toast.success("Usuario eliminado con éxito."); // <--- Eliminado
             })
             .catch(error => {
                 console.error("Error al eliminar usuario:", error);
-                toast.error("Hubo un problema al eliminar el usuario.");
+                // toast.error("Hubo un problema al eliminar el usuario."); // <--- Eliminado
             });
     };
 
     const handleSubmit = () => {
         obtenerUsuarios();
-        toast.success("Usuario guardado con éxito.");
+        // toast.success("Usuario guardado con éxito."); // <--- Eliminado
     };
 
     const editarUsuario = (usuario: Usuario) => {
         setUsuarioSeleccionado(usuario);
         setShowForm(true);
-        toast.info("Editando usuario");
+        // toast.info("Editando usuario"); // <--- Eliminado
     };
 
     const crearUsuario = () => {
         setUsuarioSeleccionado(null);
         setShowForm(true);
-        toast.info("Creando nuevo usuario");
+        // toast.info("Creando nuevo usuario"); // <--- Eliminado
     };
 
     const cerrarFormulario = () => {
@@ -84,18 +83,7 @@ function UsuariosTable() {
 
     return (
         <Container fluid className="px-5 py-4">
-            <ToastContainer 
-                position="top-right" 
-                autoClose={3000} 
-                hideProgressBar={false}
-                newestOnTop
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="colored"
-            />
+            {/* <ToastContainer ... /> // <--- Eliminado */}
             <Card className="shadow-lg border-0" style={{ 
                 borderRadius: "20px",
                 backgroundColor: "#ffffff"
@@ -121,14 +109,6 @@ function UsuariosTable() {
                             padding: "0.5rem 1rem",
                             fontWeight: "500",
                             transition: "all 0.3s ease"
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = "translateY(-2px)";
-                            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = "translateY(0)";
-                            e.currentTarget.style.boxShadow = "none";
                         }}
                     >
                         <FaPlus className="me-2" /> Nuevo Usuario

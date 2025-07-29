@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserPlus, FaFilePdf } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
@@ -34,6 +34,27 @@ function PacientesTable() {
   const [search, setSearch] = useState<string>("");
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 
+  // --- LÓGICA DE NOTIFICACIONES CORREGIDA ---
+  const prevStatusRef = useRef(status);
+  const prevPacientesCountRef = useRef(pacientes.length);
+
+  useEffect(() => {
+    // Notificación para carga inicial exitosa
+    if (prevStatusRef.current === 'loading' && status === 'succeeded' && prevPacientesCountRef.current === 0) {
+      toast.success("Pacientes cargados exitosamente");
+    }
+
+    // Notificación para eliminación exitosa
+    if (pacientes.length < prevPacientesCountRef.current) {
+        toast.success("Paciente eliminado con éxito.");
+    }
+    
+    // Actualizamos las referencias para la próxima renderización
+    prevStatusRef.current = status;
+    prevPacientesCountRef.current = pacientes.length;
+  }, [status, pacientes]);
+  // --- FIN DE LA CORRECCIÓN ---
+
   useEffect(() => {
     if (status === 'idle') {
       dispatch(fetchPacientes());
@@ -48,25 +69,29 @@ function PacientesTable() {
 
   const eliminarPacienteHandler = (id: number) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar este paciente?")) return;
+    // La notificación ahora se maneja en el useEffect de arriba
     dispatch(deletePaciente(id))
       .unwrap()
-      .then(() => toast.success("Paciente eliminado con éxito."))
       .catch((err) => toast.error(`Hubo un problema al eliminar: ${err.message || 'Error desconocido'}`));
   };
 
   const handleSubmit = () => {
+    // La notificación de éxito se mostrará cuando el formulario se cierre y los datos se recarguen
     dispatch(fetchPacientes());
+    cerrarFormulario();
     toast.success("Operación guardada con éxito.");
   };
 
   const editarPaciente = (paciente: Paciente) => {
     setPacienteSeleccionado(paciente);
     setShowForm(true);
+    toast.info("Editando paciente");
   };
 
   const crearPaciente = () => {
     setPacienteSeleccionado(null);
     setShowForm(true);
+    toast.info("Creando nuevo paciente");
   };
 
   const cerrarFormulario = () => {
@@ -82,7 +107,8 @@ function PacientesTable() {
 
   return (
     <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar theme="colored" />
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" />
+      
       <Card className="shadow-lg border-0" style={{ borderRadius: "20px", backgroundColor: "#ffffff" }}>
         <Card.Header className="bg-gradient py-3" style={{ backgroundColor: "#2E8B57", borderRadius: "20px 20px 0 0", border: "none" }}>
           <Row className="align-items-center">
@@ -98,14 +124,7 @@ function PacientesTable() {
                   variant="light" 
                   onClick={crearPaciente}
                   className="d-flex align-items-center justify-content-center"
-                  style={{
-                    borderRadius: "10px",
-                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                    fontWeight: "500",
-                    transition: "all 0.3s ease",
-                    width: isMobile ? "100%" : "auto",
-                    fontSize: isMobile ? "0.9rem" : "1rem"
-                  }}
+                  style={{ borderRadius: "10px", padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem", fontWeight: "500", transition: "all 0.3s ease", width: isMobile ? "100%" : "auto", fontSize: isMobile ? "0.9rem" : "1rem" }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = "translateY(-2px)";
                     e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
@@ -122,16 +141,7 @@ function PacientesTable() {
                     document={<PacientesReport pacientes={pacientesFiltrados} />}
                     fileName="Reporte_Pacientes.pdf"
                     className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
-                    style={{
-                      borderRadius: "10px",
-                      padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                      fontWeight: "500",
-                      color: "white",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: isMobile ? "0.9rem" : "1rem"
-                    }}
+                    style={{ borderRadius: "10px", padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem", fontWeight: "500", color: "white", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: isMobile ? "0.9rem" : "1rem" }}
                   >
                     {({ loading }) => (
                       <div className="d-flex align-items-center justify-content-center w-100">
@@ -149,16 +159,8 @@ function PacientesTable() {
           <Row className="mb-4">
             <div className="col-md-6 col-lg-4">
               <InputGroup style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.05)", borderRadius: "12px", overflow: "hidden" }}>
-                <InputGroup.Text style={{ backgroundColor: "#f8f9fa", border: "none", paddingLeft: "1.2rem" }}>
-                  <FaSearch className="text-muted" />
-                </InputGroup.Text>
-                <Form.Control
-                  type="text"
-                  placeholder="Buscar paciente..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  style={{ border: "none", padding: "0.8rem 1rem", fontSize: "0.95rem" }}
-                />
+                <InputGroup.Text style={{ backgroundColor: "#f8f9fa", border: "none", paddingLeft: "1.2rem" }}><FaSearch className="text-muted" /></InputGroup.Text>
+                <Form.Control type="text" placeholder="Buscar paciente..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ border: "none", padding: "0.8rem 1rem", fontSize: "0.95rem" }} />
               </InputGroup>
             </div>
           </Row>
@@ -190,12 +192,8 @@ function PacientesTable() {
                         <td className="py-3 px-4">{paciente.encargado ? `${paciente.encargado.nombre} ${paciente.encargado.apellido}` : "No asignado"}</td>
                         <td className="py-3 px-4 text-center">
                           <div className="d-flex justify-content-center gap-2">
-                            <Button variant="outline-primary" size="sm" onClick={() => editarPaciente(paciente)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                              <FaEdit />
-                            </Button>
-                            <Button variant="outline-danger" size="sm" onClick={() => eliminarPacienteHandler(paciente.id_paciente)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                              <FaTrash />
-                            </Button>
+                            <Button variant="outline-primary" size="sm" onClick={() => editarPaciente(paciente)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}><FaEdit /></Button>
+                            <Button variant="outline-danger" size="sm" onClick={() => eliminarPacienteHandler(paciente.id_paciente)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}><FaTrash /></Button>
                           </div>
                         </td>
                       </tr>
@@ -210,12 +208,7 @@ function PacientesTable() {
         </Card.Body>
       </Card>
       {showForm && (
-        <PacientesForm
-          show={showForm}
-          handleClose={cerrarFormulario}
-          handleSubmit={handleSubmit}
-          pacienteEditar={pacienteSeleccionado}
-        />
+        <PacientesForm show={showForm} handleClose={cerrarFormulario} handleSubmit={handleSubmit} pacienteEditar={pacienteSeleccionado}/>
       )}
     </Container>
   );

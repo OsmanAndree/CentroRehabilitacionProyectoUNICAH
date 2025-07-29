@@ -1,3 +1,4 @@
+
 .Toastify__toast {
     border-radius: 12px !important;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12) !important;
@@ -9,10 +10,9 @@
 }
 
 .Toastify__toast--success {
-    background-color: rgba(240, 253, 244, 0.98) !important;
-    color: #166534 !important;
-    /*border-left: 5px solid #22c55e !important;*/
-    font-weight: 500 !important;
+  background-color: rgba(240, 253, 244, 0.98) !important;
+  color: #166534 !important;
+  font-weight: 500 !important;
 }
 
 .Toastify__toast--error {
@@ -65,4 +65,4 @@
 .Toastify__toast-icon {
     width: 24px !important;
     margin-right: 14px !important;
-} 
+}
