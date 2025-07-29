@@ -15,7 +15,3 @@ db.sequelizeInstance.sync()
 });
 })
 .catch(error => console.error(error));
-
-const estoEsUnErrorDeSintaxis = ;
-
-// Cambios
