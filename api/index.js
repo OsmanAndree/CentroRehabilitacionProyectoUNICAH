@@ -17,3 +17,5 @@ db.sequelizeInstance.sync()
 .catch(error => console.error(error));
 
 const estoEsUnErrorDeSintaxis = ;
+
+// This line is intentionally left to demonstrate a syntax error
