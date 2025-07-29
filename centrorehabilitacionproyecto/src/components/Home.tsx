@@ -21,7 +21,7 @@ const cardsData = [
 
 function CardGrids() {
   const navigate = useNavigate();
-   const userRole = localStorage.getItem("idRol")?.toString();
+  const userRole = localStorage.getItem("idRol")?.toString();
     console.log(" userRole desde el Home", userRole);
   const unallowedPathsForRole1 = ["/productos", "/compras", "/bodega", "/prestamos", "/usuarios"];
   //ADMINISTRADOR = 1

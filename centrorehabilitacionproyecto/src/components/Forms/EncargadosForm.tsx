@@ -7,18 +7,18 @@ import 'react-calendar/dist/Calendar.css';
 import { FaUser, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 
 interface Encargado {
-  id_encargado?: number;
-  nombre: string;
-  apellido: string;
-  telefono: string;
-  direccion: string;
+    id_encargado?: number;
+    nombre: string;
+    apellido: string;
+    telefono: string;
+    direccion: string;
 }
 
 interface EncargadosFormModalProps {
-  encargadoEditar: Encargado | null;
-  show: boolean;
-  handleClose: () => void;
-  handleSubmit: () => void;
+    encargadoEditar: Encargado | null;
+    show: boolean;
+    handleClose: () => void;
+    handleSubmit: () => void;
 }
 
 interface EncargadosFormModalProps {

@@ -147,7 +147,7 @@ function DiagnosticosTable() {
           {status === 'loading' ? (
             <div className="text-center py-5"><Spinner animation="border" variant="success" /><p className="mt-3 text-muted">Cargando diagnósticos...</p></div>
           ) : status === 'failed' ? (
-             <div className="text-center py-5"><p className="text-danger">Error: {error}</p></div>
+            <div className="text-center py-5"><p className="text-danger">Error: {error}</p></div>
           ) : (
             <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
               <Table hover className="align-middle mb-0">

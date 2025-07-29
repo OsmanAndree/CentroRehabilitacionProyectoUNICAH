@@ -90,8 +90,8 @@ function CitasTable() {
     const fechaCita = new Date(c.fecha).toISOString().split('T')[0];
     
     return pacienteFull.includes(searchPaciente.toLowerCase()) &&
-           (searchDate === "" || fechaCita === searchDate) &&
-           terapeutaFull.includes(searchTherapist.toLowerCase());
+        (searchDate === "" || fechaCita === searchDate) &&
+        terapeutaFull.includes(searchTherapist.toLowerCase());
   });
 
   const isMobile = windowWidth < 768;
@@ -220,7 +220,7 @@ function CitasTable() {
           {status === 'loading' ? (
             <div className="text-center py-5"><Spinner animation="border" variant="success" /><p className="mt-3 text-muted">Cargando citas...</p></div>
           ) : status === 'failed' ? (
-             <div className="text-center py-5">
+            <div className="text-center py-5">
               <p className="text-danger">Error: {error}</p>
               <Button variant="secondary" size="sm" onClick={() => dispatch(fetchCitas())}>Reintentar</Button>
             </div>

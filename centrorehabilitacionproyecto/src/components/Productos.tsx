@@ -12,11 +12,11 @@ import ProductosForm from './Forms/ProductosForm';
 import ProductosReport from './Reports/ProductosReport';
 
 export interface Producto {
-  id_producto: number;
-  nombre: string;
-  descripcion: string;
-  categoria: string;
-  cantidad_disponible: number;
+    id_producto: number;
+    nombre: string;
+    descripcion: string;
+    categoria: string;
+    cantidad_disponible: number;
 }
 
 function ProductosTable() {

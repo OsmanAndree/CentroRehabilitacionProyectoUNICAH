@@ -34,7 +34,7 @@ const Login: React.FC = () => {
         setLoading(false);
         return;
       }
-         
+      
       localStorage.setItem("idRol", data.idRol.toString());
         
       toast.success("Inicio de sesión exitoso");

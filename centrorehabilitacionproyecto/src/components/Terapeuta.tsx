@@ -163,7 +163,7 @@ function TerapeutasTable() {
           {status === 'loading' ? (
             <div className="text-center py-5"><Spinner animation="border" variant="success" /><p className="mt-3 text-muted">Cargando terapeutas...</p></div>
           ) : status === 'failed' ? (
-             <div className="text-center py-5">
+            <div className="text-center py-5">
               <p className="text-danger">Error: {error}</p>
               <Button variant="secondary" size="sm" onClick={() => dispatch(fetchTerapeutas())}>Reintentar</Button>
             </div>

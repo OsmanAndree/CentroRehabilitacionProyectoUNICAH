@@ -65,7 +65,6 @@ function Compras() {
   };
 
   const handleProductoCreado = () => {
-    // Solo actualiza la lista de productos, no necesita recargar las compras.
     dispatch(fetchProductos());
     toast.success("Producto creado y lista actualizada.");
   };
