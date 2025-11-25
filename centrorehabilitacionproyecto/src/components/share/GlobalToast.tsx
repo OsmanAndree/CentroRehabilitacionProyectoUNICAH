@@ -1,4 +1,4 @@
-/*import { ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import { createPortal } from 'react-dom';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -26,4 +26,4 @@ const GlobalToast = () => {
     );
 };
 
-export default GlobalToast;*/
+export default GlobalToast;
