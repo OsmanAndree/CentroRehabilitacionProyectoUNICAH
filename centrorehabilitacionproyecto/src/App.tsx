@@ -6,7 +6,7 @@ import './App.css';
 import './toast-custom.css';
 
 // --- IMPORTS DE COMPONENTES ---
-import GlobalToast from './components/share/GlobalToast'; // ✅ 1. Importa el nuevo componente
+import GlobalToast from './components/share/GlobalToast';
 import NavBar from './components/share/NavBar';
 import Home from './components/Home';
 import PacientesTable from "./components/Pacientes";
@@ -22,6 +22,7 @@ import PrestamosTable from "./components/Prestamos";
 import ComprasTable from "./components/Compras";
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from "./components/ProtectedRoute";
+
 
 function App() {
   return (
@@ -46,7 +47,7 @@ function AppContent() {
           {/* Todas tus rutas quedan igual */}
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<Home />} />
-          <Route path="/pacientes" element={<PacientesTable />} />
+         <Route path="/pacientes" element={<PacientesTable />} />
           <Route path="/terapeutas"element={<TerapeutasTable />} />
           <Route path="/citas" element={<CitasTable />} />
           <Route path="/encargados" element={<EncargadosTable />} />
