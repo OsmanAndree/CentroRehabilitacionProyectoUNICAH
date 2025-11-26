@@ -1,16 +1,33 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaCalendar, FaUserClock, FaFilePdf } from 'react-icons/fa';
+import axios from 'axios';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaCalendar, FaUserClock, FaFilePdf, FaDollarSign, FaPrint } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { PDFDownloadLink } from '@react-pdf/renderer';
+import ReciboReport from './Reports/ReciboReport';
 
 import { AppDispatch, RootState } from '../app/store';
 import { fetchCitas, deleteCita } from '../features/citas/citasSlice';
 import CitasForm from './Forms/CitasForm';
 import CitasReport from './Reports/CitasReport';
 import PaginationComponent from './PaginationComponent';
+
+export interface Servicio {
+  id_servicio: number;
+  nombre: string;
+  costo: number;
+  estado: boolean;
+}
+
+export interface Recibo {
+  id_recibo: number;
+  numero_recibo: string;
+  fecha_cobro: string;
+  total: number;
+  estado: 'Activo' | 'Anulado';
+}
 
 export interface Cita {
   id_cita: number;
@@ -21,7 +38,8 @@ export interface Cita {
   hora_fin: string;
   estado: 'Pendiente' | 'Confirmada' | 'Cancelada' | 'Completada';
   tipo_terapia: 'Fisica' | 'Neurologica'; 
-  duracion_min: number; 
+  duracion_min: number;
+  total?: number;
   paciente: {
     id_paciente: number;
     nombre: string;
@@ -32,6 +50,8 @@ export interface Cita {
     nombre: string;
     apellido: string;
   };
+  servicios?: Servicio[];
+  Recibo?: Recibo;
 }
 
 function CitasTable() {
@@ -92,6 +112,26 @@ function CitasTable() {
       .then(() => toast.success("Cita eliminada con éxito."))
       .catch((err) => toast.error(`Hubo un problema al eliminar: ${err.message || 'Error desconocido'}`));
   };
+
+  const cobrarCita = async (idCita: number) => {
+    if (!window.confirm("¿Desea cobrar esta cita? Se generará un recibo y la cita pasará a estado 'Completada'.")) return;
+    
+    try {
+      const response = await axios.post('http://localhost:3002/Api/recibos/crearRecibo', { id_cita: idCita });
+      toast.success(`Recibo generado exitosamente: ${response.data.data.numero_recibo}`);
+      dispatch(fetchCitas({ 
+        page: currentPage, 
+        limit: itemsPerPage, 
+        searchPaciente: debouncedSearchPaciente,
+        searchTherapist: debouncedSearchTherapist,
+        searchDate: searchDate
+      }));
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || error.message || 'Error al cobrar la cita';
+      toast.error(errorMessage);
+    }
+  };
+
 
   const handleSubmit = () => {
     dispatch(fetchCitas({ 
@@ -262,9 +302,10 @@ function CitasTable() {
                     <th className="py-3 px-4" style={{ fontWeight: "600" }}>Paciente</th>
                     <th className="py-3 px-4" style={{ fontWeight: "600" }}>Terapeuta</th>
                     <th className="py-3 px-4" style={{ fontWeight: "600" }}>Fecha</th>
-                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Hora</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Hora Inicio</th>
                     <th className="py-3 px-4" style={{ fontWeight: "600" }}>Estado</th>
                     <th className="py-3 px-4" style={{ fontWeight: "600" }}>Tipo</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Total</th>
                     <th className="py-3 px-4 text-center" style={{ fontWeight: "600" }}>Acciones</th>
                   </tr>
                 </thead>
@@ -275,15 +316,91 @@ function CitasTable() {
                       <td className="py-3 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                       <td className="py-3 px-4">{`${cita.paciente.nombre} ${cita.paciente.apellido}`}</td>
                       <td className="py-3 px-4">{`${cita.terapeuta.nombre} ${cita.terapeuta.apellido}`}</td>
-                      <td className="py-3 px-4">{new Date(cita.fecha).toLocaleDateString('es-ES')}</td>
-                      <td className="py-3 px-4">{`${cita.hora_inicio} - ${cita.hora_fin}`}</td>
+                      <td className="py-3 px-4">
+                        {(() => {
+                          // Parsear fecha sin problemas de zona horaria
+                          const [year, month, day] = cita.fecha.split('T')[0].split('-').map(Number);
+                          const fechaLocal = new Date(year, month - 1, day);
+                          return fechaLocal.toLocaleDateString('es-ES');
+                        })()}
+                      </td>
+                      <td className="py-3 px-4">{cita.hora_inicio}</td>
                       <td className="py-3 px-4"><span className={`badge ${getStatusBadge(cita.estado)}`}>{cita.estado}</span></td>
                       <td className="py-3 px-4">{cita.tipo_terapia}</td>
+                      <td className="py-3 px-4">
+                        <strong className="text-success">L. {parseFloat(cita.total || 0).toFixed(2)}</strong>
+                      </td>
                       <td className="py-3 px-4 text-center">
-                        <div className="d-flex justify-content-center gap-2">
+                        <div className="d-flex justify-content-center gap-2 flex-wrap">
                           <Button variant="outline-primary" size="sm" onClick={() => editarCita(cita)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
                             <FaEdit />
                           </Button>
+                          {(cita.estado === 'Pendiente' || cita.estado === 'Confirmada') && !cita.Recibo && (
+                            <Button 
+                              variant="outline-success" 
+                              size="sm" 
+                              onClick={() => cobrarCita(cita.id_cita)} 
+                              style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}
+                              title="Cobrar cita"
+                            >
+                              <FaDollarSign />
+                            </Button>
+                          )}
+                          {cita.Recibo && cita.Recibo.estado === 'Activo' && (
+                            <PDFDownloadLink
+                              document={
+                                <ReciboReport 
+                                  recibo={{
+                                    id_recibo: cita.Recibo.id_recibo || 0,
+                                    id_cita: cita.id_cita,
+                                    numero_recibo: cita.Recibo.numero_recibo || '',
+                                    fecha_cobro: cita.Recibo.fecha_cobro || new Date().toISOString(),
+                                    total: cita.Recibo.total || cita.total || 0,
+                                    estado: cita.Recibo.estado || 'Activo',
+                                    Cita: {
+                                      id_cita: cita.id_cita,
+                                      fecha: cita.fecha || '',
+                                      hora_inicio: cita.hora_inicio || '',
+                                      tipo_terapia: cita.tipo_terapia || 'Fisica',
+                                      total: cita.total || 0,
+                                      paciente: cita.paciente ? {
+                                        id_paciente: cita.paciente.id_paciente,
+                                        nombre: cita.paciente.nombre || '',
+                                        apellido: cita.paciente.apellido || ''
+                                      } : undefined,
+                                      terapeuta: cita.terapeuta ? {
+                                        id_terapeuta: cita.terapeuta.id_terapeuta,
+                                        nombre: cita.terapeuta.nombre || '',
+                                        apellido: cita.terapeuta.apellido || ''
+                                      } : undefined,
+                                      servicios: (cita.servicios || []).map(s => ({
+                                        id_servicio: s.id_servicio,
+                                        nombre: s.nombre || '',
+                                        costo: s.costo || 0
+                                      }))
+                                    }
+                                  } as any} 
+                                />
+                              }
+                              fileName={`Recibo_${cita.Recibo.numero_recibo || 'N/A'}.pdf`}
+                              className="btn btn-outline-info btn-sm"
+                              style={{
+                                borderRadius: "8px",
+                                padding: "0.4rem 0.6rem",
+                                textDecoration: "none",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.25rem"
+                              }}
+                            >
+                              {({ loading }) => (
+                                <>
+                                  <FaPrint />
+                                  {loading && <span className="ms-1">...</span>}
+                                </>
+                              )}
+                            </PDFDownloadLink>
+                          )}
                           <Button variant="outline-danger" size="sm" onClick={() => eliminarCitaHandler(cita.id_cita)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
                             <FaTrash />
                           </Button>
@@ -292,7 +409,7 @@ function CitasTable() {
                     </tr>
                   ))
                   ) : (
-                    <tr><td colSpan={8} className="text-center py-5 text-muted">No se encontraron citas que coincidan con los filtros.</td></tr>
+                    <tr><td colSpan={9} className="text-center py-5 text-muted">No se encontraron citas que coincidan con los filtros.</td></tr>
                   )}
                 </tbody>
               </Table>

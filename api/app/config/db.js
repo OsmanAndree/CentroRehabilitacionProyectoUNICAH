@@ -35,10 +35,26 @@ db.usuarios = require('../models/usuarioModel')(sequelizeInstance, Sequelize);
 db.prestamos = require('../models/prestamoModel')(sequelizeInstance, Sequelize);
 db.compras = require('../models/comprasModel')(sequelizeInstance, Sequelize);
 db.detallecompras = require('../models/detallecomprasModel')(sequelizeInstance, Sequelize);
+db.servicios = require('../models/serviciosModel')(sequelizeInstance, Sequelize);
+db.citasServicios = require('../models/citasServiciosModel')(sequelizeInstance, Sequelize);
+db.recibos = require('../models/recibosModel')(sequelizeInstance, Sequelize);
+db.cierres = require('../models/cierresModel')(sequelizeInstance, Sequelize);
 
 
 db.paciente.belongsTo(db.encargado, { foreignKey: 'id_encargado' });
 db.encargado.hasMany(db.paciente, { foreignKey: 'id_encargado' });
+
+// Relaciones Citas-Servicios (muchos a muchos)
+db.citas.belongsToMany(db.servicios, { through: db.citasServicios, foreignKey: 'id_cita', otherKey: 'id_servicio', as: 'servicios' });
+db.servicios.belongsToMany(db.citas, { through: db.citasServicios, foreignKey: 'id_servicio', otherKey: 'id_cita', as: 'citas' });
+
+// Relaciones Citas-Recibos (uno a uno)
+db.citas.hasOne(db.recibos, { foreignKey: 'id_cita', as: 'Recibo' });
+db.recibos.belongsTo(db.citas, { foreignKey: 'id_cita', as: 'Cita' });
+
+// Relaciones Cierres-Usuarios
+db.cierres.belongsTo(db.usuarios, { foreignKey: 'id_usuario', as: 'usuario' });
+db.usuarios.hasMany(db.cierres, { foreignKey: 'id_usuario', as: 'cierres' });
 
 db.bodegas.belongsTo(db.productos, { foreignKey: 'id_producto', as: 'producto' });
 db.productos.hasMany(db.bodegas, { foreignKey: 'id_producto' });

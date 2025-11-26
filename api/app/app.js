@@ -14,6 +14,9 @@ const citasRoutes = require("./routes/citaRoute.js");
 const usuarioRoutes = require("./routes/usuarioRoute.js");
 const prestamoRoutes = require("./routes/prestamoRoute.js");
 const compraRoutes = require("./routes/compraRoute.js");
+const serviciosRoutes = require("./routes/serviciosRoute.js");
+const recibosRoutes = require("./routes/recibosRoute.js");
+const cierresRoutes = require("./routes/cierresRoute.js");
 
 App.use(
     cors({
@@ -35,5 +38,8 @@ App.use("/Api/citas", citasRoutes);
 App.use("/Api/usuarios", usuarioRoutes);
 App.use("/Api/prestamos", prestamoRoutes);
 App.use("/Api/compras", compraRoutes);
+App.use("/Api/servicios", serviciosRoutes);
+App.use("/Api/recibos", recibosRoutes);
+App.use("/Api/cierres", cierresRoutes);
 
 module.exports = App;

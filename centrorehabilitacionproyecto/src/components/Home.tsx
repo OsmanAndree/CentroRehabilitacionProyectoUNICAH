@@ -3,27 +3,30 @@ import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Container from "react-bootstrap/Container";
-import { FaUserMd, FaUsers, FaCalendarAlt, FaUserFriends, FaBox, FaWarehouse, FaBuyNLarge, FaShare } from "react-icons/fa";
+import { FaUserMd, FaUsers, FaCalendarAlt, FaUserFriends, FaBox, FaWarehouse, FaBuyNLarge, FaShare, FaConciergeBell, FaReceipt, FaCashRegister } from "react-icons/fa";
 import { FaUserGear } from "react-icons/fa6";
 
 const cardsData = [
-  { path: "/pacientes", img: "/images/paciente.webp", title: "Control de Pacientes", text: "Gestiona pacientes, citas y diagnósticos.", icon: <FaUsers size={24} /> },
-  { path: "/encargados", img: "/images/encargado.webp", title: "Control de Encargados", text: "Maneja información de encargados de los pacientes.", icon: <FaUserFriends size={24} /> },
-  { path: "/citas", img: "/images/citas.webp", title: "Control de Citas", text: "Organiza y gestiona citas de los pacientes.", icon: <FaCalendarAlt size={24} /> },
-  { path: "/diagnosticos", img: "/images/diagnostico.webp", title: "Control de Diagnósticos", text: "Administra los diagnósticos del sistema.", icon: <FaUserGear size={24} /> },
-  { path: "/terapeutas", img: "/images/terapeuta.webp", title: "Control de Terapeutas", text: "Administra terapeutas, horarios y especialidades.", icon: <FaUserMd size={24} /> },
-  { path: "/productos", img: "/images/producto.webp", title: "Control de Productos", text: "Supervisa el stock y gestión de productos.", icon: <FaBox size={24} /> },
-  { path: "/compras", img: "/images/compras.webp", title: "Control de Compras", text: "Administra las compras del sistema.", icon: <FaBuyNLarge size={24} /> },
-  { path: "/bodega", img: "/images/bodega.webp", title: "Control de Bodega", text: "Administra el inventario de productos médicos.", icon: <FaWarehouse size={24} /> },
-  { path: "/prestamos", img: "/images/prestamo.webp", title: "Control de Préstamos", text: "Administra los préstamos del sistema.", icon: <FaShare size={24} /> },
-  { path: "/usuarios", img: "/images/usuario.webp", title: "Control de Usuarios", text: "Administra los usuarios del sistema.", icon: <FaUserGear size={24} /> },
+  { path: "/pacientes", title: "Control de Pacientes", text: "Gestiona pacientes, citas y diagnósticos.", icon: <FaUsers size={48} /> },
+  { path: "/encargados", title: "Control de Encargados", text: "Maneja información de encargados de los pacientes.", icon: <FaUserFriends size={48} /> },
+  { path: "/citas", title: "Control de Citas", text: "Organiza y gestiona citas de los pacientes.", icon: <FaCalendarAlt size={48} /> },
+  { path: "/diagnosticos", title: "Control de Diagnósticos", text: "Administra los diagnósticos del sistema.", icon: <FaUserGear size={48} /> },
+  { path: "/terapeutas", title: "Control de Terapeutas", text: "Administra terapeutas, horarios y especialidades.", icon: <FaUserMd size={48} /> },
+  { path: "/servicios", title: "Control de Servicios", text: "Administra los servicios disponibles del sistema.", icon: <FaConciergeBell size={48} /> },
+  { path: "/recibos", title: "Control de Recibos", text: "Gestiona y administra los recibos del sistema.", icon: <FaReceipt size={48} /> },
+  { path: "/cierres", title: "Control de Cierres", text: "Administra los cierres de caja del sistema.", icon: <FaCashRegister size={48} /> },
+  { path: "/productos", title: "Control de Productos", text: "Supervisa el stock y gestión de productos.", icon: <FaBox size={48} /> },
+  { path: "/compras", title: "Control de Compras", text: "Administra las compras del sistema.", icon: <FaBuyNLarge size={48} /> },
+  { path: "/bodega", title: "Control de Bodega", text: "Administra el inventario de productos médicos.", icon: <FaWarehouse size={48} /> },
+  { path: "/prestamos", title: "Control de Préstamos", text: "Administra los préstamos del sistema.", icon: <FaShare size={48} /> },
+  { path: "/usuarios", title: "Control de Usuarios", text: "Administra los usuarios del sistema.", icon: <FaUserGear size={48} /> },
 ];
 
 function CardGrids() {
   const navigate = useNavigate();
   const userRole = localStorage.getItem("idRol")?.toString();
     console.log(" userRole desde el Home", userRole);
-  const unallowedPathsForRole1 = ["/productos", "/compras", "/bodega", "/prestamos", "/usuarios"];
+  const unallowedPathsForRole1 = ["/productos", "/compras", "/bodega", "/prestamos", "/usuarios", "/servicios", "/recibos", "/cierres"];
   //ADMINISTRADOR = 1
   const filteredCards =
     userRole === "1"
@@ -68,23 +71,16 @@ function CardGrids() {
                     backdropFilter: "blur(10px)",
                   }}
                 >
-                  <div className="position-relative">
-                    <Card.Img
-                      variant="top"
-                      src={card.img}
-                      height="200px"
+                  <Card.Body className="p-4 d-flex flex-column align-items-center text-center">
+                    <div 
+                      className="mb-3 rounded-circle p-4 d-flex align-items-center justify-content-center"
                       style={{ 
-                        objectFit: "cover",
-                        filter: "brightness(0.95)"
+                        backgroundColor: "rgba(46, 139, 87, 0.1)",
+                        color: "#2E8B57"
                       }}
-                      className="rounded-top-4"
-                    />
-                    <div className="card-img-overlay" />
-                    <div className="position-absolute top-0 end-0 m-3 bg-white rounded-circle p-2 shadow-sm">
-                      <div style={{ color: "#2E8B57" }}>{card.icon}</div>
+                    >
+                      {card.icon}
                     </div>
-                  </div>
-                  <Card.Body className="p-4">
                     <Card.Title className="h4 mb-3" style={{ 
                       color: "#2E8B57",
                       fontWeight: "600",

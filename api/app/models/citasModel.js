@@ -40,6 +40,11 @@ module.exports = (sequelize, DataTypes) => {
     duracion_min: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    total: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+      defaultValue: 0.00
     }
   }, {
     tableName: 'Citas',

@@ -20,6 +20,9 @@ import UsuariosTable from "./components/Usuario";
 import DiagnosticosTable from "./components/Diagnosticos";
 import PrestamosTable from "./components/Prestamos";
 import ComprasTable from "./components/Compras";
+import ServiciosTable from "./components/Servicios";
+import RecibosTable from "./components/Recibos";
+import CierresTable from "./components/Cierres";
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -57,6 +60,9 @@ function AppContent() {
           <Route path="/bodega" element={<ProtectedRoute allowedRoles={["1"]}><BodegaTable /></ProtectedRoute>} />
           <Route path="/usuarios" element={<ProtectedRoute allowedRoles={["1"]}><UsuariosTable /></ProtectedRoute>} />
           <Route path="/prestamos" element={<ProtectedRoute allowedRoles={["1"]}><PrestamosTable /></ProtectedRoute>} />
+          <Route path="/servicios" element={<ProtectedRoute allowedRoles={["1"]}><ServiciosTable /></ProtectedRoute>} />
+          <Route path="/recibos" element={<ProtectedRoute allowedRoles={["1"]}><RecibosTable /></ProtectedRoute>} />
+          <Route path="/cierres" element={<ProtectedRoute allowedRoles={["1"]}><CierresTable /></ProtectedRoute>} />
         </Routes>
       </main>
     </>
