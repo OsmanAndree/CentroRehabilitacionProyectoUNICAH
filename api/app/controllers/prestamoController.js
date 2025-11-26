@@ -7,19 +7,57 @@ const Producto = db.productos;
 
 async function getPrestamo(req, res) {
     try {
-        const prestamos = await prestamo.findAll({
-            include: [
-                {
-                    model: Paciente, 
-                    attributes: ['nombre', 'apellido']
-                },
-                {
-                    model: Producto,
-                    attributes: ['nombre', 'descripcion']
-                }
-            ]
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        const offset = (page - 1) * limit;
+        const { Op } = db.Sequelize;
+
+        const pacienteWhere = {};
+        const productoWhere = {};
+        
+        if (search) {
+            const searchLower = search.toLowerCase();
+            pacienteWhere[Op.or] = [
+                { nombre: { [Op.like]: `%${searchLower}%` } },
+                { apellido: { [Op.like]: `%${searchLower}%` } }
+            ];
+            productoWhere.nombre = { [Op.like]: `%${searchLower}%` };
+        }
+
+        const includeOptions = [
+            {
+                model: Paciente, 
+                attributes: ['nombre', 'apellido'],
+                ...(Object.keys(pacienteWhere).length > 0 && { where: pacienteWhere })
+            },
+            {
+                model: Producto,
+                attributes: ['nombre', 'descripcion'],
+                ...(Object.keys(productoWhere).length > 0 && { where: productoWhere })
+            }
+        ];
+
+        const { count, rows } = await prestamo.findAndCountAll({
+            include: includeOptions,
+            limit,
+            offset,
+            distinct: true
         });
-        res.status(200).send({ result: prestamos });
+
+        const totalPages = Math.ceil(count / limit);
+
+        res.status(200).send({ 
+            result: rows,
+            pagination: {
+                total: count,
+                page,
+                limit,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1
+            }
+        });
     } catch (error) {
         console.error(error);
         res.status(500).send({ message: error.message || "Sucedió un error inesperado" });

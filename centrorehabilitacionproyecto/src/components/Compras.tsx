@@ -13,6 +13,7 @@ import ComprasForm from './Forms/ComprasForm';
 import ComprasView from './Forms/ComprasView';
 import ProductosForm from './Forms/ProductosForm';
 import ComprasReport from './Reports/ComprasReport';
+import PaginationComponent from './PaginationComponent';
 
 export interface Compra {
   id_compra: number;
@@ -29,7 +30,7 @@ export interface Compra {
 
 function Compras() {
   const dispatch: AppDispatch = useDispatch();
-  const { compras, status, error } = useSelector((state: RootState) => state.compras);
+  const { compras, status, error, pagination } = useSelector((state: RootState) => state.compras);
   const { productos } = useSelector((state: RootState) => state.productos);
 
   const [search, setSearch] = useState<string>("");
@@ -40,11 +41,22 @@ function Compras() {
   const [showView, setShowView] = useState<boolean>(false);
   const [compraVista, setCompraVista] = useState<Compra | null>(null);
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [searchDebounce, setSearchDebounce] = useState<string>("");
+  const itemsPerPage = 10;
   
   useEffect(() => {
-    dispatch(fetchCompras());
+    dispatch(fetchCompras({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
     dispatch(fetchProductos());
-  }, [dispatch]);
+  }, [dispatch, currentPage, searchDebounce]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchDebounce(search);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
   
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -61,7 +73,12 @@ function Compras() {
   };
 
   const handleSubmit = () => {
-    dispatch(fetchCompras());
+    dispatch(fetchCompras({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleProductoCreado = () => {
@@ -97,10 +114,6 @@ function Compras() {
       setReabrirFormulario(false); 
     }
   };
-
-  const comprasFiltradas = compras.filter(c =>
-    c.donante.toLowerCase().includes(search.toLowerCase())
-  );
 
   const isMobile = windowWidth < 768;
 
@@ -177,10 +190,10 @@ function Compras() {
                   </tr>
                 </thead>
                 <tbody>
-                  {comprasFiltradas.length > 0 ? (
-                    comprasFiltradas.map((compra, index) => (
+                  {compras.length > 0 ? (
+                    compras.map((compra, index) => (
                       <tr key={compra.id_compra}>
-                        <td className="py-3 px-4">{index + 1}</td>
+                        <td className="py-3 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                         <td className="py-3 px-4">{new Date(compra.fecha + 'T00:00:00').toLocaleDateString('es-ES')}</td>
                         <td className="py-3 px-4">{compra.donante}</td>
                         <td className="py-3 px-4">{Number(compra.total).toFixed(2)}</td>
@@ -218,6 +231,12 @@ function Compras() {
               </Table>
             </div>
           )}
+          <PaginationComponent 
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+          />
         </Card.Body>
       </Card>
       

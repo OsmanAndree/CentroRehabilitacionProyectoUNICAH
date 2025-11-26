@@ -11,6 +11,7 @@ import { AppDispatch, RootState } from '../app/store';
 import { fetchEncargados, deleteEncargado } from '../features/encargados/encargadosSlice';
 import EncargadosForm from './Forms/EncargadosForm';
 import EncargadosReport from './Reports/EncargadosReport';
+import PaginationComponent from './PaginationComponent';
 
 export interface Encargado {
     id_encargado: number;
@@ -22,19 +23,27 @@ export interface Encargado {
 
 function EncargadosTable() {
     const dispatch: AppDispatch = useDispatch();
-    const { encargados, status, error } = useSelector((state: RootState) => state.encargados);
+    const { encargados, status, error, pagination } = useSelector((state: RootState) => state.encargados);
 
     const [showForm, setShowForm] = useState<boolean>(false);
     const [encargadoSeleccionado, setEncargadoSeleccionado] = useState<Encargado | null>(null);
     const [search, setSearch] = useState<string>("");
     const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [searchDebounce, setSearchDebounce] = useState<string>("");
+    const itemsPerPage = 10;
 
-    // Volvemos a la lógica simple que funciona
     useEffect(() => {
-        if (status === 'idle') {
-            dispatch(fetchEncargados());
-        }
-    }, [status, dispatch]);
+        dispatch(fetchEncargados({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
+    }, [dispatch, currentPage, searchDebounce]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearchDebounce(search);
+            setCurrentPage(1);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
 
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
@@ -51,9 +60,14 @@ function EncargadosTable() {
     };
 
     const handleSubmit = () => {
-        dispatch(fetchEncargados());
+        dispatch(fetchEncargados({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
         toast.success("Encargado guardado con éxito.");
         cerrarFormulario();
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const editarEncargado = (encargado: Encargado) => {
@@ -72,10 +86,6 @@ function EncargadosTable() {
         setShowForm(false);
         setEncargadoSeleccionado(null);
     }
-
-    const encargadosFiltrados = (encargados || []).filter(e =>
-        `${e.nombre} ${e.apellido}`.toLowerCase().includes(search.toLowerCase())
-    );
 
     const isMobile = windowWidth < 768;
 
@@ -96,9 +106,9 @@ function EncargadosTable() {
                                 <Button variant="light" onClick={crearEncargado} className="d-flex align-items-center justify-content-center">
                                     <FaPlus className="me-2" /> Nuevo Encargado
                                 </Button>
-                                {encargadosFiltrados.length > 0 && (
+                                {encargados.length > 0 && (
                                     <PDFDownloadLink
-                                        document={<EncargadosReport encargados={encargadosFiltrados} />}
+                                        document={<EncargadosReport encargados={encargados} />}
                                         fileName="Reporte_Encargados.pdf"
                                         className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
                                     >
@@ -149,10 +159,10 @@ function EncargadosTable() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {encargadosFiltrados.length > 0 ? (
-                                        encargadosFiltrados.map((encargado, index) => (
+                                    {encargados.length > 0 ? (
+                                        encargados.map((encargado, index) => (
                                             <tr key={encargado.id_encargado}>
-                                                <td className="py-3 px-4">{index + 1}</td>
+                                                <td className="py-3 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                                 <td className="py-3 px-4">{`${encargado.nombre} ${encargado.apellido}`}</td>
                                                 <td className="py-3 px-4">{encargado.telefono}</td>
                                                 <td className="py-3 px-4">{encargado.direccion}</td>
@@ -175,6 +185,12 @@ function EncargadosTable() {
                             </Table>
                         </div>
                     )}
+                    <PaginationComponent 
+                        pagination={pagination}
+                        onPageChange={handlePageChange}
+                        itemsPerPage={itemsPerPage}
+                        currentPage={currentPage}
+                    />
                 </Card.Body>
             </Card>
 

@@ -2,22 +2,42 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { Diagnostico } from '../../components/Diagnosticos'; 
 
+interface PaginationInfo {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 interface DiagnosticosState {
   diagnosticos: Diagnostico[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
+  pagination: PaginationInfo | null;
 }
 
 const initialState: DiagnosticosState = {
   diagnosticos: [],
   status: 'idle',
   error: null,
+  pagination: null,
 };
 
-export const fetchDiagnosticos = createAsyncThunk('diagnosticos/fetchDiagnosticos', async () => {
-  const response = await axios.get('http://localhost:3002/Api/diagnostico/getDiagnosticos');
-  return response.data.result as Diagnostico[];
-});
+export const fetchDiagnosticos = createAsyncThunk(
+  'diagnosticos/fetchDiagnosticos', 
+  async (params: { page?: number; limit?: number; search?: string } = {}) => {
+    const { page = 1, limit = 10, search = '' } = params;
+    const response = await axios.get('http://localhost:3002/Api/diagnostico/getDiagnosticos', {
+      params: { page, limit, search }
+    });
+    return {
+      diagnosticos: response.data.result as Diagnostico[],
+      pagination: response.data.pagination as PaginationInfo
+    };
+  }
+);
 
 export const deleteDiagnostico = createAsyncThunk('diagnosticos/deleteDiagnostico', async (id: number) => {
   await axios.delete(`http://localhost:3002/Api/diagnostico/deleteDiagnosticos?diagnostico_id=${id}`);
@@ -38,9 +58,10 @@ const diagnosticosSlice = createSlice({
       .addCase(fetchDiagnosticos.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchDiagnosticos.fulfilled, (state, action: PayloadAction<Diagnostico[]>) => {
+      .addCase(fetchDiagnosticos.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.diagnosticos = action.payload;
+        state.diagnosticos = action.payload.diagnosticos;
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchDiagnosticos.rejected, (state, action) => {
         state.status = 'failed';

@@ -2,22 +2,42 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { Cita } from "../../components/Citas"; 
 
+interface PaginationInfo {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 interface CitasState {
   citas: Cita[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  pagination: PaginationInfo | null;
 }
 
 const initialState: CitasState = {
   citas: [],
   status: "idle",
   error: null,
+  pagination: null,
 };
 
-export const fetchCitas = createAsyncThunk("citas/fetchCitas", async () => {
-  const response = await axios.get("http://localhost:3002/Api/citas/getcitas");
-  return response.data.result as Cita[];
-});
+export const fetchCitas = createAsyncThunk(
+  "citas/fetchCitas", 
+  async (params: { page?: number; limit?: number; searchPaciente?: string; searchTherapist?: string; searchDate?: string } = {}) => {
+    const { page = 1, limit = 10, searchPaciente = '', searchTherapist = '', searchDate = '' } = params;
+    const response = await axios.get("http://localhost:3002/Api/citas/getcitas", {
+      params: { page, limit, searchPaciente, searchTherapist, searchDate }
+    });
+    return {
+      citas: response.data.result as Cita[],
+      pagination: response.data.pagination as PaginationInfo
+    };
+  }
+);
 
 export const deleteCita = createAsyncThunk(
   "citas/deleteCita",
@@ -38,9 +58,10 @@ const citasSlice = createSlice({
       .addCase(fetchCitas.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchCitas.fulfilled, (state, action: PayloadAction<Cita[]>) => {
+      .addCase(fetchCitas.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.citas = action.payload;
+        state.citas = action.payload.citas;
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchCitas.rejected, (state, action) => {
         state.status = "failed";

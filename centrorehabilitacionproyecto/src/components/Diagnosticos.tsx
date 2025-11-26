@@ -10,6 +10,7 @@ import { AppDispatch, RootState } from '../app/store';
 import { fetchDiagnosticos, deleteDiagnostico, darAltaDiagnostico} from '../features/diagnosticos/diagnosticosSlice';
 import DiagnosticosForm from './Forms/DiagnosticosForm';
 import RecetaReport from './Reports/RecetaReport';
+import PaginationComponent from './PaginationComponent';
 
 export interface Diagnostico {
   id_diagnostico: number;
@@ -34,18 +35,27 @@ export interface Diagnostico {
 
 function DiagnosticosTable() {
   const dispatch: AppDispatch = useDispatch();
-  const { diagnosticos, status, error } = useSelector((state: RootState) => state.diagnosticos);
+  const { diagnosticos, status, error, pagination } = useSelector((state: RootState) => state.diagnosticos);
   
   const [showForm, setShowForm] = useState<boolean>(false);
   const [diagnosticoSeleccionado, setDiagnosticoSeleccionado] = useState<Diagnostico | null>(null);
   const [search, setSearch] = useState<string>("");
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [searchDebounce, setSearchDebounce] = useState<string>("");
+  const itemsPerPage = 10;
   
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchDiagnosticos());
-    }
-  }, [status, dispatch]);
+    dispatch(fetchDiagnosticos({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
+  }, [dispatch, currentPage, searchDebounce]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchDebounce(search);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
   
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -67,15 +77,20 @@ function DiagnosticosTable() {
       .unwrap()
       .then(() => {
           toast.success("Paciente dado de alta exitosamente.");
-          dispatch(fetchDiagnosticos()); 
+          dispatch(fetchDiagnosticos({ page: currentPage, limit: itemsPerPage, search: searchDebounce })); 
       })
       .catch((err: any) => toast.error(`Error al dar de alta: ${err.message}`));
   };
 
   const handleSubmit = () => {
-    dispatch(fetchDiagnosticos());
+    dispatch(fetchDiagnosticos({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
     toast.success("Diagnóstico guardado con éxito.");
     cerrarFormulario();
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const editarDiagnostico = (diagnostico: Diagnostico) => {
@@ -92,10 +107,6 @@ function DiagnosticosTable() {
     setShowForm(false);
     setDiagnosticoSeleccionado(null);
   };
-
-  const diagnosticosFiltrados = diagnosticos.filter(d =>
-    `${d.paciente?.nombre} ${d.paciente?.apellido} ${d.terapeuta?.nombre}`.toLowerCase().includes(search.toLowerCase())
-  );
 
   const isMobile = windowWidth < 768;
 
@@ -172,10 +183,10 @@ function DiagnosticosTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {diagnosticosFiltrados.length > 0 ? (
-                    diagnosticosFiltrados.map((diagnostico, index) => (
+                  {diagnosticos.length > 0 ? (
+                    diagnosticos.map((diagnostico, index) => (
                       <tr key={diagnostico.id_diagnostico}>
-                        <td className="py-3 px-4">{index + 1}</td>
+                        <td className="py-3 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                         <td className="py-3 px-4">{`${diagnostico.paciente?.nombre || ''} ${diagnostico.paciente?.apellido || ''}`}</td>
                         <td className="py-3 px-4">{`${diagnostico.terapeuta?.nombre || ''} ${diagnostico.terapeuta?.apellido || ''}`}</td>
                         <td className="py-3 px-4">{diagnostico.terapeuta?.especialidad || ''}</td>
@@ -228,12 +239,18 @@ function DiagnosticosTable() {
                       </tr>
                     ))
                   ) : (
-                    <tr><td colSpan={7} className="text-center py-5 text-muted">No se encontraron diagnósticos.</td></tr>
+                    <tr><td colSpan={8} className="text-center py-5 text-muted">No se encontraron diagnósticos.</td></tr>
                   )}
                 </tbody>
               </Table>
             </div>
           )}
+          <PaginationComponent 
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+          />
         </Card.Body>
       </Card>
       {showForm && (

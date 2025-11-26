@@ -10,6 +10,7 @@ import { AppDispatch, RootState } from '../app/store';
 import { fetchTerapeutas, deleteTerapeuta } from '../features/terapeutas/terapeutasSlice';
 import TerapeutasForm from './Forms/TerapeutasForm';
 import TerapeutasReport from './Reports/TerapeutaReport';
+import PaginationComponent from './PaginationComponent';
 
 export interface Terapeuta {
   id_terapeuta: number;
@@ -22,18 +23,27 @@ export interface Terapeuta {
 
 function TerapeutasTable() {
   const dispatch: AppDispatch = useDispatch();
-  const { terapeutas, status, error } = useSelector((state: RootState) => state.terapeutas);
+  const { terapeutas, status, error, pagination } = useSelector((state: RootState) => state.terapeutas);
   
   const [showForm, setShowForm] = useState<boolean>(false);
   const [terapeutaSeleccionado, setTerapeutaSeleccionado] = useState<Terapeuta | null>(null);
   const [search, setSearch] = useState<string>("");
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [searchDebounce, setSearchDebounce] = useState<string>("");
+  const itemsPerPage = 10;
 
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchTerapeutas());
-    }
-  }, [status, dispatch]);
+    dispatch(fetchTerapeutas({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
+  }, [dispatch, currentPage, searchDebounce]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchDebounce(search);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
   
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -51,8 +61,13 @@ function TerapeutasTable() {
   };
 
   const handleSubmit = () => {
-    dispatch(fetchTerapeutas());
+    dispatch(fetchTerapeutas({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
     toast.success("Terapeuta guardado con éxito.");
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const editarTerapeuta = (terapeuta: Terapeuta) => {
@@ -69,10 +84,6 @@ function TerapeutasTable() {
     setShowForm(false);
     setTerapeutaSeleccionado(null);
   };
-
-  const terapeutasFiltrados = terapeutas.filter(t =>
-    `${t.nombre} ${t.apellido}`.toLowerCase().includes(search.toLowerCase())
-  );
 
   const isMobile = windowWidth < 768;
 
@@ -113,9 +124,9 @@ function TerapeutasTable() {
                 >
                   <FaPlus className="me-2" /> Nuevo Terapeuta
                 </Button>
-                {terapeutasFiltrados.length > 0 && (
+                {terapeutas.length > 0 && (
                   <PDFDownloadLink
-                    document={<TerapeutasReport terapeutas={terapeutasFiltrados} />}
+                    document={<TerapeutasReport terapeutas={terapeutas} />}
                     fileName="Reporte_Terapeutas.pdf"
                     className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
                     style={{
@@ -181,10 +192,10 @@ function TerapeutasTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {terapeutasFiltrados.length > 0 ? (
-                    terapeutasFiltrados.map((terapeuta, index) => (
+                  {terapeutas.length > 0 ? (
+                    terapeutas.map((terapeuta, index) => (
                     <tr key={terapeuta.id_terapeuta}>
-                      <td className="py-3 px-4">{index + 1}</td>
+                      <td className="py-3 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                       <td className="py-3 px-4">{`${terapeuta.nombre} ${terapeuta.apellido}`}</td>
                       <td className="py-3 px-4">{terapeuta.especialidad}</td>
                       <td className="py-3 px-4">{terapeuta.telefono}</td>
@@ -212,6 +223,12 @@ function TerapeutasTable() {
               </Table>
             </div>
           )}
+          <PaginationComponent 
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+          />
         </Card.Body>
       </Card>
 

@@ -2,25 +2,41 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { Compra } from "../../components/Compras";
 
+interface PaginationInfo {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 interface ComprasState {
   compras: Compra[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  pagination: PaginationInfo | null;
 }
 
 const initialState: ComprasState = {
   compras: [],
   status: "idle",
   error: null,
+  pagination: null,
 };
 
 export const fetchCompras = createAsyncThunk(
   "compras/fetchCompras",
-  async () => {
+  async (params: { page?: number; limit?: number; search?: string } = {}) => {
+    const { page = 1, limit = 10, search = '' } = params;
     const response = await axios.get(
-      "http://localhost:3002/Api/compras/getCompras"
+      "http://localhost:3002/Api/compras/getCompras",
+      { params: { page, limit, search } }
     );
-    return response.data.result as Compra[];
+    return {
+      compras: response.data.result as Compra[],
+      pagination: response.data.pagination as PaginationInfo
+    };
   }
 );
 
@@ -45,9 +61,10 @@ const comprasSlice = createSlice({
       })
       .addCase(
         fetchCompras.fulfilled,
-        (state, action: PayloadAction<Compra[]>) => {
+        (state, action) => {
           state.status = "succeeded";
-          state.compras = action.payload;
+          state.compras = action.payload.compras;
+          state.pagination = action.payload.pagination;
         }
       )
       .addCase(fetchCompras.rejected, (state, action) => {

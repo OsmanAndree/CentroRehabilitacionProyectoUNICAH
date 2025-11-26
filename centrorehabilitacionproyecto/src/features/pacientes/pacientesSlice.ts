@@ -19,16 +19,27 @@ export interface Paciente {
   lugar_procedencia?: string | null;
 }
 
+interface PaginationInfo {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 interface PacientesState {
   pacientes: Paciente[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  pagination: PaginationInfo | null;
 }
 
 const initialState: PacientesState = {
   pacientes: [],
   status: "idle",
   error: null,
+  pagination: null,
 };
 
 // --- CONFIGURACIÓN DE LA URL ---
@@ -39,10 +50,15 @@ const BASE_URL = "http://localhost:3002/Api/pacientes";
 
 export const fetchPacientes = createAsyncThunk(
   "pacientes/fetchPacientes",
-  async () => {
-    // AQUÍ ESTABA EL ERROR POSIBLEMENTE: Faltaba /getpacientes
-    const response = await axios.get(`${BASE_URL}/getpacientes`);
-    return response.data.result as Paciente[];
+  async (params: { page?: number; limit?: number; search?: string } = {}) => {
+    const { page = 1, limit = 10, search = '' } = params;
+    const response = await axios.get(`${BASE_URL}/getpacientes`, {
+      params: { page, limit, search }
+    });
+    return {
+      pacientes: response.data.result as Paciente[],
+      pagination: response.data.pagination as PaginationInfo
+    };
   }
 );
 
@@ -85,9 +101,10 @@ const pacientesSlice = createSlice({
       .addCase(fetchPacientes.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchPacientes.fulfilled, (state, action: PayloadAction<Paciente[]>) => {
+      .addCase(fetchPacientes.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.pacientes = action.payload;
+        state.pacientes = action.payload.pacientes;
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchPacientes.rejected, (state, action) => {
         state.status = "failed";

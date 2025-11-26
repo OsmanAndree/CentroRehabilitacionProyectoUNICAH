@@ -10,6 +10,7 @@ import { AppDispatch, RootState } from '../app/store';
 import { fetchPrestamos, deletePrestamo } from '../features/prestamos/prestamosSlice';
 import PrestamosForm from './Forms/PrestamosForm';
 import PrestamosReport from './Reports/PrestamosReport';
+import PaginationComponent from './PaginationComponent';
 
 export interface Prestamo {
     id_prestamo: number;
@@ -30,18 +31,27 @@ export interface Prestamo {
 
 function PrestamosTable() {
     const dispatch: AppDispatch = useDispatch();
-    const { prestamos, status, error } = useSelector((state: RootState) => state.prestamos);
+    const { prestamos, status, error, pagination } = useSelector((state: RootState) => state.prestamos);
 
     const [showForm, setShowForm] = useState<boolean>(false);
     const [prestamoSeleccionado, setPrestamoSeleccionado] = useState<Prestamo | null>(null);
     const [search, setSearch] = useState<string>("");
     const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [searchDebounce, setSearchDebounce] = useState<string>("");
+    const itemsPerPage = 10;
 
     useEffect(() => {
-        if (status === 'idle') {
-            dispatch(fetchPrestamos());
-        }
-    }, [status, dispatch]);
+        dispatch(fetchPrestamos({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
+    }, [dispatch, currentPage, searchDebounce]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearchDebounce(search);
+            setCurrentPage(1);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
 
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
@@ -58,8 +68,13 @@ function PrestamosTable() {
     };
 
     const handleSubmit = () => {
-        dispatch(fetchPrestamos());
+        dispatch(fetchPrestamos({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
         toast.success("Préstamo guardado con éxito.");
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const editarPrestamo = (prestamo: Prestamo) => {
@@ -76,12 +91,6 @@ function PrestamosTable() {
         setShowForm(false);
         setPrestamoSeleccionado(null);
     };
-
-    const prestamosFiltrados = prestamos.filter((p) =>
-        `${p.paciente?.nombre} ${p.paciente?.apellido} ${p.producto?.nombre}`
-            .toLowerCase()
-            .includes(search.toLowerCase())
-    );
 
     const isMobile = windowWidth < 768;
 
@@ -122,9 +131,9 @@ function PrestamosTable() {
                                 >
                                     <FaPlus className="me-2" /> Nuevo Préstamo
                                 </Button>
-                                {prestamosFiltrados.length > 0 && (
+                                {prestamos.length > 0 && (
                                     <PDFDownloadLink
-                                        document={<PrestamosReport prestamos={prestamosFiltrados} />}
+                                        document={<PrestamosReport prestamos={prestamos} />}
                                         fileName="Reporte_Prestamos.pdf"
                                         className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
                                         style={{
@@ -192,10 +201,10 @@ function PrestamosTable() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {prestamosFiltrados.length > 0 ? (
-                                        prestamosFiltrados.map((prestamo, index) => (
+                                    {prestamos.length > 0 ? (
+                                        prestamos.map((prestamo, index) => (
                                             <tr key={prestamo.id_prestamo}>
-                                                <td className="py-3 px-4">{index + 1}</td>
+                                                <td className="py-3 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                                 <td className="py-3 px-4">{`${prestamo.paciente?.nombre} ${prestamo.paciente?.apellido}`}</td>
                                                 <td className="py-3 px-4">{prestamo.producto?.nombre}</td>
                                                 {!isMobile && (
@@ -234,6 +243,12 @@ function PrestamosTable() {
                             </Table>
                         </div>
                     )}
+                    <PaginationComponent 
+                        pagination={pagination}
+                        onPageChange={handlePageChange}
+                        itemsPerPage={itemsPerPage}
+                        currentPage={currentPage}
+                    />
                 </Card.Body>
             </Card>
 

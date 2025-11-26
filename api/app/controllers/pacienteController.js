@@ -5,18 +5,49 @@ const paciente = db.paciente;
 const encargado = db.encargado;
 
 async function getpacientes(req, res) {
-    paciente.findAll({
-            where: { estado: true },
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        const offset = (page - 1) * limit;
+        const { Op } = db.Sequelize;
+
+        const where = { estado: true };
+        if (search) {
+            where[Op.or] = [
+                { nombre: { [Op.like]: `%${search}%` } },
+                { apellido: { [Op.like]: `%${search}%` } },
+                { numero_identidad: { [Op.like]: `%${search}%` } }
+            ];
+        }
+
+        const { count, rows } = await paciente.findAndCountAll({
+            where,
             include: [{
                 model: encargado,
                 attributes: ['nombre', 'apellido']
-            }]
-        })
-        .then(result => {
-            res.status(200).send({ result })
-        }).catch(error => {
-            res.status(500).send({ message: error.message || "Sucedió un errror inesperado" })
+            }],
+            limit,
+            offset,
+            distinct: true
         });
+
+        const totalPages = Math.ceil(count / limit);
+
+        res.status(200).send({ 
+            result: rows,
+            pagination: {
+                total: count,
+                page,
+                limit,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1
+            }
+        });
+    } catch (error) {
+        res.status(500).send({ message: error.message || "Sucedió un error inesperado" });
+    }
 }
 
 const insertpacientes = async (req, res) => {

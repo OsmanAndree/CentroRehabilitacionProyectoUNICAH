@@ -3,6 +3,7 @@ import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from '
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaUsers } from 'react-icons/fa';
 import axios from 'axios';
 import UsuariosForm from './Forms/UsuariosForm';
+import PaginationComponent from './PaginationComponent';
 // Se eliminan las importaciones de react-toastify
 
 interface Usuario {
@@ -15,18 +16,34 @@ interface Usuario {
     created_at?: Date;
 }
 
+interface PaginationInfo {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+}
+
 function UsuariosTable() {
     const [usuarios, setUsuarios] = useState<Usuario[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [showForm, setShowForm] = useState<boolean>(false);
     const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<Usuario | null>(null);
     const [search, setSearch] = useState<string>("");
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [searchDebounce, setSearchDebounce] = useState<string>("");
+    const [pagination, setPagination] = useState<PaginationInfo | null>(null);
+    const itemsPerPage = 10;
 
-    const obtenerUsuarios = useCallback(() => {
+    const obtenerUsuarios = useCallback((page: number = 1, searchParam: string = "") => {
         setLoading(true);
-        axios.get('http://localhost:3002/Api/usuarios/getusuarios')
+        axios.get('http://localhost:3002/Api/usuarios/getusuarios', {
+            params: { page, limit: itemsPerPage, search: searchParam }
+        })
             .then(response => {
                 setUsuarios(response.data.result);
+                setPagination(response.data.pagination);
                 // toast.success("Usuarios cargados exitosamente"); // <--- Eliminado
             })
             .catch(error => {
@@ -34,11 +51,19 @@ function UsuariosTable() {
                 // toast.error("No se pudieron cargar los usuarios."); // <--- Eliminado
             })
             .finally(() => setLoading(false));
-    }, []);
+    }, [itemsPerPage]);
 
     useEffect(() => {
-        obtenerUsuarios();
-    }, [obtenerUsuarios]);
+        obtenerUsuarios(currentPage, searchDebounce);
+    }, [obtenerUsuarios, currentPage, searchDebounce]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearchDebounce(search);
+            setCurrentPage(1);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
 
     const eliminarUsuario = (id: number) => {
         if (!window.confirm("¿Estás seguro de que deseas eliminar este usuario?")) return;
@@ -55,8 +80,13 @@ function UsuariosTable() {
     };
 
     const handleSubmit = () => {
-        obtenerUsuarios();
+        obtenerUsuarios(currentPage, searchDebounce);
         // toast.success("Usuario guardado con éxito."); // <--- Eliminado
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const editarUsuario = (usuario: Usuario) => {
@@ -75,11 +105,6 @@ function UsuariosTable() {
         setShowForm(false);
         setUsuarioSeleccionado(null);
     };
-
-    const usuariosFiltrados = usuarios.filter(u =>
-        u.nombre.toLowerCase().includes(search.toLowerCase()) ||
-        u.email.toLowerCase().includes(search.toLowerCase())
-    );
 
     return (
         <Container fluid className="px-5 py-4">
@@ -169,10 +194,10 @@ function UsuariosTable() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {usuariosFiltrados.length > 0 ? (
-                                        usuariosFiltrados.map((usuario, index) => (
+                                    {usuarios.length > 0 ? (
+                                        usuarios.map((usuario, index) => (
                                             <tr key={usuario.id_usuario}>
-                                                <td className="py-3 px-4">{index + 1}</td>
+                                                <td className="py-3 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                                 <td className="py-3 px-4">{usuario.nombre}</td>
                                                 <td className="py-3 px-4">{usuario.email}</td>
                                                 <td className="py-3 px-4">{usuario.rol}</td>
@@ -213,6 +238,12 @@ function UsuariosTable() {
                             </Table>
                         </div>
                     )}
+                    <PaginationComponent 
+                        pagination={pagination}
+                        onPageChange={handlePageChange}
+                        itemsPerPage={itemsPerPage}
+                        currentPage={currentPage}
+                    />
                 </Card.Body>
             </Card>
 

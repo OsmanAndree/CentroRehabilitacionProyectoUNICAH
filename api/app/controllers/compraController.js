@@ -8,14 +8,41 @@ const sequelize = db.sequelizeInstance;
 
 const getCompras = async (req, res) => {
   try {
-    const compras = await Compra.findAll({
-      where: { estado: true },
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || '';
+    const offset = (page - 1) * limit;
+    const { Op } = db.Sequelize;
+
+    const where = { estado: true };
+    if (search) {
+      where.donante = { [Op.like]: `%${search}%` };
+    }
+
+    const { count, rows } = await Compra.findAndCountAll({
+      where,
       include: [{
         model: DetalleCompra,
         as: 'detalle'
-      }]
+      }],
+      limit,
+      offset,
+      distinct: true
     });
-    res.status(200).json({ result: compras });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.status(200).json({ 
+      result: rows,
+      pagination: {
+        total: count,
+        page,
+        limit,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

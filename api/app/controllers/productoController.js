@@ -4,14 +4,40 @@ const db = require('../config/db');
 const  producto= db.productos;
 
 async function getProductos(req, res){
-producto.findAll({
-    where: { estado: true }
-})
-.then(result=>{
-res.status(200).send({result})
-}).catch(error=> {
-    res.status(500).send({message:error.message || "Sucedió un errror inesperado"})
-});
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        const offset = (page - 1) * limit;
+        const { Op } = db.Sequelize;
+
+        const where = { estado: true };
+        if (search) {
+            where.nombre = { [Op.like]: `%${search}%` };
+        }
+
+        const { count, rows } = await producto.findAndCountAll({
+            where,
+            limit,
+            offset
+        });
+
+        const totalPages = Math.ceil(count / limit);
+
+        res.status(200).send({ 
+            result: rows,
+            pagination: {
+                total: count,
+                page,
+                limit,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1
+            }
+        });
+    } catch (error) {
+        res.status(500).send({ message: error.message || "Sucedió un error inesperado" });
+    }
 }
 
 const insertProductos = async (req, res) => {

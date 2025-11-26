@@ -9,25 +9,41 @@ export interface Producto {
   cantidad_disponible: number;
 }
 
+interface PaginationInfo {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 interface ProductosState {
   productos: Producto[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  pagination: PaginationInfo | null;
 }
 
 const initialState: ProductosState = {
   productos: [],
   status: "idle",
   error: null,
+  pagination: null,
 };
 
 export const fetchProductos = createAsyncThunk(
   "productos/fetchProductos",
-  async () => {
+  async (params: { page?: number; limit?: number; search?: string } = {}) => {
+    const { page = 1, limit = 10, search = '' } = params;
     const response = await axios.get(
-      "http://localhost:3002/Api/productos/getProductos"
+      "http://localhost:3002/Api/productos/getProductos",
+      { params: { page, limit, search } }
     );
-    return response.data.result as Producto[];
+    return {
+      productos: response.data.result as Producto[],
+      pagination: response.data.pagination as PaginationInfo
+    };
   }
 );
 
@@ -52,9 +68,10 @@ const productosSlice = createSlice({
       })
       .addCase(
         fetchProductos.fulfilled,
-        (state, action: PayloadAction<Producto[]>) => {
+        (state, action) => {
           state.status = "succeeded";
-          state.productos = action.payload;
+          state.productos = action.payload.productos;
+          state.pagination = action.payload.pagination;
         }
       )
       .addCase(fetchProductos.rejected, (state, action) => {

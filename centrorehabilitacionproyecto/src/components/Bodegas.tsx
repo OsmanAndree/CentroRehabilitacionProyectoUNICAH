@@ -11,6 +11,7 @@ import { fetchBodegas, deleteBodega } from '../features/bodegas/bodegasSlice';
 import BodegasForm from './Forms/BodegasForm';
 import ProductoOut from './Forms/ProductoOut';
 import BodegaReport from './Reports/BodegaReport';
+import PaginationComponent from './PaginationComponent';
 
 export interface Bodega {
   id_bodega: number;
@@ -24,7 +25,7 @@ export interface Bodega {
 
 function BodegaTable() {
   const dispatch: AppDispatch = useDispatch();
-  const { bodegas, status, error } = useSelector((state: RootState) => state.bodegas);
+  const { bodegas, status, error, pagination } = useSelector((state: RootState) => state.bodegas);
   
   const [showForm, setShowForm] = useState<boolean>(false);
   const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(null);
@@ -32,12 +33,21 @@ function BodegaTable() {
   const [showProductoOut, setShowProductoOut] = useState<boolean>(false);
   const [bodegaParaSacar, setBodegaParaSacar] = useState<Bodega | null>(null);
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [searchDebounce, setSearchDebounce] = useState<string>("");
+  const itemsPerPage = 10;
   
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchBodegas());
-    }
-  }, [status, dispatch]);
+    dispatch(fetchBodegas({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
+  }, [dispatch, currentPage, searchDebounce]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchDebounce(search);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -55,7 +65,7 @@ function BodegaTable() {
   };
 
   const handleSubmit = () => {
-    dispatch(fetchBodegas());
+    dispatch(fetchBodegas({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
     toast.success("Operación guardada con éxito.");
   };
 
@@ -84,11 +94,12 @@ function BodegaTable() {
     setBodegaParaSacar(null);
   };
 
-  const bodegasFiltradas = bodegas.filter(b =>
-    b.producto?.nombre.toLowerCase().includes(search.toLowerCase())
-  );
-
   const isMobile = windowWidth < 768;
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
@@ -127,9 +138,9 @@ function BodegaTable() {
                 >
                   <FaPlus className="me-2" /> Ingreso
                 </Button>
-                {bodegasFiltradas.length > 0 && (
+                {bodegas.length > 0 && (
                   <PDFDownloadLink
-                    document={<BodegaReport bodegas={bodegasFiltradas} />}
+                    document={<BodegaReport bodegas={bodegas} />}
                     fileName="Reporte_Bodega.pdf"
                     className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
                     style={{
@@ -194,10 +205,10 @@ function BodegaTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {bodegasFiltradas.length > 0 ? (
-                    bodegasFiltradas.map((item, index) => (
+                  {bodegas.length > 0 ? (
+                    bodegas.map((item, index) => (
                     <tr key={item.id_bodega}>
-                      <td className="py-3 px-4">{index + 1}</td>
+                      <td className="py-3 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                       <td className="py-3 px-4">{item.producto?.nombre ?? 'Sin producto'}</td>
                       <td className="py-3 px-4 text-center">
                         <span className={`badge ${
@@ -231,6 +242,12 @@ function BodegaTable() {
               </Table>
             </div>
           )}
+          <PaginationComponent 
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+          />
         </Card.Body>
       </Card>
 

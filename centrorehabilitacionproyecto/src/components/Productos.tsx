@@ -10,6 +10,7 @@ import { AppDispatch, RootState } from '../app/store';
 import { fetchProductos, deleteProducto } from '../features/productos/productosSlice';
 import ProductosForm from './Forms/ProductosForm';
 import ProductosReport from './Reports/ProductosReport';
+import PaginationComponent from './PaginationComponent';
 
 export interface Producto {
     id_producto: number;
@@ -21,18 +22,27 @@ export interface Producto {
 
 function ProductosTable() {
     const dispatch: AppDispatch = useDispatch();
-    const { productos, status, error } = useSelector((state: RootState) => state.productos);
+    const { productos, status, error, pagination } = useSelector((state: RootState) => state.productos);
     
     const [showForm, setShowForm] = useState<boolean>(false);
     const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
     const [search, setSearch] = useState<string>("");
     const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [searchDebounce, setSearchDebounce] = useState<string>("");
+    const itemsPerPage = 10;
     
     useEffect(() => {
-        if (status === 'idle') {
-            dispatch(fetchProductos());
-        }
-    }, [status, dispatch]);
+        dispatch(fetchProductos({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
+    }, [dispatch, currentPage, searchDebounce]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearchDebounce(search);
+            setCurrentPage(1);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
     
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
@@ -50,8 +60,13 @@ function ProductosTable() {
     };
 
     const handleSubmit = () => {
-        dispatch(fetchProductos());
+        dispatch(fetchProductos({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
         toast.success("Producto guardado con éxito.");
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const editarProducto = (producto: Producto) => {
@@ -68,10 +83,6 @@ function ProductosTable() {
         setShowForm(false);
         setProductoSeleccionado(null);
     };
-
-    const productosFiltrados = productos.filter(p => 
-        p.nombre.toLowerCase().includes(search.toLowerCase())
-    );
 
     const isMobile = windowWidth < 768;
 
@@ -112,9 +123,9 @@ function ProductosTable() {
                                 >
                                     <FaPlus className="me-2" /> Nuevo Producto
                                 </Button>
-                                {productosFiltrados.length > 0 && (
+                                {productos.length > 0 && (
                                     <PDFDownloadLink
-                                        document={<ProductosReport productos={productosFiltrados} />}
+                                        document={<ProductosReport productos={productos} />}
                                         fileName="Reporte_Productos.pdf"
                                         className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
                                         style={{
@@ -177,10 +188,10 @@ function ProductosTable() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {productosFiltrados.length > 0 ? (
-                                        productosFiltrados.map((producto, index) => (
+                                    {productos.length > 0 ? (
+                                        productos.map((producto, index) => (
                                             <tr key={producto.id_producto}>
-                                                <td className="py-3 px-4">{index + 1}</td>
+                                                <td className="py-3 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                                 <td className="py-3 px-4">{producto.nombre}</td>
                                                 <td className="py-3 px-4">{producto.descripcion}</td>
                                                 <td className="py-3 px-4">{producto.categoria}</td>
@@ -204,6 +215,12 @@ function ProductosTable() {
                             </Table>
                         </div>
                     )}
+                    <PaginationComponent 
+                        pagination={pagination}
+                        onPageChange={handlePageChange}
+                        itemsPerPage={itemsPerPage}
+                        currentPage={currentPage}
+                    />
                 </Card.Body>
             </Card>
 

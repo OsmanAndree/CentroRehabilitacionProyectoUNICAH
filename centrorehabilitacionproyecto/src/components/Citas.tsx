@@ -10,6 +10,7 @@ import { AppDispatch, RootState } from '../app/store';
 import { fetchCitas, deleteCita } from '../features/citas/citasSlice';
 import CitasForm from './Forms/CitasForm';
 import CitasReport from './Reports/CitasReport';
+import PaginationComponent from './PaginationComponent';
 
 export interface Cita {
   id_cita: number;
@@ -35,7 +36,7 @@ export interface Cita {
 
 function CitasTable() {
   const dispatch: AppDispatch = useDispatch();
-  const { citas, status, error } = useSelector((state: RootState) => state.citas);
+  const { citas, status, error, pagination } = useSelector((state: RootState) => state.citas);
   
   const [showForm, setShowForm] = useState<boolean>(false);
   const [citaSeleccionada, setCitaSeleccionada] = useState<Cita | null>(null);
@@ -43,12 +44,40 @@ function CitasTable() {
   const [searchDate, setSearchDate] = useState<string>("");
   const [searchTherapist, setSearchTherapist] = useState<string>("");
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [debouncedSearchPaciente, setDebouncedSearchPaciente] = useState<string>("");
+  const [debouncedSearchTherapist, setDebouncedSearchTherapist] = useState<string>("");
+  const itemsPerPage = 10;
   
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchCitas());
-    }
-  }, [status, dispatch]);
+    dispatch(fetchCitas({ 
+      page: currentPage, 
+      limit: itemsPerPage, 
+      searchPaciente: debouncedSearchPaciente,
+      searchTherapist: debouncedSearchTherapist,
+      searchDate: searchDate
+    }));
+  }, [dispatch, currentPage, debouncedSearchPaciente, debouncedSearchTherapist, searchDate]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchPaciente(searchPaciente);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchPaciente]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTherapist(searchTherapist);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTherapist]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchDate]);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -65,7 +94,13 @@ function CitasTable() {
   };
 
   const handleSubmit = () => {
-    dispatch(fetchCitas());
+    dispatch(fetchCitas({ 
+      page: currentPage, 
+      limit: itemsPerPage, 
+      searchPaciente: debouncedSearchPaciente,
+      searchTherapist: debouncedSearchTherapist,
+      searchDate: searchDate
+    }));
     toast.success("Cita guardada con éxito.");
   };
 
@@ -84,17 +119,12 @@ function CitasTable() {
     setCitaSeleccionada(null);
   };
 
-  const citasFiltradas = citas.filter(c => {
-    const pacienteFull = `${c.paciente.nombre} ${c.paciente.apellido}`.toLowerCase();
-    const terapeutaFull = `${c.terapeuta.nombre} ${c.terapeuta.apellido}`.toLowerCase();
-    const fechaCita = new Date(c.fecha).toISOString().split('T')[0];
-    
-    return pacienteFull.includes(searchPaciente.toLowerCase()) &&
-        (searchDate === "" || fechaCita === searchDate) &&
-        terapeutaFull.includes(searchTherapist.toLowerCase());
-  });
-
   const isMobile = windowWidth < 768;
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   
   const getStatusBadge = (estado: Cita['estado']) => {
     switch (estado) {
@@ -142,9 +172,9 @@ function CitasTable() {
                 >
                   <FaPlus className="me-2" /> Nueva Cita
                 </Button>
-                {citasFiltradas.length > 0 && (
+                {citas.length > 0 && (
                   <PDFDownloadLink
-                    document={<CitasReport citas={citasFiltradas} />} 
+                    document={<CitasReport citas={citas} />} 
                     fileName="Reporte_Citas.pdf"
                     className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
                     style={{
@@ -239,10 +269,10 @@ function CitasTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {citasFiltradas.length > 0 ? (
-                    citasFiltradas.map((cita, index) => (
+                  {citas.length > 0 ? (
+                    citas.map((cita, index) => (
                     <tr key={cita.id_cita}>
-                      <td className="py-3 px-4">{index + 1}</td>
+                      <td className="py-3 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                       <td className="py-3 px-4">{`${cita.paciente.nombre} ${cita.paciente.apellido}`}</td>
                       <td className="py-3 px-4">{`${cita.terapeuta.nombre} ${cita.terapeuta.apellido}`}</td>
                       <td className="py-3 px-4">{new Date(cita.fecha).toLocaleDateString('es-ES')}</td>
@@ -268,6 +298,12 @@ function CitasTable() {
               </Table>
             </div>
           )}
+          <PaginationComponent 
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+          />
         </Card.Body>
       </Card>
       {showForm && (

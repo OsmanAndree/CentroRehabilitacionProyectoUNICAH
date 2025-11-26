@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserPlus, FaFilePdf } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserPlus, FaFilePdf, FaFolderOpen } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
@@ -20,15 +20,22 @@ import {
 // AJUSTA ESTA RUTA si guardaste el formulario en una carpeta diferente (ej: ./Forms/PacientesForm)
 import PacientesForm from './Forms/PacientesForm';
 import PacientesReport from './Reports/PacientesReport';
+import PaginationComponent from './PaginationComponent';
+import ExpedientePaciente from './ExpedientePaciente';
 
 function PacientesTable() {
   const dispatch: AppDispatch = useDispatch();
-  const { pacientes, status, error } = useSelector((state: RootState) => state.pacientes);
+  const { pacientes, status, error, pagination } = useSelector((state: RootState) => state.pacientes);
 
   const [showForm, setShowForm] = useState<boolean>(false);
+  const [showExpediente, setShowExpediente] = useState<boolean>(false);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState<Paciente | null>(null);
+  const [pacienteExpediente, setPacienteExpediente] = useState<Paciente | null>(null);
   const [search, setSearch] = useState<string>("");
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [searchDebounce, setSearchDebounce] = useState<string>("");
+  const itemsPerPage = 10;
 
   // Referencias para notificaciones
   const prevStatusRef = useRef(status);
@@ -58,10 +65,16 @@ function PacientesTable() {
   }, [status, pacientes]);
 
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchPacientes());
-    }
-  }, [status, dispatch]);
+    dispatch(fetchPacientes({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
+  }, [dispatch, currentPage, searchDebounce]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchDebounce(search);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -78,7 +91,12 @@ function PacientesTable() {
 
   const handleSubmit = () => {
     // Al guardar exitosamente en el modal, recargamos la lista
-    dispatch(fetchPacientes());
+    dispatch(fetchPacientes({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const editarPaciente = (paciente: Paciente) => {
@@ -96,9 +114,15 @@ function PacientesTable() {
     setPacienteSeleccionado(null);
   };
 
-  const pacientesFiltrados = pacientes.filter(p =>
-    `${p.nombre} ${p.apellido} ${p.numero_identidad || ''}`.toLowerCase().includes(search.toLowerCase())
-  );
+  const verExpediente = (paciente: Paciente) => {
+    setPacienteExpediente(paciente);
+    setShowExpediente(true);
+  };
+
+  const cerrarExpediente = () => {
+    setShowExpediente(false);
+    setPacienteExpediente(null);
+  };
 
   const isMobile = windowWidth < 768;
 
@@ -126,9 +150,9 @@ function PacientesTable() {
                   <FaPlus className="me-2" /> Nuevo Paciente
                 </Button>
                 
-                {pacientesFiltrados.length > 0 && (
+                {pacientes.length > 0 && (
                   <PDFDownloadLink
-                    document={<PacientesReport pacientes={pacientesFiltrados} />}
+                    document={<PacientesReport pacientes={pacientes} />}
                     fileName="Reporte_Pacientes.pdf"
                     className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
                     style={{ borderRadius: "10px", fontWeight: "500", color: "white", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
@@ -174,10 +198,10 @@ function PacientesTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pacientesFiltrados.length > 0 ? (
-                    pacientesFiltrados.map((paciente, index) => (
+                  {pacientes.length > 0 ? (
+                    pacientes.map((paciente, index) => (
                       <tr key={paciente.id_paciente}>
-                        <td className="py-3 px-4">{index + 1}</td>
+                        <td className="py-3 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                         <td className="py-3 px-4">{paciente.numero_identidad || <span className="text-muted small">S/D</span>}</td>
                         <td className="py-3 px-4">{`${paciente.nombre} ${paciente.apellido}`}</td>
                         <td className="py-3 px-4">{getGeneroTexto(paciente.genero)}</td>
@@ -185,8 +209,33 @@ function PacientesTable() {
                         <td className="py-3 px-4">{paciente.telefono}</td>
                         <td className="py-3 px-4 text-center">
                           <div className="d-flex justify-content-center gap-2">
-                            <Button variant="outline-primary" size="sm" onClick={() => editarPaciente(paciente)} style={{ borderRadius: "8px" }}><FaEdit /></Button>
-                            <Button variant="outline-danger" size="sm" onClick={() => eliminarPacienteHandler(paciente.id_paciente)} style={{ borderRadius: "8px" }}><FaTrash /></Button>
+                            <Button 
+                              variant="outline-info" 
+                              size="sm" 
+                              onClick={() => verExpediente(paciente)} 
+                              style={{ borderRadius: "8px" }}
+                              title="Ver Expediente"
+                            >
+                              <FaFolderOpen />
+                            </Button>
+                            <Button 
+                              variant="outline-primary" 
+                              size="sm" 
+                              onClick={() => editarPaciente(paciente)} 
+                              style={{ borderRadius: "8px" }}
+                              title="Editar"
+                            >
+                              <FaEdit />
+                            </Button>
+                            <Button 
+                              variant="outline-danger" 
+                              size="sm" 
+                              onClick={() => eliminarPacienteHandler(paciente.id_paciente)} 
+                              style={{ borderRadius: "8px" }}
+                              title="Eliminar"
+                            >
+                              <FaTrash />
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -198,6 +247,12 @@ function PacientesTable() {
               </Table>
             </div>
           )}
+          <PaginationComponent 
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+          />
         </Card.Body>
       </Card>
 
@@ -208,6 +263,15 @@ function PacientesTable() {
             handleClose={cerrarFormulario} 
             handleSubmit={handleSubmit} 
             pacienteEditar={pacienteSeleccionado}
+        />
+      )}
+
+      {/* MODAL DE EXPEDIENTE */}
+      {showExpediente && pacienteExpediente && (
+        <ExpedientePaciente
+          show={showExpediente}
+          handleClose={cerrarExpediente}
+          paciente={pacienteExpediente}
         />
       )}
     </Container>

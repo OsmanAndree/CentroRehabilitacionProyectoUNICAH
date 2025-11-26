@@ -6,25 +6,69 @@ const Paciente = db.paciente;
 const Terapeuta = db.terapeuta;
 
 async function getDiagnostico(req, res) {
-    diagnostico.findAll({
-        where: { estado: true },
-        include: [
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        const offset = (page - 1) * limit;
+        const { Op } = db.Sequelize;
+
+        const where = { estado: true };
+        
+        // Filtro por id_paciente si se proporciona
+        if (req.query.id_paciente) {
+            where.id_paciente = parseInt(req.query.id_paciente);
+        }
+        
+        const pacienteWhere = {};
+        const terapeutaWhere = {};
+        
+        if (search) {
+            const searchLower = search.toLowerCase();
+            pacienteWhere[Op.or] = [
+                { nombre: { [Op.like]: `%${searchLower}%` } },
+                { apellido: { [Op.like]: `%${searchLower}%` } }
+            ];
+            terapeutaWhere.nombre = { [Op.like]: `%${searchLower}%` };
+        }
+
+        const includeOptions = [
             {
                 model: Paciente,
-                attributes: ['nombre', 'apellido', 'fecha_nacimiento']
+                attributes: ['nombre', 'apellido', 'fecha_nacimiento'],
+                ...(Object.keys(pacienteWhere).length > 0 && { where: pacienteWhere })
             },
             {
                 model: Terapeuta,
-                attributes: ['nombre', 'especialidad']
+                attributes: ['nombre', 'apellido', 'especialidad'],
+                ...(Object.keys(terapeutaWhere).length > 0 && { where: terapeutaWhere })
             }
-        ]
-    })
-    .then(result => {
-        res.status(200).send({ result });
-    })
-    .catch(error => {
+        ];
+
+        const { count, rows } = await diagnostico.findAndCountAll({
+            where,
+            include: includeOptions,
+            limit,
+            offset,
+            distinct: true
+        });
+
+        const totalPages = Math.ceil(count / limit);
+
+        res.status(200).send({ 
+            result: rows,
+            pagination: {
+                total: count,
+                page,
+                limit,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1
+            }
+        });
+    } catch (error) {
         res.status(500).send({ message: error.message || "Sucedió un error inesperado" });
-    });
+    }
 }
 
 const insertDiagnostico = async (req, res) => {

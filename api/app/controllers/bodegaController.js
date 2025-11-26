@@ -1,23 +1,57 @@
 'use strict';
 
 const db = require('../config/db');
+const { Op } = db.Sequelize;
 const Bodega = db.bodegas;
 const Producto = db.productos;
 
 async function getBodegas(req, res) {
-    Bodega.findAll({
-        where: { estado: true },
-        include: [{
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        const offset = (page - 1) * limit;
+
+        const where = { estado: true };
+        const includeWhere = {};
+        if (search) {
+            includeWhere.nombre = { [Op.like]: `%${search}%` };
+        }
+
+        const includeOptions = {
             model: Producto,
             as: 'producto', 
-            attributes: ['id_producto', 'nombre'],        }]
-    })
-    .then(result => {
-        res.status(200).send({ result });
-    })
-    .catch(error => {
+            attributes: ['id_producto', 'nombre']
+        };
+        
+        if (search) {
+            includeOptions.where = includeWhere;
+        }
+
+        const { count, rows } = await Bodega.findAndCountAll({
+            where,
+            include: [includeOptions],
+            limit,
+            offset,
+            distinct: true
+        });
+
+        const totalPages = Math.ceil(count / limit);
+
+        res.status(200).send({ 
+            result: rows,
+            pagination: {
+                total: count,
+                page,
+                limit,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1
+            }
+        });
+    } catch (error) {
         res.status(500).send({ message: error.message || "Sucedió un error inesperado" });
-    });
+    }
 }
 
 const insertBodega = async (req, res) => {
