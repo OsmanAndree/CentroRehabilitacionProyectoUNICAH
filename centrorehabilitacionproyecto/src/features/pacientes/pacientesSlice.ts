@@ -17,6 +17,7 @@ export interface Paciente {
   numero_identidad?: string | null;
   genero?: number | null;
   lugar_procedencia?: string | null;
+  alta_medica?: boolean;
 }
 
 interface PaginationInfo {
@@ -92,6 +93,15 @@ export const deletePaciente = createAsyncThunk(
   }
 );
 
+export const darAltaPaciente = createAsyncThunk(
+  "pacientes/darAltaPaciente",
+  async (id: number) => {
+    // Ruta: /darAlta
+    const response = await axios.put(`${BASE_URL}/darAlta?paciente_id=${id}`);
+    return response.data.data as Paciente;
+  }
+);
+
 const pacientesSlice = createSlice({
   name: "pacientes",
   initialState,
@@ -123,6 +133,12 @@ const pacientesSlice = createSlice({
         state.pacientes = state.pacientes.filter(
           (p) => p.id_paciente !== action.payload
         );
+      })
+      .addCase(darAltaPaciente.fulfilled, (state, action: PayloadAction<Paciente>) => {
+        const index = state.pacientes.findIndex((p) => p.id_paciente === action.payload.id_paciente);
+        if (index !== -1) {
+          state.pacientes[index].alta_medica = true;
+        }
       });
   },
 });

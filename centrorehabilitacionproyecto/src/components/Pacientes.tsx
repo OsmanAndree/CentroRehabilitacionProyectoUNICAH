@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserPlus, FaFilePdf, FaFolderOpen } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserPlus, FaFilePdf, FaFolderOpen, FaUserCheck } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
@@ -13,6 +13,7 @@ import { AppDispatch, RootState } from '../app/store';
 import { 
   fetchPacientes, 
   deletePaciente, 
+  darAltaPaciente,
   Paciente 
 } from '../features/pacientes/pacientesSlice';
 
@@ -87,6 +88,17 @@ function PacientesTable() {
     dispatch(deletePaciente(id))
       .unwrap()
       .catch((err) => toast.error(`Hubo un problema al eliminar: ${err.message || 'Error desconocido'}`));
+  };
+
+  const darAltaHandler = (id: number) => {
+    if (!window.confirm("¿Confirmar el alta médica de este paciente?")) return;
+    dispatch(darAltaPaciente(id))
+      .unwrap()
+      .then(() => {
+        toast.success("Paciente dado de alta exitosamente.");
+        dispatch(fetchPacientes({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
+      })
+      .catch((err) => toast.error(`Error al dar de alta: ${err.message || 'Error desconocido'}`));
   };
 
   const handleSubmit = () => {
@@ -194,6 +206,7 @@ function PacientesTable() {
                     <th className="py-3 px-4">Género</th>
                     <th className="py-3 px-4">Procedencia</th>
                     <th className="py-3 px-4">Teléfono</th>
+                    <th className="py-3 px-4 text-center">Alta Médica</th>
                     <th className="py-3 px-4 text-center">Acciones</th>
                   </tr>
                 </thead>
@@ -208,6 +221,13 @@ function PacientesTable() {
                         <td className="py-3 px-4">{paciente.lugar_procedencia || <span className="text-muted small">N/A</span>}</td>
                         <td className="py-3 px-4">{paciente.telefono}</td>
                         <td className="py-3 px-4 text-center">
+                          {paciente.alta_medica ? (
+                            <span className="badge bg-success">Sí</span>
+                          ) : (
+                            <span className="badge bg-secondary">No</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 text-center">
                           <div className="d-flex justify-content-center gap-2">
                             <Button 
                               variant="outline-info" 
@@ -217,6 +237,16 @@ function PacientesTable() {
                               title="Ver Expediente"
                             >
                               <FaFolderOpen />
+                            </Button>
+                            <Button 
+                              variant={paciente.alta_medica ? "success" : "outline-success"}
+                              size="sm" 
+                              onClick={() => darAltaHandler(paciente.id_paciente)} 
+                              disabled={paciente.alta_medica}
+                              style={{ borderRadius: "8px" }}
+                              title={paciente.alta_medica ? "Paciente ya dado de alta" : "Dar de Alta Médica"}
+                            >
+                              <FaUserCheck />
                             </Button>
                             <Button 
                               variant="outline-primary" 
@@ -241,7 +271,7 @@ function PacientesTable() {
                       </tr>
                     ))
                   ) : (
-                    <tr><td colSpan={7} className="text-center py-5 text-muted">No se encontraron pacientes.</td></tr>
+                    <tr><td colSpan={8} className="text-center py-5 text-muted">No se encontraron pacientes.</td></tr>
                   )}
                 </tbody>
               </Table>

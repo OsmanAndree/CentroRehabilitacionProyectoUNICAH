@@ -37,11 +37,6 @@ module.exports = (sequelize) => {
             allowNull: false,
             defaultValue: DataTypes.NOW
         },
-        alta_medica: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
-        },
         estado: {
             type: DataTypes.BOOLEAN,
             allowNull: false,

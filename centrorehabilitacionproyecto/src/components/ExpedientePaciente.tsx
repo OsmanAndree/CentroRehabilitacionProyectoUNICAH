@@ -129,6 +129,7 @@ function ExpedientePaciente({ show, handleClose, paciente }: ExpedientePacienteP
                 <p><strong>Teléfono:</strong> {paciente.telefono}</p>
                 <p><strong>Dirección:</strong> {paciente.direccion || 'N/A'}</p>
                 <p><strong>Procedencia:</strong> {paciente.lugar_procedencia || 'N/A'}</p>
+                <p><strong>Alta Médica:</strong> {paciente.alta_medica ? <Badge bg="success">Sí</Badge> : <Badge bg="secondary">No</Badge>}</p>
               </Col>
             </Row>
           </Card.Body>
@@ -165,7 +166,6 @@ function ExpedientePaciente({ show, handleClose, paciente }: ExpedientePacienteP
                         <th>Terapeuta</th>
                         <th>Descripción</th>
                         <th>Tratamiento</th>
-                        <th>Alta Médica</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -187,13 +187,6 @@ function ExpedientePaciente({ show, handleClose, paciente }: ExpedientePacienteP
                             <div style={{ maxWidth: '300px', wordWrap: 'break-word' }}>
                               {diagnostico.tratamiento}
                             </div>
-                          </td>
-                          <td>
-                            {diagnostico.alta_medica ? (
-                              <Badge bg="success">Sí</Badge>
-                            ) : (
-                              <Badge bg="secondary">No</Badge>
-                            )}
                           </td>
                         </tr>
                       ))}

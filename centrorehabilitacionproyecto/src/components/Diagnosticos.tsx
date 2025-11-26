@@ -19,11 +19,11 @@ export interface Diagnostico {
   descripcion: string;
   tratamiento: string;
   fecha: string;
-  alta_medica: boolean;
   paciente: {
     nombre: string;
     apellido: string;
     fecha_nacimiento: string;
+    alta_medica?: boolean;
   };
   terapeuta: {
     nombre: string;
@@ -75,11 +75,16 @@ function DiagnosticosTable() {
     if (!window.confirm("¿Confirmar el alta médica del paciente?")) return;
     dispatch(darAltaDiagnostico(id))
       .unwrap()
-      .then(() => {
+      .then((result) => {
           toast.success("Paciente dado de alta exitosamente.");
+          // Recargar diagnósticos para obtener el estado actualizado del paciente
           dispatch(fetchDiagnosticos({ page: currentPage, limit: itemsPerPage, search: searchDebounce })); 
       })
-      .catch((err: any) => toast.error(`Error al dar de alta: ${err.message}`));
+      .catch((err: any) => {
+        const errorMessage = err?.response?.data?.error || err?.message || 'Error desconocido al dar de alta';
+        toast.error(`Error al dar de alta: ${errorMessage}`);
+        console.error('Error al dar de alta:', err);
+      });
   };
 
   const handleSubmit = () => {
@@ -207,13 +212,13 @@ function DiagnosticosTable() {
                         <td className="py-3 px-4">{new Date(diagnostico.fecha).toLocaleDateString('es-ES')}</td>
                         <td className="py-3 px-4 text-center">
                           <div className="d-flex justify-content-center gap-2">
-                            <OverlayTrigger placement="top" overlay={<Tooltip>{diagnostico.alta_medica ? "Paciente ya dado de alta" : "Dar de Alta Médica"}</Tooltip>}>
+                            <OverlayTrigger placement="top" overlay={<Tooltip>{diagnostico.paciente?.alta_medica ? "Paciente ya dado de alta" : "Dar de Alta Médica"}</Tooltip>}>
                                 <span>
                                     <Button 
-                                        variant={diagnostico.alta_medica ? "success" : "outline-success"}
+                                        variant={diagnostico.paciente?.alta_medica ? "success" : "outline-success"}
                                         size="sm" 
                                         onClick={() => darAltaHandler(diagnostico.id_diagnostico)} 
-                                        disabled={diagnostico.alta_medica} 
+                                        disabled={diagnostico.paciente?.alta_medica} 
                                         style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}
                                     >
                                         <FaUserCheck />

@@ -45,8 +45,8 @@ export const deleteDiagnostico = createAsyncThunk('diagnosticos/deleteDiagnostic
 });
 
 export const darAltaDiagnostico = createAsyncThunk('diagnosticos/darAlta', async (id: number) => {
-  await axios.patch(`http://localhost:3002/Api/diagnostico/updateAlta?diagnostico_id=${id}`);
-  return id; 
+  const response = await axios.put(`http://localhost:3002/Api/diagnostico/updateAlta?diagnostico_id=${id}`);
+  return { id, paciente: response.data.data }; 
 });
 
 const diagnosticosSlice = createSlice({
@@ -70,12 +70,22 @@ const diagnosticosSlice = createSlice({
       .addCase(deleteDiagnostico.fulfilled, (state, action: PayloadAction<number>) => {
         state.diagnosticos = state.diagnosticos.filter(d => d.id_diagnostico !== action.payload);
       })
-      .addCase(darAltaDiagnostico.fulfilled, (state, action: PayloadAction<number>) => {
-        const index = state.diagnosticos.findIndex(d => d.id_diagnostico === action.payload);
-        
-        if (index !== -1) {
-          state.diagnosticos[index].alta_medica = true;
+      .addCase(darAltaDiagnostico.pending, (state) => {
+        // No cambiamos el estado durante la carga
+      })
+      .addCase(darAltaDiagnostico.fulfilled, (state, action) => {
+        // Actualizar el estado de alta_medica del paciente en todos los diagnósticos de ese paciente
+        const pacienteId = action.payload.paciente?.id_paciente;
+        if (pacienteId) {
+          state.diagnosticos.forEach(diagnostico => {
+            if (diagnostico.id_paciente === pacienteId && diagnostico.paciente) {
+              diagnostico.paciente.alta_medica = true;
+            }
+          });
         }
+      })
+      .addCase(darAltaDiagnostico.rejected, (state, action) => {
+        state.error = action.error.message || 'Error al dar de alta';
       });
   },
 });

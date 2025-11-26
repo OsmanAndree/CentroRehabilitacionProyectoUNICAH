@@ -7,6 +7,7 @@ const apiRoutes= express.Router();
 apiRoutes.get("/getpacientes", async (req, res)=> await pacienteController.getpacientes(req,res)).
 post("/insertpacientes", async (req, res)=> await pacienteController.insertpacientes(req, res)).
 put("/updatepacientes", async (req, res)=> await pacienteController.updatepacientes(req, res)).
-delete("/deletepacientes", async (req, res)=> await pacienteController.deletepacientes(req, res));
+delete("/deletepacientes", async (req, res)=> await pacienteController.deletepacientes(req, res)).
+put("/darAlta", async (req, res)=> await pacienteController.darAltaPaciente(req, res));
 
 module.exports=apiRoutes;

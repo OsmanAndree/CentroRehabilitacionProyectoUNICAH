@@ -35,7 +35,7 @@ async function getDiagnostico(req, res) {
         const includeOptions = [
             {
                 model: Paciente,
-                attributes: ['nombre', 'apellido', 'fecha_nacimiento'],
+                attributes: ['nombre', 'apellido', 'fecha_nacimiento', 'alta_medica'],
                 ...(Object.keys(pacienteWhere).length > 0 && { where: pacienteWhere })
             },
             {
@@ -123,11 +123,17 @@ const udpadteAlta = async (req, res) => {
         const diagnosticoToUpdate = await diagnostico.findByPk(diagnostico_id);
 
         if (diagnosticoToUpdate) {
-            await diagnosticoToUpdate.update({ alta_medica: true });
-            res.status(200).json({ 
-                message: 'El paciente ha sido dado de alta exitosamente', 
-                data: diagnosticoToUpdate 
-            });
+            // Actualizar el paciente, no el diagnóstico
+            const pacienteToUpdate = await Paciente.findByPk(diagnosticoToUpdate.id_paciente);
+            if (pacienteToUpdate) {
+                await pacienteToUpdate.update({ alta_medica: true });
+                res.status(200).json({ 
+                    message: 'El paciente ha sido dado de alta exitosamente', 
+                    data: pacienteToUpdate 
+                });
+            } else {
+                res.status(404).json({ error: 'Paciente no encontrado' });
+            }
         } else {
             res.status(404).json({ error: 'Diagnóstico no encontrado' });
         }

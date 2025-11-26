@@ -128,18 +128,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
   },
-  footer: {
-    position: 'absolute',
-    bottom: 40,
-    left: 40,
-    right: 40,
-    textAlign: 'center',
-    fontSize: 9,
-    color: '#666',
-    borderTopWidth: 1,
-    borderTopColor: '#ddd',
-    paddingTop: 10,
-  },
 });
 
 interface ExpedienteReportProps {
@@ -150,7 +138,6 @@ interface ExpedienteReportProps {
 
 const ExpedienteReport = ({ paciente, diagnosticos, citas }: ExpedienteReportProps) => {
   const edad = calculateAge(paciente.fecha_nacimiento);
-  const fechaReporte = formatDate(new Date().toISOString());
 
   return (
     <Document>
@@ -158,12 +145,6 @@ const ExpedienteReport = ({ paciente, diagnosticos, citas }: ExpedienteReportPro
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Expediente Médico</Text>
-          <Text style={styles.headerSubtitle}>
-            Centro de Rehabilitación Gabriela Alvarado
-          </Text>
-          <Text style={styles.headerSubtitle}>
-            Generado el {fechaReporte}
-          </Text>
         </View>
 
         {/* Información del Paciente */}
@@ -298,15 +279,7 @@ const ExpedienteReport = ({ paciente, diagnosticos, citas }: ExpedienteReportPro
           )}
         </View>
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text>
-            Este documento fue generado automáticamente el {fechaReporte}
-          </Text>
-          <Text style={{ marginTop: 5 }}>
-            Centro de Rehabilitación Gabriela Alvarado
-          </Text>
-        </View>
+      
       </Page>
     </Document>
   );

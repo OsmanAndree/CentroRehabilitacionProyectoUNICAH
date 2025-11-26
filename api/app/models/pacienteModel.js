@@ -55,6 +55,11 @@ module.exports = (sequelize) => {
         numero_identidad: {
             type: DataTypes.STRING(20),  
             allowNull: true
+        },
+        alta_medica: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
         }
     };
 

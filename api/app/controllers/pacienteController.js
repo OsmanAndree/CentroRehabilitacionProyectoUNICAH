@@ -112,9 +112,30 @@ const deletepacientes = async (req, res) => {
     }
 };
 
+const darAltaPaciente = async (req, res) => {
+    try {
+        const { paciente_id } = req.query;
+
+        const pacienteToUpdate = await paciente.findByPk(paciente_id);
+        if (pacienteToUpdate) {
+            await pacienteToUpdate.update({ alta_medica: true });
+            res.status(200).json({ 
+                message: 'El paciente ha sido dado de alta exitosamente', 
+                data: pacienteToUpdate 
+            });
+        } else {
+            res.status(404).json({ error: 'Paciente no encontrado' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     getpacientes,
     insertpacientes,
     updatepacientes,
-    deletepacientes
+    deletepacientes,
+    darAltaPaciente
 }
