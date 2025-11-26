@@ -24,6 +24,11 @@ export const deleteDiagnostico = createAsyncThunk('diagnosticos/deleteDiagnostic
   return id;
 });
 
+export const darAltaDiagnostico = createAsyncThunk('diagnosticos/darAlta', async (id: number) => {
+  await axios.patch(`http://localhost:3002/Api/diagnostico/updateAlta?diagnostico_id=${id}`);
+  return id; 
+});
+
 const diagnosticosSlice = createSlice({
   name: 'diagnosticos',
   initialState,
@@ -43,6 +48,13 @@ const diagnosticosSlice = createSlice({
       })
       .addCase(deleteDiagnostico.fulfilled, (state, action: PayloadAction<number>) => {
         state.diagnosticos = state.diagnosticos.filter(d => d.id_diagnostico !== action.payload);
+      })
+      .addCase(darAltaDiagnostico.fulfilled, (state, action: PayloadAction<number>) => {
+        const index = state.diagnosticos.findIndex(d => d.id_diagnostico === action.payload);
+        
+        if (index !== -1) {
+          state.diagnosticos[index].alta_medica = true;
+        }
       });
   },
 });

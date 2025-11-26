@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col, Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaClipboardList, FaFilePdf } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaClipboardList, FaFilePdf, FaUserCheck } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
 import { AppDispatch, RootState } from '../app/store';
-import { fetchDiagnosticos, deleteDiagnostico } from '../features/diagnosticos/diagnosticosSlice';
+import { fetchDiagnosticos, deleteDiagnostico, darAltaDiagnostico} from '../features/diagnosticos/diagnosticosSlice';
 import DiagnosticosForm from './Forms/DiagnosticosForm';
 import RecetaReport from './Reports/RecetaReport';
 
@@ -17,6 +17,8 @@ export interface Diagnostico {
   id_terapeuta: number;
   descripcion: string;
   tratamiento: string;
+  fecha: string;
+  alta_medica: boolean;
   paciente: {
     nombre: string;
     apellido: string;
@@ -27,6 +29,7 @@ export interface Diagnostico {
     apellido: string;
     especialidad: string;
   };
+  
 }
 
 function DiagnosticosTable() {
@@ -58,10 +61,21 @@ function DiagnosticosTable() {
       .catch((err) => toast.error(`Error al eliminar: ${err.message}`));
   };
 
+  const darAltaHandler = (id: number) => {
+    if (!window.confirm("¿Confirmar el alta médica del paciente?")) return;
+    dispatch(darAltaDiagnostico(id))
+      .unwrap()
+      .then(() => {
+          toast.success("Paciente dado de alta exitosamente.");
+          dispatch(fetchDiagnosticos()); 
+      })
+      .catch((err: any) => toast.error(`Error al dar de alta: ${err.message}`));
+  };
+
   const handleSubmit = () => {
     dispatch(fetchDiagnosticos());
     toast.success("Diagnóstico guardado con éxito.");
-    cerrarFormulario(); // Cierra el formulario después de guardar
+    cerrarFormulario();
   };
 
   const editarDiagnostico = (diagnostico: Diagnostico) => {
@@ -143,8 +157,6 @@ function DiagnosticosTable() {
           ) : status === 'failed' ? (
             <div className="text-center py-5"><p className="text-danger">Error: {error}</p></div>
           ) : (
-            // ✅ CORRECCIÓN: Se eliminó el style={{ overflow: "hidden" }} de este div.
-            // La clase "table-responsive" ahora puede funcionar correctamente.
             <div className="table-responsive" style={{ borderRadius: "12px" }}>
               <Table hover className="align-middle mb-0">
                 <thead style={{ backgroundColor: "#f8f9fa" }}>
@@ -155,6 +167,7 @@ function DiagnosticosTable() {
                     <th className="py-3 px-4" style={{ fontWeight: "600" }}>Especialidad</th>
                     <th className="py-3 px-4" style={{ fontWeight: "600", minWidth: '200px' }}>Descripción</th>
                     <th className="py-3 px-4" style={{ fontWeight: "600", minWidth: '200px' }}>Tratamiento</th>
+                    <th className="py-3 px-4" style={{ fontWeight: "600" }}>Fecha</th>
                     <th className="py-3 px-4 text-center" style={{ fontWeight: "600" }}>Acciones</th>
                   </tr>
                 </thead>
@@ -180,8 +193,22 @@ function DiagnosticosTable() {
                             </div>
                           </OverlayTrigger>
                         </td>
+                        <td className="py-3 px-4">{new Date(diagnostico.fecha).toLocaleDateString('es-ES')}</td>
                         <td className="py-3 px-4 text-center">
                           <div className="d-flex justify-content-center gap-2">
+                            <OverlayTrigger placement="top" overlay={<Tooltip>{diagnostico.alta_medica ? "Paciente ya dado de alta" : "Dar de Alta Médica"}</Tooltip>}>
+                                <span>
+                                    <Button 
+                                        variant={diagnostico.alta_medica ? "success" : "outline-success"}
+                                        size="sm" 
+                                        onClick={() => darAltaHandler(diagnostico.id_diagnostico)} 
+                                        disabled={diagnostico.alta_medica} 
+                                        style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}
+                                    >
+                                        <FaUserCheck />
+                                    </Button>
+                                </span>
+                            </OverlayTrigger>
                             <Button variant="outline-primary" size="sm" onClick={() => editarDiagnostico(diagnostico)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
                               <FaEdit />
                             </Button>

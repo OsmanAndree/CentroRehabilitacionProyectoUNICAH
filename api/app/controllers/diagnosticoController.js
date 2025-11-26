@@ -73,9 +73,31 @@ const deleteDiagnostico = async (req, res) => {
     }
 };
 
+const udpadteAlta = async (req, res) => {
+    try {
+        const { diagnostico_id } = req.query;
+        const diagnosticoToUpdate = await diagnostico.findByPk(diagnostico_id);
+
+        if (diagnosticoToUpdate) {
+            await diagnosticoToUpdate.update({ alta_medica: true });
+            res.status(200).json({ 
+                message: 'El paciente ha sido dado de alta exitosamente', 
+                data: diagnosticoToUpdate 
+            });
+        } else {
+            res.status(404).json({ error: 'Diagnóstico no encontrado' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+}
+
+
 module.exports={
     getDiagnostico,
     insertDiagnostico,
     updateDiagnostico,
-    deleteDiagnostico
+    deleteDiagnostico,
+    udpadteAlta
 }
