@@ -307,386 +307,458 @@ function CierresTable() {
   };
 
   return (
-    <Container fluid className="py-4">
-      <ToastContainer />
+    <Container fluid className="px-3 px-sm-4 px-md-5 py-4">
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar theme="colored" />
       
-      <Row className="mb-4">
-        <Col>
-          <h2 className="d-flex align-items-center gap-2">
-            <FaCashRegister /> Cierre de Caja
-          </h2>
-        </Col>
-        <Col xs="auto">
-          <Button 
-            variant="outline-secondary" 
-            onClick={() => {
-              setShowHistorial(true);
-              cargarHistorial();
-            }}
-          >
-            <FaHistory className="me-2" /> Historial
-          </Button>
-        </Col>
-      </Row>
+      <Card className="shadow-lg border-0" style={{ borderRadius: "20px", backgroundColor: "#ffffff" }}>
+        <Card.Header className="bg-gradient py-3" style={{ backgroundColor: "#2E8B57", borderRadius: "20px 20px 0 0", border: "none" }}>
+          <Row className="align-items-center">
+            <Col xs={12} md={6} className="mb-3 mb-md-0">
+              <div className="d-flex align-items-center">
+                <FaCashRegister size={24} className="text-white me-2" />
+                <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>Cierre de Caja</h4>
+              </div>
+            </Col>
+            <Col xs={12} md={6}>
+              <div className="d-flex justify-content-md-end">
+                <Button 
+                  variant="light" 
+                  onClick={() => {
+                    setShowHistorial(true);
+                    cargarHistorial();
+                  }}
+                  className="d-flex align-items-center justify-content-center"
+                  style={{
+                    borderRadius: "10px",
+                    padding: "0.5rem 1rem",
+                    fontWeight: "500",
+                    transition: "all 0.3s ease"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <FaHistory className="me-2" /> Historial
+                </Button>
+              </div>
+            </Col>
+          </Row>
+        </Card.Header>
 
-      <Row className="mb-4">
-        <Col md={12}>
-          <Card>
-            <Card.Body>
-              <Row className="align-items-center mb-3">
-                <Col md={4}>
-                  <Form.Label className="fw-semibold">Fecha del Cierre:</Form.Label>
-                  <DatePicker
-                    onChange={setFecha}
-                    value={fecha}
-                    format="dd/MM/yyyy"
-                    className="w-100"
-                  />
-                </Col>
-                <Col md={8} className="text-end d-flex justify-content-end align-items-center gap-2 flex-wrap">
-                  {datosCierre?.cierreExistente && (
-                    <>
-                      {/* Badge de estado */}
-                      {datosCierre.diaBloqueado ? (
-                        <Badge bg="danger" className="p-2">
-                          <FaLock className="me-2" />
-                          Día cerrado - Operaciones bloqueadas
-                        </Badge>
-                      ) : (
-                        <Badge bg="warning" text="dark" className="p-2">
-                          <FaUnlock className="me-2" />
-                          Cierre reabierto - Operaciones permitidas
-                        </Badge>
+        <Card.Body className="p-3 p-md-4">
+          <Row className="mb-4">
+            <Col md={12}>
+              <Card className="border-0" style={{ backgroundColor: "#f8f9fa", borderRadius: "12px" }}>
+                <Card.Body className="p-4">
+                  <Row className="align-items-center mb-3">
+                    <Col md={4}>
+                      <Form.Label className="fw-semibold mb-2">Fecha del Cierre:</Form.Label>
+                      <div style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.05)", borderRadius: "12px", overflow: "hidden" }}>
+                        <DatePicker
+                          onChange={setFecha}
+                          value={fecha}
+                          format="dd/MM/yyyy"
+                          className="w-100"
+                          style={{ padding: "0.8rem 1rem", fontSize: "0.95rem", border: "none" }}
+                        />
+                      </div>
+                    </Col>
+                    <Col md={8} className="text-end d-flex justify-content-end align-items-center gap-2 flex-wrap mt-3 mt-md-0">
+                      {datosCierre?.cierreExistente && (
+                        <>
+                          {/* Badge de estado */}
+                          {datosCierre.diaBloqueado ? (
+                            <Badge bg="danger" className="p-2" style={{ borderRadius: "8px", fontSize: "0.9rem" }}>
+                              <FaLock className="me-2" />
+                              Día cerrado - Operaciones bloqueadas
+                            </Badge>
+                          ) : (
+                            <Badge bg="warning" text="dark" className="p-2" style={{ borderRadius: "8px", fontSize: "0.9rem" }}>
+                              <FaUnlock className="me-2" />
+                              Cierre reabierto - Operaciones permitidas
+                            </Badge>
+                          )}
+                          
+                          {/* Botón Reabrir Cierre - Solo si está activo (bloqueado) */}
+                          {datosCierre.diaBloqueado && hasPermission('cierres', 'reabrir') && (
+                            <Button 
+                              variant="warning" 
+                              size="sm"
+                              onClick={handleReabrirCierre}
+                              title="Reabrir cierre para permitir operaciones"
+                              style={{ borderRadius: "8px", padding: "0.4rem 0.8rem" }}
+                            >
+                              <FaUnlock className="me-1" />
+                              Reabrir
+                            </Button>
+                          )}
+                          
+                          {/* Botón Eliminar Cierre */}
+                          {canDelete('cierres') && (
+                            <Button 
+                              variant="danger" 
+                              size="sm"
+                              onClick={handleEliminarCierre}
+                              title="Eliminar cierre permanentemente"
+                              style={{ borderRadius: "8px", padding: "0.4rem 0.8rem" }}
+                            >
+                              <FaTrash className="me-1" />
+                              Eliminar
+                            </Button>
+                          )}
+                        </>
                       )}
-                      
-                      {/* Botón Reabrir Cierre - Solo si está activo (bloqueado) */}
-                      {datosCierre.diaBloqueado && hasPermission('cierres', 'reabrir') && (
-                        <Button 
-                          variant="warning" 
-                          size="sm"
-                          onClick={handleReabrirCierre}
-                          title="Reabrir cierre para permitir operaciones"
-                        >
-                          <FaUnlock className="me-1" />
-                          Reabrir
-                        </Button>
-                      )}
-                      
-                      {/* Botón Eliminar Cierre */}
-                      {canDelete('cierres') && (
-                        <Button 
-                          variant="danger" 
-                          size="sm"
-                          onClick={handleEliminarCierre}
-                          title="Eliminar cierre permanentemente"
-                        >
-                          <FaTrash className="me-1" />
-                          Eliminar
-                        </Button>
-                      )}
-                    </>
+                    </Col>
+                  </Row>
+                  
+                  {/* Información detallada del cierre */}
+                  {datosCierre?.cierre && (
+                    <div className="mt-3 p-3 rounded" style={{ backgroundColor: '#ffffff', border: '1px solid #dee2e6', borderRadius: "12px" }}>
+                      <Row>
+                        <Col md={6}>
+                          <h6 className="text-muted mb-3" style={{ fontWeight: "600" }}>
+                            <FaCheckCircle className="me-2 text-success" />
+                            Información del Cierre
+                          </h6>
+                          <p className="mb-2">
+                            <strong>Cerrado por:</strong> {datosCierre.cierre.usuario?.nombre || 'N/A'}
+                          </p>
+                          <p className="mb-2">
+                            <strong>Hora:</strong> {datosCierre.cierre.hora_cierre}
+                          </p>
+                          {datosCierre.cierre.observaciones && (
+                            <p className="mb-0">
+                              <strong>Observaciones:</strong> {datosCierre.cierre.observaciones}
+                            </p>
+                          )}
+                        </Col>
+                        {datosCierre.cierre.estado === 'Reabierto' && (
+                          <Col md={6}>
+                            <h6 className="text-warning mb-3" style={{ fontWeight: "600" }}>
+                              <FaUnlock className="me-2" />
+                              Información de Reapertura
+                            </h6>
+                            <p className="mb-2">
+                              <strong>Reabierto por:</strong> {datosCierre.cierre.usuarioReapertura?.nombre || 'N/A'}
+                            </p>
+                            <p className="mb-2">
+                              <strong>Fecha:</strong> {datosCierre.cierre.fecha_reapertura 
+                                ? new Date(datosCierre.cierre.fecha_reapertura).toLocaleString('es-ES', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })
+                                : 'N/A'}
+                            </p>
+                            {datosCierre.cierre.motivo_reapertura && (
+                              <p className="mb-0 text-danger">
+                                <strong>Motivo:</strong> {datosCierre.cierre.motivo_reapertura}
+                              </p>
+                            )}
+                          </Col>
+                        )}
+                      </Row>
+                    </div>
                   )}
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+
+          {loading ? (
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="success" />
+              <p className="mt-3 text-muted">Cargando datos...</p>
+            </div>
+          ) : datosCierre ? (
+            <>
+              {/* Resumen del Día */}
+              <Row className="mb-4 g-3">
+                <Col md={3} sm={6}>
+                  <Card className="text-center border-0 shadow-sm" style={{ borderRadius: "12px", transition: "all 0.3s ease" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-5px)";
+                      e.currentTarget.style.boxShadow = "0 8px 16px rgba(0,0,0,0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+                    }}
+                  >
+                    <Card.Body className="p-4">
+                      <FaDollarSign size={32} className="text-primary mb-3" />
+                      <h6 className="text-muted mb-2" style={{ fontWeight: "500" }}>Total Esperado</h6>
+                      <h3 className="text-primary mb-0" style={{ fontWeight: "700" }}>L. {parseFloat(datosCierre.totalEsperado.toString()).toFixed(2)}</h3>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col md={3} sm={6}>
+                  <Card className="text-center border-0 shadow-sm" style={{ borderRadius: "12px", transition: "all 0.3s ease" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-5px)";
+                      e.currentTarget.style.boxShadow = "0 8px 16px rgba(0,0,0,0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+                    }}
+                  >
+                    <Card.Body className="p-4">
+                      <FaFileInvoice size={32} className="text-success mb-3" />
+                      <h6 className="text-muted mb-2" style={{ fontWeight: "500" }}>Total Cobrado</h6>
+                      <h3 className="text-success mb-0" style={{ fontWeight: "700" }}>L. {parseFloat(datosCierre.totalCobrado.toString()).toFixed(2)}</h3>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col md={3} sm={6}>
+                  <Card className={`text-center border-0 shadow-sm`} style={{ borderRadius: "12px", transition: "all 0.3s ease" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-5px)";
+                      e.currentTarget.style.boxShadow = "0 8px 16px rgba(0,0,0,0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+                    }}
+                  >
+                    <Card.Body className="p-4">
+                      <FaCashRegister size={32} className={`text-${datosCierre.diferencia >= 0 ? 'success' : 'danger'} mb-3`} />
+                      <h6 className="text-muted mb-2" style={{ fontWeight: "500" }}>Diferencia</h6>
+                      <h3 className={`text-${datosCierre.diferencia >= 0 ? 'success' : 'danger'} mb-0`} style={{ fontWeight: "700" }}>
+                        L. {parseFloat(datosCierre.diferencia.toString()).toFixed(2)}
+                      </h3>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col md={3} sm={6}>
+                  <Card className="text-center border-0 shadow-sm" style={{ borderRadius: "12px", transition: "all 0.3s ease" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-5px)";
+                      e.currentTarget.style.boxShadow = "0 8px 16px rgba(0,0,0,0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+                    }}
+                  >
+                    <Card.Body className="p-4">
+                      <FaCalendar size={32} className="text-info mb-3" />
+                      <h6 className="text-muted mb-2" style={{ fontWeight: "500" }}>Total Citas</h6>
+                      <h3 className="text-info mb-0" style={{ fontWeight: "700" }}>{datosCierre.citasPorEstado.total}</h3>
+                    </Card.Body>
+                  </Card>
                 </Col>
               </Row>
-              
-              {/* Información detallada del cierre */}
-              {datosCierre?.cierre && (
-                <div className="mt-3 p-3 rounded" style={{ backgroundColor: '#f8f9fa', border: '1px solid #dee2e6' }}>
-                  <Row>
-                    <Col md={6}>
-                      <h6 className="text-muted mb-2">
-                        <FaCheckCircle className="me-2 text-success" />
-                        Información del Cierre
-                      </h6>
-                      <p className="mb-1">
-                        <strong>Cerrado por:</strong> {datosCierre.cierre.usuario?.nombre || 'N/A'}
-                      </p>
-                      <p className="mb-1">
-                        <strong>Hora:</strong> {datosCierre.cierre.hora_cierre}
-                      </p>
-                      {datosCierre.cierre.observaciones && (
-                        <p className="mb-0">
-                          <strong>Observaciones:</strong> {datosCierre.cierre.observaciones}
-                        </p>
-                      )}
-                    </Col>
-                    {datosCierre.cierre.estado === 'Reabierto' && (
-                      <Col md={6}>
-                        <h6 className="text-warning mb-2">
-                          <FaUnlock className="me-2" />
-                          Información de Reapertura
-                        </h6>
-                        <p className="mb-1">
-                          <strong>Reabierto por:</strong> {datosCierre.cierre.usuarioReapertura?.nombre || 'N/A'}
-                        </p>
-                        <p className="mb-1">
-                          <strong>Fecha:</strong> {datosCierre.cierre.fecha_reapertura 
-                            ? new Date(datosCierre.cierre.fecha_reapertura).toLocaleString('es-ES', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })
-                            : 'N/A'}
-                        </p>
-                        {datosCierre.cierre.motivo_reapertura && (
-                          <p className="mb-0 text-danger">
-                            <strong>Motivo:</strong> {datosCierre.cierre.motivo_reapertura}
-                          </p>
-                        )}
-                      </Col>
-                    )}
-                  </Row>
-                </div>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
 
-      {loading ? (
-        <div className="text-center py-5">
-          <Spinner animation="border" variant="primary" />
-          <p className="mt-3">Cargando datos...</p>
-        </div>
-      ) : datosCierre ? (
-        <>
-          {/* Resumen del Día */}
-          <Row className="mb-4">
-            <Col md={3}>
-              <Card className="text-center border-primary">
-                <Card.Body>
-                  <FaDollarSign size={30} className="text-primary mb-2" />
-                  <h5>Total Esperado</h5>
-                  <h3 className="text-primary">L. {parseFloat(datosCierre.totalEsperado.toString()).toFixed(2)}</h3>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={3}>
-              <Card className="text-center border-success">
-                <Card.Body>
-                  <FaFileInvoice size={30} className="text-success mb-2" />
-                  <h5>Total Cobrado</h5>
-                  <h3 className="text-success">L. {parseFloat(datosCierre.totalCobrado.toString()).toFixed(2)}</h3>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={3}>
-              <Card className={`text-center border-${datosCierre.diferencia >= 0 ? 'success' : 'danger'}`}>
-                <Card.Body>
-                  <FaCashRegister size={30} className={`text-${datosCierre.diferencia >= 0 ? 'success' : 'danger'} mb-2`} />
-                  <h5>Diferencia</h5>
-                  <h3 className={`text-${datosCierre.diferencia >= 0 ? 'success' : 'danger'}`}>
-                    L. {parseFloat(datosCierre.diferencia.toString()).toFixed(2)}
-                  </h3>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={3}>
-              <Card className="text-center border-info">
-                <Card.Body>
-                  <FaCalendar size={30} className="text-info mb-2" />
-                  <h5>Total Citas</h5>
-                  <h3 className="text-info">{datosCierre.citasPorEstado.total}</h3>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+              {/* Estadísticas de Citas */}
+              <Row className="mb-4">
+                <Col md={12}>
+                  <Card className="border-0 shadow-sm" style={{ borderRadius: "12px" }}>
+                    <Card.Header className="bg-light border-0" style={{ borderRadius: "12px 12px 0 0" }}>
+                      <h5 className="mb-0" style={{ fontWeight: "600" }}>Estadísticas de Citas</h5>
+                    </Card.Header>
+                    <Card.Body className="p-4">
+                      <Row className="g-3">
+                        <Col md={2} sm={4} xs={6} className="text-center">
+                          <Badge bg="success" className="p-3 w-100" style={{ borderRadius: "8px", fontSize: "0.9rem" }}>
+                            Pagadas: {datosCierre.citasPorEstado.pagadas}
+                          </Badge>
+                        </Col>
+                        <Col md={2} sm={4} xs={6} className="text-center">
+                          <Badge bg="warning" text="dark" className="p-3 w-100" style={{ borderRadius: "8px", fontSize: "0.9rem" }}>
+                            Pendientes: {datosCierre.citasPorEstado.pendientes}
+                          </Badge>
+                        </Col>
+                        <Col md={2} sm={4} xs={6} className="text-center">
+                          <Badge bg="info" className="p-3 w-100" style={{ borderRadius: "8px", fontSize: "0.9rem" }}>
+                            Confirmadas: {datosCierre.citasPorEstado.confirmadas}
+                          </Badge>
+                        </Col>
+                        <Col md={2} sm={4} xs={6} className="text-center">
+                          <Badge bg="success" className="p-3 w-100" style={{ borderRadius: "8px", fontSize: "0.9rem" }}>
+                            Completadas: {datosCierre.citasPorEstado.completadas}
+                          </Badge>
+                        </Col>
+                        <Col md={2} sm={4} xs={6} className="text-center">
+                          <Badge bg="danger" className="p-3 w-100" style={{ borderRadius: "8px", fontSize: "0.9rem" }}>
+                            Canceladas: {datosCierre.citasPorEstado.canceladas}
+                          </Badge>
+                        </Col>
+                        <Col md={2} sm={4} xs={6} className="text-center">
+                          {/* Botón Cerrar Caja - Solo si no hay cierre o está reabierto */}
+                          {(!datosCierre.cierreExistente || !datosCierre.diaBloqueado) && canCreate('cierres') ? (
+                            <Button 
+                              variant="primary" 
+                              onClick={handleCerrarCaja}
+                              className="w-100"
+                              style={{ borderRadius: "8px", padding: "0.6rem", fontWeight: "500" }}
+                            >
+                              <FaCashRegister className="me-2" />
+                              {datosCierre.cierreExistente && !datosCierre.diaBloqueado ? 'Re-cerrar Caja' : 'Cerrar Caja'}
+                            </Button>
+                          ) : (!datosCierre.cierreExistente || !datosCierre.diaBloqueado) && !canCreate('cierres') ? (
+                            <Button 
+                              variant="secondary" 
+                              disabled
+                              className="w-100"
+                              title="No tienes permiso para crear cierres"
+                              style={{ borderRadius: "8px", padding: "0.6rem" }}
+                            >
+                              <FaLock className="me-2" />
+                              Sin Permiso
+                            </Button>
+                          ) : null}
+                        </Col>
+                      </Row>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
 
-          {/* Estadísticas de Citas */}
-          <Row className="mb-4">
-            <Col md={12}>
-              <Card>
-                <Card.Header>
-                  <h5 className="mb-0">Estadísticas de Citas</h5>
-                </Card.Header>
-                <Card.Body>
-                  <Row>
-                    <Col md={2} className="text-center">
-                      <Badge bg="success" className="p-2 w-100">
-                        Pagadas: {datosCierre.citasPorEstado.pagadas}
-                      </Badge>
-                    </Col>
-                    <Col md={2} className="text-center">
-                      <Badge bg="warning" className="p-2 w-100">
-                        Pendientes: {datosCierre.citasPorEstado.pendientes}
-                      </Badge>
-                    </Col>
-                    <Col md={2} className="text-center">
-                      <Badge bg="info" className="p-2 w-100">
-                        Confirmadas: {datosCierre.citasPorEstado.confirmadas}
-                      </Badge>
-                    </Col>
-                    <Col md={2} className="text-center">
-                      <Badge bg="success" className="p-2 w-100">
-                        Completadas: {datosCierre.citasPorEstado.completadas}
-                      </Badge>
-                    </Col>
-                    <Col md={2} className="text-center">
-                      <Badge bg="danger" className="p-2 w-100">
-                        Canceladas: {datosCierre.citasPorEstado.canceladas}
-                      </Badge>
-                    </Col>
-                    <Col md={2} className="text-center">
-                      {/* Botón Cerrar Caja - Solo si no hay cierre o está reabierto */}
-                      {(!datosCierre.cierreExistente || !datosCierre.diaBloqueado) && canCreate('cierres') ? (
-                        <Button 
-                          variant="primary" 
-                          onClick={handleCerrarCaja}
-                          className="w-100"
-                        >
-                          <FaCashRegister className="me-2" />
-                          {datosCierre.cierreExistente && !datosCierre.diaBloqueado ? 'Re-cerrar Caja' : 'Cerrar Caja'}
-                        </Button>
-                      ) : (!datosCierre.cierreExistente || !datosCierre.diaBloqueado) && !canCreate('cierres') ? (
-                        <Button 
-                          variant="secondary" 
-                          disabled
-                          className="w-100"
-                          title="No tienes permiso para crear cierres"
-                        >
-                          <FaLock className="me-2" />
-                          Sin Permiso
-                        </Button>
-                      ) : null}
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-
-          {/* Lista de Citas */}
-          <Row className="mb-4">
-            <Col md={12}>
-              <Card>
-                <Card.Header>
-                  <h5 className="mb-0">Citas del Día</h5>
-                </Card.Header>
-                <Card.Body>
-                  <div className="table-responsive">
-                    <Table striped hover>
-                      <thead>
-                        <tr>
-                          <th>Hora</th>
-                          <th>Paciente</th>
-                          <th>Terapeuta</th>
-                          <th>Estado</th>
-                          <th>Total</th>
-                          <th>Pagado</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {datosCierre.citas.length > 0 ? (
-                          datosCierre.citas.map((cita) => (
-                            <tr key={cita.id_cita}>
-                              <td>{cita.hora_inicio}</td>
-                              <td>{cita.paciente.nombre} {cita.paciente.apellido}</td>
-                              <td>{cita.terapeuta.nombre} {cita.terapeuta.apellido}</td>
-                              <td>{getEstadoBadge(cita.estado)}</td>
-                              <td>L. {parseFloat(cita.total.toString()).toFixed(2)}</td>
-                              <td>
-                                {cita.Recibo && cita.Recibo.estado === 'Activo' ? (
-                                  <Badge bg="success">
-                                    <FaCheckCircle className="me-1" />
-                                    {cita.Recibo.numero_recibo}
-                                  </Badge>
-                                ) : (
-                                  <Badge bg="secondary">No pagado</Badge>
-                                )}
-                              </td>
+              {/* Lista de Citas */}
+              <Row className="mb-4">
+                <Col md={12}>
+                  <Card className="border-0 shadow-sm" style={{ borderRadius: "12px" }}>
+                    <Card.Header className="bg-light border-0" style={{ borderRadius: "12px 12px 0 0" }}>
+                      <h5 className="mb-0" style={{ fontWeight: "600" }}>Citas del Día</h5>
+                    </Card.Header>
+                    <Card.Body className="p-0">
+                      <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
+                        <Table hover className="align-middle mb-0">
+                          <thead style={{ backgroundColor: "#f8f9fa" }}>
+                            <tr>
+                              <th className="py-3 px-4" style={{ fontWeight: "600" }}>Hora</th>
+                              <th className="py-3 px-4" style={{ fontWeight: "600" }}>Paciente</th>
+                              <th className="py-3 px-4" style={{ fontWeight: "600" }}>Terapeuta</th>
+                              <th className="py-3 px-4" style={{ fontWeight: "600" }}>Estado</th>
+                              <th className="py-3 px-4" style={{ fontWeight: "600" }}>Total</th>
+                              <th className="py-3 px-4" style={{ fontWeight: "600" }}>Pagado</th>
                             </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={6} className="text-center text-muted py-4">
-                              No hay citas para esta fecha
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </Table>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+                          </thead>
+                          <tbody>
+                            {datosCierre.citas.length > 0 ? (
+                              datosCierre.citas.map((cita) => (
+                                <tr key={cita.id_cita}>
+                                  <td className="py-3 px-4">{cita.hora_inicio}</td>
+                                  <td className="py-3 px-4">{cita.paciente.nombre} {cita.paciente.apellido}</td>
+                                  <td className="py-3 px-4">{cita.terapeuta.nombre} {cita.terapeuta.apellido}</td>
+                                  <td className="py-3 px-4">{getEstadoBadge(cita.estado)}</td>
+                                  <td className="py-3 px-4">
+                                    <strong className="text-success">L. {parseFloat(cita.total.toString()).toFixed(2)}</strong>
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {cita.Recibo && cita.Recibo.estado === 'Activo' ? (
+                                      <Badge bg="success" style={{ borderRadius: "6px", padding: "0.4rem 0.6rem" }}>
+                                        <FaCheckCircle className="me-1" />
+                                        {cita.Recibo.numero_recibo}
+                                      </Badge>
+                                    ) : (
+                                      <Badge bg="secondary" style={{ borderRadius: "6px", padding: "0.4rem 0.6rem" }}>No pagado</Badge>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan={6} className="text-center text-muted py-5">
+                                  No hay citas para esta fecha
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </Table>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
 
-          {/* Lista de Recibos */}
-          <Row>
-            <Col md={12}>
-              <Card>
-                <Card.Header>
-                  <h5 className="mb-0">Recibos del Día</h5>
-                </Card.Header>
-                <Card.Body>
-                  <div className="table-responsive">
-                    <Table striped hover>
-                      <thead>
-                        <tr>
-                          <th>Número de Recibo</th>
-                          <th>Hora</th>
-                          <th>Paciente</th>
-                          <th>Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {datosCierre.recibos.length > 0 ? (
-                          datosCierre.recibos.map((recibo) => (
-                            <tr key={recibo.id_recibo}>
-                              <td>{recibo.numero_recibo}</td>
-                              <td>{new Date(recibo.fecha_cobro).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</td>
-                              <td>
-                                {recibo.Cita?.paciente 
-                                  ? `${recibo.Cita.paciente.nombre} ${recibo.Cita.paciente.apellido}`
-                                  : 'N/A'}
-                              </td>
-                              <td>L. {parseFloat(recibo.total.toString()).toFixed(2)}</td>
+              {/* Lista de Recibos */}
+              <Row>
+                <Col md={12}>
+                  <Card className="border-0 shadow-sm" style={{ borderRadius: "12px" }}>
+                    <Card.Header className="bg-light border-0" style={{ borderRadius: "12px 12px 0 0" }}>
+                      <h5 className="mb-0" style={{ fontWeight: "600" }}>Recibos del Día</h5>
+                    </Card.Header>
+                    <Card.Body className="p-0">
+                      <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
+                        <Table hover className="align-middle mb-0">
+                          <thead style={{ backgroundColor: "#f8f9fa" }}>
+                            <tr>
+                              <th className="py-3 px-4" style={{ fontWeight: "600" }}>Número de Recibo</th>
+                              <th className="py-3 px-4" style={{ fontWeight: "600" }}>Hora</th>
+                              <th className="py-3 px-4" style={{ fontWeight: "600" }}>Paciente</th>
+                              <th className="py-3 px-4" style={{ fontWeight: "600" }}>Total</th>
                             </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={4} className="text-center text-muted py-4">
-                              No hay recibos para esta fecha
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </Table>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        </>
-      ) : (
-        <Card>
-          <Card.Body className="text-center py-5">
-            <p className="text-muted">No hay datos disponibles</p>
-          </Card.Body>
-        </Card>
-      )}
+                          </thead>
+                          <tbody>
+                            {datosCierre.recibos.length > 0 ? (
+                              datosCierre.recibos.map((recibo) => (
+                                <tr key={recibo.id_recibo}>
+                                  <td className="py-3 px-4"><strong>{recibo.numero_recibo}</strong></td>
+                                  <td className="py-3 px-4">{new Date(recibo.fecha_cobro).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</td>
+                                  <td className="py-3 px-4">
+                                    {recibo.Cita?.paciente 
+                                      ? `${recibo.Cita.paciente.nombre} ${recibo.Cita.paciente.apellido}`
+                                      : 'N/A'}
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    <strong className="text-success">L. {parseFloat(recibo.total.toString()).toFixed(2)}</strong>
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan={4} className="text-center text-muted py-5">
+                                  No hay recibos para esta fecha
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </Table>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </>
+          ) : (
+            <Card className="border-0 shadow-sm" style={{ borderRadius: "12px" }}>
+              <Card.Body className="text-center py-5">
+                <p className="text-muted">No hay datos disponibles</p>
+              </Card.Body>
+            </Card>
+          )}
+        </Card.Body>
+      </Card>
 
       {/* Modal de Confirmación de Cierre */}
-      <Modal show={showModalCierre} onHide={() => setShowModalCierre(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmar Cierre de Caja</Modal.Title>
+      <Modal show={showModalCierre} onHide={() => setShowModalCierre(false)} centered>
+        <Modal.Header closeButton style={{ backgroundColor: "#2E8B57", color: "white", border: "none" }}>
+          <Modal.Title style={{ fontWeight: "600" }}>Confirmar Cierre de Caja</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <p>¿Está seguro de realizar el cierre de caja para la fecha <strong>{fecha instanceof Date ? formatDate(fecha) : ''}</strong>?</p>
+        <Modal.Body className="p-4">
+          <p className="mb-4">¿Está seguro de realizar el cierre de caja para la fecha <strong>{fecha instanceof Date ? formatDate(fecha) : ''}</strong>?</p>
           <Form.Group className="mb-3">
-            <Form.Label>Observaciones (opcional):</Form.Label>
+            <Form.Label className="fw-semibold">Observaciones (opcional):</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               value={observaciones}
               onChange={(e) => setObservaciones(e.target.value)}
               placeholder="Ingrese observaciones sobre el cierre..."
+              style={{ borderRadius: "8px", border: "1px solid #dee2e6" }}
             />
           </Form.Group>
           {datosCierre && (
-            <div className="alert alert-info">
+            <div className="alert alert-info border-0" style={{ borderRadius: "8px", backgroundColor: "#e7f3ff" }}>
               <strong>Resumen:</strong><br />
               Total Esperado: L. {parseFloat(datosCierre.totalEsperado.toString()).toFixed(2)}<br />
               Total Cobrado: L. {parseFloat(datosCierre.totalCobrado.toString()).toFixed(2)}<br />
@@ -694,11 +766,20 @@ function CierresTable() {
             </div>
           )}
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModalCierre(false)}>
+        <Modal.Footer style={{ border: "none" }}>
+          <Button 
+            variant="secondary" 
+            onClick={() => setShowModalCierre(false)}
+            style={{ borderRadius: "8px", padding: "0.5rem 1.5rem" }}
+          >
             Cancelar
           </Button>
-          <Button variant="primary" onClick={confirmarCierre} disabled={loadingCierre}>
+          <Button 
+            variant="primary" 
+            onClick={confirmarCierre} 
+            disabled={loadingCierre}
+            style={{ borderRadius: "8px", padding: "0.5rem 1.5rem", backgroundColor: "#2E8B57", border: "none" }}
+          >
             {loadingCierre ? (
               <>
                 <Spinner animation="border" size="sm" className="me-2" />
@@ -712,37 +793,38 @@ function CierresTable() {
       </Modal>
 
       {/* Modal de Historial */}
-      <Modal show={showHistorial} onHide={() => setShowHistorial(false)} size="xl">
-        <Modal.Header closeButton style={{ backgroundColor: '#2E8B57', color: 'white' }}>
-          <Modal.Title>
+      <Modal show={showHistorial} onHide={() => setShowHistorial(false)} size="xl" centered>
+        <Modal.Header closeButton style={{ backgroundColor: '#2E8B57', color: 'white', border: "none" }}>
+          <Modal.Title style={{ fontWeight: "600" }}>
             <FaHistory className="me-2" />
             Historial de Cierres de Caja
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className="p-4">
           {loadingHistorial ? (
             <div className="text-center py-4">
-              <Spinner animation="border" variant="primary" />
+              <Spinner animation="border" variant="success" />
+              <p className="mt-3 text-muted">Cargando historial...</p>
             </div>
           ) : (
             <>
-              <div className="table-responsive">
-                <Table striped hover className="align-middle">
-                  <thead className="table-dark">
+              <div className="table-responsive" style={{ borderRadius: "12px", overflow: "hidden" }}>
+                <Table hover className="align-middle mb-0">
+                  <thead style={{ backgroundColor: "#f8f9fa" }}>
                     <tr>
-                      <th>Fecha</th>
-                      <th>Estado</th>
-                      <th className="text-end">Total Cobrado</th>
-                      <th className="text-center">Citas</th>
-                      <th>Cerrado por</th>
-                      <th>Reapertura</th>
+                      <th className="py-3 px-4" style={{ fontWeight: "600" }}>Fecha</th>
+                      <th className="py-3 px-4" style={{ fontWeight: "600" }}>Estado</th>
+                      <th className="py-3 px-4 text-end" style={{ fontWeight: "600" }}>Total Cobrado</th>
+                      <th className="py-3 px-4 text-center" style={{ fontWeight: "600" }}>Citas</th>
+                      <th className="py-3 px-4" style={{ fontWeight: "600" }}>Cerrado por</th>
+                      <th className="py-3 px-4" style={{ fontWeight: "600" }}>Reapertura</th>
                     </tr>
                   </thead>
                   <tbody>
                     {cierres.length > 0 ? (
                       cierres.map((cierre) => (
                         <tr key={cierre.id_cierre}>
-                          <td>
+                          <td className="py-3 px-4">
                             <div>
                               <strong>{new Date(cierre.fecha_cierre).toLocaleDateString('es-ES', { 
                                 weekday: 'short', 
@@ -757,18 +839,18 @@ function CierresTable() {
                               </small>
                             </div>
                           </td>
-                          <td>
+                          <td className="py-3 px-4">
                             {cierre.estado === 'Activo' ? (
-                              <Badge bg="danger">
+                              <Badge bg="danger" style={{ borderRadius: "6px", padding: "0.4rem 0.6rem" }}>
                                 <FaLock className="me-1" /> Bloqueado
                               </Badge>
                             ) : (
-                              <Badge bg="warning" text="dark">
+                              <Badge bg="warning" text="dark" style={{ borderRadius: "6px", padding: "0.4rem 0.6rem" }}>
                                 <FaUnlock className="me-1" /> Reabierto
                               </Badge>
                             )}
                           </td>
-                          <td className="text-end">
+                          <td className="py-3 px-4 text-end">
                             <div>
                               <strong className="text-success">
                                 L. {parseFloat(cierre.total_cobrado.toString()).toFixed(2)}
@@ -780,12 +862,12 @@ function CierresTable() {
                               </small>
                             </div>
                           </td>
-                          <td className="text-center">
-                            <Badge bg="info" className="px-3 py-2">
+                          <td className="py-3 px-4 text-center">
+                            <Badge bg="info" className="px-3 py-2" style={{ borderRadius: "6px" }}>
                               {cierre.total_citas}
                             </Badge>
                           </td>
-                          <td>
+                          <td className="py-3 px-4">
                             <div>
                               <strong>{cierre.usuario?.nombre || 'N/A'}</strong>
                               {cierre.observaciones && (
@@ -800,7 +882,7 @@ function CierresTable() {
                               )}
                             </div>
                           </td>
-                          <td>
+                          <td className="py-3 px-4">
                             {cierre.estado === 'Reabierto' ? (
                               <div>
                                 <strong className="text-warning">
@@ -834,7 +916,7 @@ function CierresTable() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={6} className="text-center text-muted py-4">
+                        <td colSpan={6} className="text-center text-muted py-5">
                           No hay cierres registrados
                         </td>
                       </tr>
@@ -856,23 +938,27 @@ function CierresTable() {
             </>
           )}
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowHistorial(false)}>
+        <Modal.Footer style={{ border: "none" }}>
+          <Button 
+            variant="secondary" 
+            onClick={() => setShowHistorial(false)}
+            style={{ borderRadius: "8px", padding: "0.5rem 1.5rem" }}
+          >
             Cerrar
           </Button>
         </Modal.Footer>
       </Modal>
 
       {/* Modal de Reabrir Cierre */}
-      <Modal show={showModalReabrir} onHide={() => setShowModalReabrir(false)}>
-        <Modal.Header closeButton className="bg-warning">
-          <Modal.Title className="d-flex align-items-center">
+      <Modal show={showModalReabrir} onHide={() => setShowModalReabrir(false)} centered>
+        <Modal.Header closeButton className="bg-warning" style={{ border: "none" }}>
+          <Modal.Title className="d-flex align-items-center" style={{ fontWeight: "600" }}>
             <FaExclamationTriangle className="me-2" />
             Reabrir Cierre de Caja
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <div className="alert alert-warning">
+        <Modal.Body className="p-4">
+          <div className="alert alert-warning border-0" style={{ borderRadius: "8px" }}>
             <strong>⚠️ Advertencia:</strong> Al reabrir el cierre, se permitirán nuevamente las siguientes operaciones para la fecha <strong>{fecha instanceof Date ? formatDate(fecha) : ''}</strong>:
             <ul className="mt-2 mb-0">
               <li>Crear y editar citas</li>
@@ -881,7 +967,7 @@ function CierresTable() {
             </ul>
           </div>
           <Form.Group className="mb-3">
-            <Form.Label><strong>Motivo de reapertura *</strong></Form.Label>
+            <Form.Label className="fw-semibold">Motivo de reapertura *</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
@@ -889,20 +975,26 @@ function CierresTable() {
               onChange={(e) => setMotivoReapertura(e.target.value)}
               placeholder="Ingrese el motivo por el cual necesita reabrir el cierre..."
               required
+              style={{ borderRadius: "8px", border: "1px solid #dee2e6" }}
             />
             <Form.Text className="text-muted">
               Este motivo quedará registrado para auditoría.
             </Form.Text>
           </Form.Group>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModalReabrir(false)}>
+        <Modal.Footer style={{ border: "none" }}>
+          <Button 
+            variant="secondary" 
+            onClick={() => setShowModalReabrir(false)}
+            style={{ borderRadius: "8px", padding: "0.5rem 1.5rem" }}
+          >
             Cancelar
           </Button>
           <Button 
             variant="warning" 
             onClick={confirmarReapertura} 
             disabled={loadingReabrir || !motivoReapertura.trim()}
+            style={{ borderRadius: "8px", padding: "0.5rem 1.5rem" }}
           >
             {loadingReabrir ? (
               <>
