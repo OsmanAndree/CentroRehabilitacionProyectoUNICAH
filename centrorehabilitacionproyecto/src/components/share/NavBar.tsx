@@ -251,8 +251,8 @@ function NavBar() {
             }}>Menú</span>
           </Offcanvas.Title>
         </Offcanvas.Header>
-        <Offcanvas.Body className="pt-2 pb-4">
-          <Nav className="flex-column" style={{ gap: isMobileDevice ? "0.5rem" : "0.75rem" }}>
+        <Offcanvas.Body className="pt-3 pb-4">
+          <Nav className="flex-column" style={{ gap: isMobileDevice ? "1rem" : "0.75rem" }}>
             {filteredMenuItems.map((item, index) => (
               <Nav.Link
                 key={index}
