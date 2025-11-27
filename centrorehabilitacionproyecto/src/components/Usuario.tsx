@@ -1,18 +1,25 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaUsers } from 'react-icons/fa';
+import { useEffect, useState, useCallback } from 'react';
+import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Badge } from 'react-bootstrap';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaUsers, FaCrown } from 'react-icons/fa';
 import axios from 'axios';
 import UsuariosForm from './Forms/UsuariosForm';
 import PaginationComponent from './PaginationComponent';
-// Se eliminan las importaciones de react-toastify
+import { usePermissions } from '../hooks/usePermissions';
+
+interface Role {
+    id_role: number;
+    nombre: string;
+    is_admin: boolean;
+}
 
 interface Usuario {
     id_usuario: number;
     nombre: string;
     email: string;
     password: string;
-    rol: 'Administrador' | 'Terapeuta' ;
+    rol?: string; // Campo legacy - opcional
     estado: 'Activo' | 'Inactivo';
+    roles?: Role[]; // Roles dinámicos de la relación
     created_at?: Date;
 }
 
@@ -29,6 +36,7 @@ function UsuariosTable() {
     const [usuarios, setUsuarios] = useState<Usuario[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [showForm, setShowForm] = useState<boolean>(false);
+    const { canCreate, canUpdate, canDelete } = usePermissions();
     const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<Usuario | null>(null);
     const [search, setSearch] = useState<string>("");
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -125,19 +133,21 @@ function UsuariosTable() {
                             Gestión de Usuarios
                         </h4>
                     </div>
-                    <Button 
-                        variant="light" 
-                        onClick={crearUsuario}
-                        className="d-flex align-items-center"
-                        style={{
-                            borderRadius: "10px",
-                            padding: "0.5rem 1rem",
-                            fontWeight: "500",
-                            transition: "all 0.3s ease"
-                        }}
-                    >
-                        <FaPlus className="me-2" /> Nuevo Usuario
-                    </Button>
+                    {canCreate('usuarios') && (
+                        <Button 
+                            variant="light" 
+                            onClick={crearUsuario}
+                            className="d-flex align-items-center"
+                            style={{
+                                borderRadius: "10px",
+                                padding: "0.5rem 1rem",
+                                fontWeight: "500",
+                                transition: "all 0.3s ease"
+                            }}
+                        >
+                            <FaPlus className="me-2" /> Nuevo Usuario
+                        </Button>
+                    )}
                 </Card.Header>
 
                 <Card.Body className="p-4">
@@ -188,7 +198,7 @@ function UsuariosTable() {
                                         <th className="py-3 px-4 text-muted">#</th>
                                         <th className="py-3 px-4 text-muted">Nombre</th>
                                         <th className="py-3 px-4 text-muted">Email</th>
-                                        <th className="py-3 px-4 text-muted">Rol</th>
+                                        <th className="py-3 px-4 text-muted">Roles</th>
                                         <th className="py-3 px-4 text-muted">Estado</th>
                                         <th className="py-3 px-4 text-muted text-center">Acciones</th>
                                     </tr>
@@ -200,30 +210,53 @@ function UsuariosTable() {
                                                 <td className="py-3 px-4">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                                 <td className="py-3 px-4">{usuario.nombre}</td>
                                                 <td className="py-3 px-4">{usuario.email}</td>
-                                                <td className="py-3 px-4">{usuario.rol}</td>
+                                                <td className="py-3 px-4">
+                                                    <div className="d-flex flex-wrap gap-1">
+                                                        {usuario.roles && usuario.roles.length > 0 ? (
+                                                            usuario.roles.map((role) => (
+                                                                <Badge 
+                                                                    key={role.id_role} 
+                                                                    bg={role.is_admin ? 'warning' : 'info'}
+                                                                    text={role.is_admin ? 'dark' : 'white'}
+                                                                    className="d-flex align-items-center"
+                                                                    style={{ fontSize: '0.8rem' }}
+                                                                >
+                                                                    {role.is_admin && <FaCrown className="me-1" size={10} />}
+                                                                    {role.nombre}
+                                                                </Badge>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-muted fst-italic">Sin rol asignado</span>
+                                                        )}
+                                                    </div>
+                                                </td>
                                                 <td className="py-3 px-4">
                                                     <span className={`badge ${usuario.estado === 'Activo' ? 'bg-success' : 'bg-danger'}`}>
                                                         {usuario.estado}
                                                     </span>
                                                 </td>
                                                 <td className="py-3 px-4 text-center">
-                                                    <Button 
-                                                        variant="outline-success" 
-                                                        size="sm" 
-                                                        onClick={() => editarUsuario(usuario)}
-                                                        className="me-2"
-                                                        style={{ borderRadius: "8px" }}
-                                                    >
-                                                        <FaEdit /> Editar
-                                                    </Button>
-                                                    <Button 
-                                                        variant="outline-danger" 
-                                                        size="sm" 
-                                                        onClick={() => eliminarUsuario(usuario.id_usuario)}
-                                                        style={{ borderRadius: "8px" }}
-                                                    >
-                                                        <FaTrash /> Eliminar
-                                                    </Button>
+                                                    {canUpdate('usuarios') && (
+                                                        <Button 
+                                                            variant="outline-success" 
+                                                            size="sm" 
+                                                            onClick={() => editarUsuario(usuario)}
+                                                            className="me-2"
+                                                            style={{ borderRadius: "8px" }}
+                                                        >
+                                                            <FaEdit /> Editar
+                                                        </Button>
+                                                    )}
+                                                    {canDelete('usuarios') && (
+                                                        <Button 
+                                                            variant="outline-danger" 
+                                                            size="sm" 
+                                                            onClick={() => eliminarUsuario(usuario.id_usuario)}
+                                                            style={{ borderRadius: "8px" }}
+                                                        >
+                                                            <FaTrash /> Eliminar
+                                                        </Button>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))

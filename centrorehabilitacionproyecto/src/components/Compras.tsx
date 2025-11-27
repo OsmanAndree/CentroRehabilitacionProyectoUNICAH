@@ -14,6 +14,7 @@ import ComprasView from './Forms/ComprasView';
 import ProductosForm from './Forms/ProductosForm';
 import ComprasReport from './Reports/ComprasReport';
 import PaginationComponent from './PaginationComponent';
+import { usePermissions } from '../hooks/usePermissions';
 
 export interface Compra {
   id_compra: number;
@@ -32,6 +33,7 @@ function Compras() {
   const dispatch: AppDispatch = useDispatch();
   const { compras, status, error, pagination } = useSelector((state: RootState) => state.compras);
   const { productos } = useSelector((state: RootState) => state.productos);
+  const { canCreate, canUpdate, canDelete, canView } = usePermissions();
 
   const [search, setSearch] = useState<string>("");
   const [showForm, setShowForm] = useState(false);
@@ -130,29 +132,31 @@ function Compras() {
               </div>
             </Col>
             <Col xs={12} md={6} className="d-flex justify-content-md-end">
-              <Button 
-                variant="light" 
-                onClick={crearCompra} 
-                className="d-flex align-items-center justify-content-center"
-                style={{
-                  borderRadius: "10px",
-                  padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                  fontWeight: "500",
-                  transition: "all 0.3s ease",
-                  width: isMobile ? "100%" : "auto",
-                  fontSize: isMobile ? "0.9rem" : "1rem"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
-              >
-                <FaPlus className="me-2" /> Nueva Compra
-              </Button>
+              {canCreate('compras') && (
+                <Button 
+                  variant="light" 
+                  onClick={crearCompra} 
+                  className="d-flex align-items-center justify-content-center"
+                  style={{
+                    borderRadius: "10px",
+                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                    fontWeight: "500",
+                    transition: "all 0.3s ease",
+                    width: isMobile ? "100%" : "auto",
+                    fontSize: isMobile ? "0.9rem" : "1rem"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <FaPlus className="me-2" /> Nueva Compra
+                </Button>
+              )}
             </Col>
           </Row>
         </Card.Header>
@@ -199,15 +203,21 @@ function Compras() {
                         <td className="py-3 px-4">{Number(compra.total).toFixed(2)}</td>
                         <td className="py-3 px-4 text-center">
                           <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-center'}`} style={{ gap: isMobile ? '8px' : '6px' }}>
-                            <Button variant="outline-info" size="sm" onClick={() => verCompra(compra)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem", width: isMobile ? "100%" : "auto" }}>
-                                <FaEye className={isMobile ? "me-2" : ""} /> {isMobile && "Ver"}
-                            </Button>
-                            <Button variant="outline-primary" size="sm" onClick={() => editarCompra(compra)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem", width: isMobile ? "100%" : "auto" }}>
-                                <FaEdit className={isMobile ? "me-2" : ""} /> {isMobile && "Editar"}
-                            </Button>
-                            <Button variant="outline-danger" size="sm" onClick={() => eliminarCompraHandler(compra.id_compra)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem", width: isMobile ? "100%" : "auto" }}>
-                                <FaTrash className={isMobile ? "me-2" : ""} /> {isMobile && "Eliminar"}
-                            </Button>
+                            {canView('compras') && (
+                              <Button variant="outline-info" size="sm" onClick={() => verCompra(compra)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem", width: isMobile ? "100%" : "auto" }}>
+                                  <FaEye className={isMobile ? "me-2" : ""} /> {isMobile && "Ver"}
+                              </Button>
+                            )}
+                            {canUpdate('compras') && (
+                              <Button variant="outline-primary" size="sm" onClick={() => editarCompra(compra)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem", width: isMobile ? "100%" : "auto" }}>
+                                  <FaEdit className={isMobile ? "me-2" : ""} /> {isMobile && "Editar"}
+                              </Button>
+                            )}
+                            {canDelete('compras') && (
+                              <Button variant="outline-danger" size="sm" onClick={() => eliminarCompraHandler(compra.id_compra)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem", width: isMobile ? "100%" : "auto" }}>
+                                  <FaTrash className={isMobile ? "me-2" : ""} /> {isMobile && "Eliminar"}
+                              </Button>
+                            )}
                             <PDFDownloadLink
                                 document={<ComprasReport compra={compra} productos={productos} />}
                                 fileName={`Factura_Compra_${compra.id_compra}.pdf`}

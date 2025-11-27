@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
     "release": "standard-version",
-    "prepare": "husky"
+    "prepare": "husky",
+    "permissions:sync": "node app/scripts/syncPermissions.js",
+    "db:sync": "node -e \"require('./app/config/db').sequelizeInstance.sync({ alter: true }).then(() => console.log('DB sincronizada')).catch(console.error).finally(() => process.exit())\""
   },
   "keywords": [
     "Api",

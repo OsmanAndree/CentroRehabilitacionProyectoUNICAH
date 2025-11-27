@@ -1,15 +1,24 @@
 import { useState, useEffect } from "react";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Button, Offcanvas } from "react-bootstrap";
-import { FaCalendarAlt, FaNotesMedical, FaUsers, FaUserFriends, FaClinicMedical, FaMoneyBill, FaSignOutAlt, FaBars } from "react-icons/fa";
+import { FaCalendarAlt, FaNotesMedical, FaUsers, FaUserFriends, FaClinicMedical, FaMoneyBill, FaSignOutAlt, FaBars, FaShieldAlt } from "react-icons/fa";
 import { FaUserGear } from "react-icons/fa6";
+import { usePermissions, clearUserPermissions } from "../../hooks/usePermissions";
+
+interface MenuItem {
+  path: string;
+  icon: React.ReactNode;
+  text: string;
+  module: string;
+}
 
 function NavBar() {
   const navigate = useNavigate();
   const [showOffcanvas, setShowOffcanvas] = useState<boolean>(false);
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
   const [isMobileDevice, setIsMobileDevice] = useState<boolean>(false);
+  
+  const { canView } = usePermissions();
 
   useEffect(() => {
     const handleResize = () => {
@@ -31,6 +40,17 @@ function NavBar() {
     setShowOffcanvas(false);
   };
 
+  const handleLogout = () => {
+    // Limpiar localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('idRol');
+    localStorage.removeItem('user');
+    clearUserPermissions();
+    
+    // Redirigir al login
+    window.location.href = "/";
+  };
+
   const getResponsiveFontSize = () => {
     if (windowWidth < 1200) return "0.85rem";
     if (windowWidth < 1400) return "0.9rem";
@@ -49,23 +69,20 @@ function NavBar() {
     return defaultSize;
   };
 
-  const menuItems = [
-    { path: "/citas", icon: <FaCalendarAlt size={getIconSize(20)} />, text: "Citas" },
-    { path: "/diagnosticos", icon: <FaNotesMedical size={getIconSize(20)} />, text: "Diagnósticos" },
-    { path: "/pacientes", icon: <FaUsers size={getIconSize(20)} />, text: "Pacientes" },
-    { path: "/encargados", icon: <FaUserFriends size={getIconSize(20)} />, text: "Encargados" },
-    { path: "/terapeutas", icon: <FaClinicMedical size={getIconSize(20)} />, text: "Terapeutas" },
-    { path: "/compras", icon: <FaMoneyBill size={getIconSize(20)} />, text: "Compras" },
-    { path: "/usuarios", icon: <FaUserGear size={getIconSize(20)} />, text: "Usuarios" }
+  // Definir todos los items del menú con su módulo asociado
+  const allMenuItems: MenuItem[] = [
+    { path: "/citas", icon: <FaCalendarAlt size={getIconSize(20)} />, text: "Citas", module: "citas" },
+    { path: "/diagnosticos", icon: <FaNotesMedical size={getIconSize(20)} />, text: "Diagnósticos", module: "diagnosticos" },
+    { path: "/pacientes", icon: <FaUsers size={getIconSize(20)} />, text: "Pacientes", module: "pacientes" },
+    { path: "/encargados", icon: <FaUserFriends size={getIconSize(20)} />, text: "Encargados", module: "encargados" },
+    { path: "/terapeutas", icon: <FaClinicMedical size={getIconSize(20)} />, text: "Terapeutas", module: "terapeutas" },
+    { path: "/compras", icon: <FaMoneyBill size={getIconSize(20)} />, text: "Compras", module: "compras" },
+    { path: "/usuarios", icon: <FaUserGear size={getIconSize(20)} />, text: "Usuarios", module: "usuarios" },
   ];
-  const userRole = localStorage.getItem("idRol")?.toString();
 
-  const unallowedPathsForRole1 = [ "/compras", "/usuarios"];
-  //ADMINISRADOR = 1
-  const filteredMenuItems =
-    userRole === "1"
-      ? menuItems
-      : menuItems.filter((card) => !unallowedPathsForRole1.includes(card.path)); 
+  // Filtrar items del menú basado en permisos de visualización
+  const filteredMenuItems = allMenuItems.filter(item => canView(item.module));
+
   return (
     <>
       <Navbar expand="xl" fixed="top" className="shadow-lg" style={{ 
@@ -186,7 +203,7 @@ function NavBar() {
           <div style={{ flex: '0 0 auto' }} className="d-none d-xl-block">
             <Button 
               variant="outline-light"
-              onClick={() => window.location.href = "/"}
+              onClick={handleLogout}
               className="d-flex align-items-center"
               style={{ 
                 gap: "8px",
@@ -273,7 +290,7 @@ function NavBar() {
             <Button 
               variant="outline-light"
               onClick={() => {
-                window.location.href = "/";
+                handleLogout();
                 setShowOffcanvas(false);
               }}
               className="d-flex align-items-center justify-content-center mt-3"

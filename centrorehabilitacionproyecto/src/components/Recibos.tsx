@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
-import { FaReceipt, FaPrint, FaCalendar, FaBan } from 'react-icons/fa';
+import { FaReceipt, FaPrint, FaCalendar, FaBan, FaLock } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PaginationComponent from './PaginationComponent';
 import ReciboReport from './Reports/ReciboReport';
+import { usePermissions } from '../hooks/usePermissions';
+import { useCierreBloqueo } from '../hooks/useCierreBloqueo';
 
 export interface Recibo {
   id_recibo: number;
@@ -54,9 +56,62 @@ function RecibosTable() {
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   
   const [searchDate, setSearchDate] = useState<string>("");
-  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 10;
+  
+  // Hook de permisos
+  const { hasPermission } = usePermissions();
+  const { estaFechaBloqueada, cierreStatus } = useCierreBloqueo();
+  
+  // Estado para fechas bloqueadas (caché)
+  const [fechasBloqueadas, setFechasBloqueadas] = useState<Record<string, boolean>>({});
+  
+  const getToken = () => localStorage.getItem('token');
+  
+  // Obtener fecha de hoy en formato YYYY-MM-DD
+  const getFechaHoy = (): string => {
+    const hoy = new Date();
+    return `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+  };
+  
+  // Verificar si una fecha específica está bloqueada (sincrónico, usa caché)
+  const esFechaBloqueada = (fechaCompleta: string): boolean => {
+    const fecha = fechaCompleta.split('T')[0]; // Extraer solo la fecha
+    // Si es hoy, usar el estado del hook
+    if (fecha === getFechaHoy()) {
+      return cierreStatus?.cierreBloqueado || false;
+    }
+    // Si ya verificamos esta fecha, usar caché
+    if (fechasBloqueadas[fecha] !== undefined) {
+      return fechasBloqueadas[fecha];
+    }
+    return false;
+  };
+  
+  // Cargar estado de bloqueo para las fechas de los recibos visibles
+  useEffect(() => {
+    const verificarFechasRecibos = async () => {
+      const fechasUnicas = [...new Set(recibos.map(r => r.fecha_cobro.split('T')[0]))];
+      const nuevasFechasBloqueadas: Record<string, boolean> = { ...fechasBloqueadas };
+      
+      for (const fecha of fechasUnicas) {
+        if (nuevasFechasBloqueadas[fecha] === undefined) {
+          try {
+            const bloqueada = await estaFechaBloqueada(fecha);
+            nuevasFechasBloqueadas[fecha] = bloqueada;
+          } catch {
+            nuevasFechasBloqueadas[fecha] = false;
+          }
+        }
+      }
+      
+      setFechasBloqueadas(nuevasFechasBloqueadas);
+    };
+    
+    if (recibos.length > 0) {
+      verificarFechasRecibos();
+    }
+  }, [recibos, estaFechaBloqueada]);
   
   useEffect(() => {
     fetchRecibos();
@@ -65,35 +120,46 @@ function RecibosTable() {
   const fetchRecibos = async () => {
     setStatus('loading');
     try {
-      const params: any = { page: currentPage, limit: itemsPerPage };
+      const params: Record<string, unknown> = { page: currentPage, limit: itemsPerPage };
       if (searchDate) {
         params.searchDate = searchDate;
       }
-      const response = await axios.get('http://localhost:3002/Api/recibos/getRecibos', { params });
+      const response = await axios.get('http://localhost:3002/Api/recibos/getRecibos', { 
+        params,
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
       setRecibos(response.data.result);
       setPagination(response.data.pagination);
       setStatus('succeeded');
-    } catch (err: any) {
-      setError(err.message || 'Error al cargar recibos');
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      setError(error.message || 'Error al cargar recibos');
       setStatus('failed');
     }
   };
-  
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
-  const anularReciboHandler = async (id: number) => {
+  const anularReciboHandler = async (id: number, fechaCobro: string) => {
+    // Obtener solo la fecha (sin hora) del timestamp
+    const fecha = fechaCobro.split('T')[0];
+    
+    // Verificar si el día está bloqueado por cierre
+    const bloqueado = await estaFechaBloqueada(fecha);
+    if (bloqueado) {
+      toast.error('No se puede anular: El día está cerrado. Contacte al administrador para reabrir el cierre.');
+      return;
+    }
+
     if (!window.confirm("¿Está seguro de que desea anular este recibo? La cita volverá a su estado anterior.")) return;
 
     try {
-      await axios.put(`http://localhost:3002/Api/recibos/anularRecibo?recibo_id=${id}`);
+      await axios.put(`http://localhost:3002/Api/recibos/anularRecibo?recibo_id=${id}`, {}, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
       toast.success("Recibo anulado con éxito.");
       fetchRecibos();
-    } catch (err: any) {
-      toast.error(`Error al anular: ${err.response?.data?.error || err.message}`);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } }; message?: string };
+      toast.error(`Error al anular: ${error.response?.data?.error || error.message}`);
     }
   };
 
@@ -101,8 +167,6 @@ function RecibosTable() {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  const isMobile = windowWidth < 768;
 
   const getEstadoBadge = (estado: string) => {
     switch (estado) {
@@ -195,7 +259,8 @@ function RecibosTable() {
                         </td>
                         <td className="py-3 px-4 text-center">
                           <div className="d-flex justify-content-center gap-2 flex-wrap">
-                            {recibo.estado === 'Activo' && recibo.Cita && (
+                            {/* Botón Imprimir - Solo si tiene permiso recibos.imprimir */}
+                            {hasPermission('recibos', 'imprimir') && recibo.estado === 'Activo' && recibo.Cita && (
                               <PDFDownloadLink
                                 document={<ReciboReport recibo={recibo} />}
                                 fileName={`Recibo_${recibo.numero_recibo}.pdf`}
@@ -214,16 +279,24 @@ function RecibosTable() {
                                 )}
                               </PDFDownloadLink>
                             )}
-                            {recibo.estado === 'Activo' && (
+                            
+                            {/* Botón Anular - Solo si tiene permiso recibos.anular y la fecha no está bloqueada */}
+                            {hasPermission('recibos', 'anular') && recibo.estado === 'Activo' && !esFechaBloqueada(recibo.fecha_cobro) && (
                               <Button 
                                 variant="outline-danger" 
                                 size="sm" 
-                                onClick={() => anularReciboHandler(recibo.id_recibo)} 
+                                onClick={() => anularReciboHandler(recibo.id_recibo, recibo.fecha_cobro)} 
                                 style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}
                                 title="Anular recibo"
                               >
-                                <FaBan />
+                                <FaBan /> Anular
                               </Button>
+                            )}
+                            {/* Indicador de día bloqueado */}
+                            {recibo.estado === 'Activo' && esFechaBloqueada(recibo.fecha_cobro) && (
+                              <span className="badge bg-secondary" title="Día cerrado - No se pueden realizar cambios">
+                                <FaLock className="me-1" /> Bloqueado
+                              </span>
                             )}
                           </div>
                         </td>
@@ -251,4 +324,3 @@ function RecibosTable() {
 }
 
 export default RecibosTable;
-

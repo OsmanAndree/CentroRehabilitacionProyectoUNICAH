@@ -11,6 +11,7 @@ import { fetchProductos, deleteProducto } from '../features/productos/productosS
 import ProductosForm from './Forms/ProductosForm';
 import ProductosReport from './Reports/ProductosReport';
 import PaginationComponent from './PaginationComponent';
+import { usePermissions } from '../hooks/usePermissions';
 
 export interface Producto {
     id_producto: number;
@@ -23,6 +24,7 @@ export interface Producto {
 function ProductosTable() {
     const dispatch: AppDispatch = useDispatch();
     const { productos, status, error, pagination } = useSelector((state: RootState) => state.productos);
+    const { canCreate, canUpdate, canDelete } = usePermissions();
     
     const [showForm, setShowForm] = useState<boolean>(false);
     const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
@@ -100,29 +102,31 @@ function ProductosTable() {
                         </Col>
                         <Col xs={12} md={6}>
                             <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
-                                <Button 
-                                    variant="light" 
-                                    onClick={crearProducto}
-                                    className="d-flex align-items-center justify-content-center"
-                                    style={{
-                                        borderRadius: "10px",
-                                        padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                                        fontWeight: "500",
-                                        transition: "all 0.3s ease",
-                                        width: isMobile ? "100%" : "auto",
-                                        fontSize: isMobile ? "0.9rem" : "1rem"
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = "translateY(-2px)";
-                                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = "translateY(0)";
-                                        e.currentTarget.style.boxShadow = "none";
-                                    }}
-                                >
-                                    <FaPlus className="me-2" /> Nuevo Producto
-                                </Button>
+                                {canCreate('productos') && (
+                                    <Button 
+                                        variant="light" 
+                                        onClick={crearProducto}
+                                        className="d-flex align-items-center justify-content-center"
+                                        style={{
+                                            borderRadius: "10px",
+                                            padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                                            fontWeight: "500",
+                                            transition: "all 0.3s ease",
+                                            width: isMobile ? "100%" : "auto",
+                                            fontSize: isMobile ? "0.9rem" : "1rem"
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = "translateY(-2px)";
+                                            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = "translateY(0)";
+                                            e.currentTarget.style.boxShadow = "none";
+                                        }}
+                                    >
+                                        <FaPlus className="me-2" /> Nuevo Producto
+                                    </Button>
+                                )}
                                 {productos.length > 0 && (
                                     <PDFDownloadLink
                                         document={<ProductosReport productos={productos} />}
@@ -198,12 +202,16 @@ function ProductosTable() {
                                                 <td className="py-3 px-4">{producto.cantidad_disponible}</td>
                                                 <td className="py-3 px-4 text-center">
                                                     <div className="d-flex justify-content-center gap-2">
-                                                        <Button variant="outline-primary" size="sm" onClick={() => editarProducto(producto)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                                                            <FaEdit />
-                                                        </Button>
-                                                        <Button variant="outline-danger" size="sm" onClick={() => eliminarProductoHandler(producto.id_producto)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                                                            <FaTrash />
-                                                        </Button>
+                                                        {canUpdate('productos') && (
+                                                            <Button variant="outline-primary" size="sm" onClick={() => editarProducto(producto)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                                                                <FaEdit />
+                                                            </Button>
+                                                        )}
+                                                        {canDelete('productos') && (
+                                                            <Button variant="outline-danger" size="sm" onClick={() => eliminarProductoHandler(producto.id_producto)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                                                                <FaTrash />
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>

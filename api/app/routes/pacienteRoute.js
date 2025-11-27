@@ -1,13 +1,32 @@
 'use strict'
 
-const express= require("express");
-const pacienteController=require("../controllers/pacienteController");
-const apiRoutes= express.Router();
+const express = require("express");
+const pacienteController = require("../controllers/pacienteController");
+const { isAuth } = require('../middlewares/auth');
+const { checkPermission } = require('../middlewares/checkPermission');
 
-apiRoutes.get("/getpacientes", async (req, res)=> await pacienteController.getpacientes(req,res)).
-post("/insertpacientes", async (req, res)=> await pacienteController.insertpacientes(req, res)).
-put("/updatepacientes", async (req, res)=> await pacienteController.updatepacientes(req, res)).
-delete("/deletepacientes", async (req, res)=> await pacienteController.deletepacientes(req, res)).
-put("/darAlta", async (req, res)=> await pacienteController.darAltaPaciente(req, res));
+const apiRoutes = express.Router();
 
-module.exports=apiRoutes;
+apiRoutes
+    .get("/getpacientes", 
+        isAuth, 
+        checkPermission('pacientes.view'),
+        async (req, res) => await pacienteController.getpacientes(req, res))
+    .post("/insertpacientes", 
+        isAuth, 
+        checkPermission('pacientes.create'),
+        async (req, res) => await pacienteController.insertpacientes(req, res))
+    .put("/updatepacientes", 
+        isAuth, 
+        checkPermission('pacientes.update'),
+        async (req, res) => await pacienteController.updatepacientes(req, res))
+    .delete("/deletepacientes", 
+        isAuth, 
+        checkPermission('pacientes.delete'),
+        async (req, res) => await pacienteController.deletepacientes(req, res))
+    .put("/darAlta", 
+        isAuth, 
+        checkPermission('pacientes.update'),
+        async (req, res) => await pacienteController.darAltaPaciente(req, res));
+
+module.exports = apiRoutes;

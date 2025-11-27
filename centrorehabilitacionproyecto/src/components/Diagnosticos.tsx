@@ -11,6 +11,7 @@ import { fetchDiagnosticos, deleteDiagnostico, darAltaDiagnostico} from '../feat
 import DiagnosticosForm from './Forms/DiagnosticosForm';
 import RecetaReport from './Reports/RecetaReport';
 import PaginationComponent from './PaginationComponent';
+import { usePermissions } from '../hooks/usePermissions';
 
 export interface Diagnostico {
   id_diagnostico: number;
@@ -36,6 +37,7 @@ export interface Diagnostico {
 function DiagnosticosTable() {
   const dispatch: AppDispatch = useDispatch();
   const { diagnosticos, status, error, pagination } = useSelector((state: RootState) => state.diagnosticos);
+  const { canCreate, canUpdate, canDelete } = usePermissions();
   
   const [showForm, setShowForm] = useState<boolean>(false);
   const [diagnosticoSeleccionado, setDiagnosticoSeleccionado] = useState<Diagnostico | null>(null);
@@ -130,21 +132,23 @@ function DiagnosticosTable() {
             </Col>
             <Col xs={12} md={6}>
               <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
-                <Button 
-                  variant="light" 
-                  onClick={crearDiagnostico}
-                  className="d-flex align-items-center justify-content-center"
-                  style={{
-                    borderRadius: "10px",
-                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                    fontWeight: "500",
-                    transition: "all 0.3s ease",
-                    width: isMobile ? "100%" : "auto",
-                    fontSize: isMobile ? "0.9rem" : "1rem"
-                  }}
-                >
-                  <FaPlus className="me-2" /> Nuevo Diagnóstico
-                </Button>
+                {canCreate('diagnosticos') && (
+                  <Button 
+                    variant="light" 
+                    onClick={crearDiagnostico}
+                    className="d-flex align-items-center justify-content-center"
+                    style={{
+                      borderRadius: "10px",
+                      padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                      fontWeight: "500",
+                      transition: "all 0.3s ease",
+                      width: isMobile ? "100%" : "auto",
+                      fontSize: isMobile ? "0.9rem" : "1rem"
+                    }}
+                  >
+                    <FaPlus className="me-2" /> Nuevo Diagnóstico
+                  </Button>
+                )}
               </div>
             </Col>
           </Row>
@@ -212,25 +216,31 @@ function DiagnosticosTable() {
                         <td className="py-3 px-4">{new Date(diagnostico.fecha).toLocaleDateString('es-ES')}</td>
                         <td className="py-3 px-4 text-center">
                           <div className="d-flex justify-content-center gap-2">
-                            <OverlayTrigger placement="top" overlay={<Tooltip>{diagnostico.paciente?.alta_medica ? "Paciente ya dado de alta" : "Dar de Alta Médica"}</Tooltip>}>
-                                <span>
-                                    <Button 
-                                        variant={diagnostico.paciente?.alta_medica ? "success" : "outline-success"}
-                                        size="sm" 
-                                        onClick={() => darAltaHandler(diagnostico.id_diagnostico)} 
-                                        disabled={diagnostico.paciente?.alta_medica} 
-                                        style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}
-                                    >
-                                        <FaUserCheck />
-                                    </Button>
-                                </span>
-                            </OverlayTrigger>
-                            <Button variant="outline-primary" size="sm" onClick={() => editarDiagnostico(diagnostico)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                              <FaEdit />
-                            </Button>
-                            <Button variant="outline-danger" size="sm" onClick={() => eliminarDiagnosticoHandler(diagnostico.id_diagnostico)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                              <FaTrash />
-                            </Button>
+                            {canUpdate('diagnosticos') && (
+                              <OverlayTrigger placement="top" overlay={<Tooltip>{diagnostico.paciente?.alta_medica ? "Paciente ya dado de alta" : "Dar de Alta Médica"}</Tooltip>}>
+                                  <span>
+                                      <Button 
+                                          variant={diagnostico.paciente?.alta_medica ? "success" : "outline-success"}
+                                          size="sm" 
+                                          onClick={() => darAltaHandler(diagnostico.id_diagnostico)} 
+                                          disabled={diagnostico.paciente?.alta_medica} 
+                                          style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}
+                                      >
+                                          <FaUserCheck />
+                                      </Button>
+                                  </span>
+                              </OverlayTrigger>
+                            )}
+                            {canUpdate('diagnosticos') && (
+                              <Button variant="outline-primary" size="sm" onClick={() => editarDiagnostico(diagnostico)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                                <FaEdit />
+                              </Button>
+                            )}
+                            {canDelete('diagnosticos') && (
+                              <Button variant="outline-danger" size="sm" onClick={() => eliminarDiagnosticoHandler(diagnostico.id_diagnostico)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                                <FaTrash />
+                              </Button>
+                            )}
                             <PDFDownloadLink
                               document={<RecetaReport diagnostico={diagnostico} />}
                               fileName={`Receta_${diagnostico.paciente?.nombre}_${diagnostico.paciente?.apellido}.pdf`}

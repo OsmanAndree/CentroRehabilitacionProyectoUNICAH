@@ -1,7 +1,6 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaUserFriends, FaFilePdf } from 'react-icons/fa';
-// ✅ Asegúrate de importar ToastContainer aquí
 import { ToastContainer, toast } from 'react-toastify'; 
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
@@ -12,6 +11,7 @@ import { fetchEncargados, deleteEncargado } from '../features/encargados/encarga
 import EncargadosForm from './Forms/EncargadosForm';
 import EncargadosReport from './Reports/EncargadosReport';
 import PaginationComponent from './PaginationComponent';
+import { usePermissions } from '../hooks/usePermissions';
 
 export interface Encargado {
     id_encargado: number;
@@ -24,6 +24,7 @@ export interface Encargado {
 function EncargadosTable() {
     const dispatch: AppDispatch = useDispatch();
     const { encargados, status, error, pagination } = useSelector((state: RootState) => state.encargados);
+    const { canCreate, canUpdate, canDelete } = usePermissions();
 
     const [showForm, setShowForm] = useState<boolean>(false);
     const [encargadoSeleccionado, setEncargadoSeleccionado] = useState<Encargado | null>(null);
@@ -103,9 +104,11 @@ function EncargadosTable() {
                         </Col>
                         <Col xs={12} md={6}>
                             <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
-                                <Button variant="light" onClick={crearEncargado} className="d-flex align-items-center justify-content-center">
-                                    <FaPlus className="me-2" /> Nuevo Encargado
-                                </Button>
+                                {canCreate('encargados') && (
+                                    <Button variant="light" onClick={crearEncargado} className="d-flex align-items-center justify-content-center">
+                                        <FaPlus className="me-2" /> Nuevo Encargado
+                                    </Button>
+                                )}
                                 {encargados.length > 0 && (
                                     <PDFDownloadLink
                                         document={<EncargadosReport encargados={encargados} />}
@@ -168,12 +171,16 @@ function EncargadosTable() {
                                                 <td className="py-3 px-4">{encargado.direccion}</td>
                                                 <td className="py-3 px-4 text-center">
                                                     <div className="d-flex justify-content-center gap-2">
-                                                        <Button variant="outline-primary" size="sm" onClick={() => editarEncargado(encargado)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                                                            <FaEdit />
-                                                        </Button>
-                                                        <Button variant="outline-danger" size="sm" onClick={() => eliminarEncargadoHandler(encargado.id_encargado)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                                                            <FaTrash />
-                                                        </Button>
+                                                        {canUpdate('encargados') && (
+                                                            <Button variant="outline-primary" size="sm" onClick={() => editarEncargado(encargado)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                                                                <FaEdit />
+                                                            </Button>
+                                                        )}
+                                                        {canDelete('encargados') && (
+                                                            <Button variant="outline-danger" size="sm" onClick={() => eliminarEncargadoHandler(encargado.id_encargado)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                                                                <FaTrash />
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>

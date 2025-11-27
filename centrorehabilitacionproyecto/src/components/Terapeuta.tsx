@@ -11,6 +11,7 @@ import { fetchTerapeutas, deleteTerapeuta } from '../features/terapeutas/terapeu
 import TerapeutasForm from './Forms/TerapeutasForm';
 import TerapeutasReport from './Reports/TerapeutaReport';
 import PaginationComponent from './PaginationComponent';
+import { usePermissions } from '../hooks/usePermissions';
 
 export interface Terapeuta {
   id_terapeuta: number;
@@ -24,6 +25,7 @@ export interface Terapeuta {
 function TerapeutasTable() {
   const dispatch: AppDispatch = useDispatch();
   const { terapeutas, status, error, pagination } = useSelector((state: RootState) => state.terapeutas);
+  const { canCreate, canUpdate, canDelete } = usePermissions();
   
   const [showForm, setShowForm] = useState<boolean>(false);
   const [terapeutaSeleccionado, setTerapeutaSeleccionado] = useState<Terapeuta | null>(null);
@@ -101,29 +103,31 @@ function TerapeutasTable() {
             </Col>
             <Col xs={12} md={6}>
               <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
-                <Button 
-                  variant="light" 
-                  onClick={crearTerapeuta}
-                  className="d-flex align-items-center justify-content-center"
-                  style={{
-                    borderRadius: "10px",
-                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                    fontWeight: "500",
-                    transition: "all 0.3s ease",
-                    width: isMobile ? "100%" : "auto",
-                    fontSize: isMobile ? "0.9rem" : "1rem"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  <FaPlus className="me-2" /> Nuevo Terapeuta
-                </Button>
+                {canCreate('terapeutas') && (
+                  <Button 
+                    variant="light" 
+                    onClick={crearTerapeuta}
+                    className="d-flex align-items-center justify-content-center"
+                    style={{
+                      borderRadius: "10px",
+                      padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                      fontWeight: "500",
+                      transition: "all 0.3s ease",
+                      width: isMobile ? "100%" : "auto",
+                      fontSize: isMobile ? "0.9rem" : "1rem"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    <FaPlus className="me-2" /> Nuevo Terapeuta
+                  </Button>
+                )}
                 {terapeutas.length > 0 && (
                   <PDFDownloadLink
                     document={<TerapeutasReport terapeutas={terapeutas} />}
@@ -206,12 +210,16 @@ function TerapeutasTable() {
                       </td>
                       <td className="py-3 px-4 text-center">
                         <div className="d-flex justify-content-center gap-2">
-                          <Button variant="outline-primary" size="sm" onClick={() => editarTerapeuta(terapeuta)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                            <FaEdit />
-                          </Button>
-                          <Button variant="outline-danger" size="sm" onClick={() => eliminarTerapeutaHandler(terapeuta.id_terapeuta)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                            <FaTrash />
-                          </Button>
+                          {canUpdate('terapeutas') && (
+                            <Button variant="outline-primary" size="sm" onClick={() => editarTerapeuta(terapeuta)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                              <FaEdit />
+                            </Button>
+                          )}
+                          {canDelete('terapeutas') && (
+                            <Button variant="outline-danger" size="sm" onClick={() => eliminarTerapeutaHandler(terapeuta.id_terapeuta)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                              <FaTrash />
+                            </Button>
+                          )}
                         </div>
                       </td>
                     </tr>

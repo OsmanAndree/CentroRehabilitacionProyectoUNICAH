@@ -18,6 +18,10 @@ const serviciosRoutes = require("./routes/serviciosRoute.js");
 const recibosRoutes = require("./routes/recibosRoute.js");
 const cierresRoutes = require("./routes/cierresRoute.js");
 
+// Rutas de Roles y Permisos (Sistema tipo Spatie)
+const roleRoutes = require("./routes/roleRoute.js");
+const permissionRoutes = require("./routes/permissionRoute.js");
+
 App.use(
     cors({
         origin: "*", 
@@ -41,5 +45,9 @@ App.use("/Api/compras", compraRoutes);
 App.use("/Api/servicios", serviciosRoutes);
 App.use("/Api/recibos", recibosRoutes);
 App.use("/Api/cierres", cierresRoutes);
+
+// Sistema de Roles y Permisos
+App.use("/Api/roles", roleRoutes);
+App.use("/Api/permissions", permissionRoutes);
 
 module.exports = App;

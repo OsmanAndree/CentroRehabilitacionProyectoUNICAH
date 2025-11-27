@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Form, Modal, Row, Col, InputGroup } from 'react-bootstrap';
+import { Button, Form, Modal, Row, Col, InputGroup, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import DatePicker from 'react-date-picker';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
-import { FaCalendar, FaUserClock, FaClock, FaUser, FaNotesMedical, FaClipboardCheck, FaUsers, FaPlus, FaTimes, FaSearch, FaDollarSign, FaConciergeBell } from 'react-icons/fa';
+import { FaCalendar, FaUserClock, FaClock, FaUser, FaNotesMedical, FaClipboardCheck, FaUsers, FaPlus, FaTimes, FaSearch, FaDollarSign, FaConciergeBell, FaLock } from 'react-icons/fa';
+import { useCierreBloqueo } from '../../hooks/useCierreBloqueo';
 
 interface Cita {
   id_cita?: number;
@@ -70,6 +71,37 @@ function CitasFormModal({
   const [searchPaciente, setSearchPaciente] = useState<string>('');
   const [showPacienteSelect, setShowPacienteSelect] = useState<boolean>(false);
   const selectRef = useRef<HTMLDivElement>(null);
+  
+  // Hook para verificar si el día está cerrado
+  const { cierreStatus, estaFechaBloqueada } = useCierreBloqueo();
+  const [fechaSeleccionadaBloqueada, setFechaSeleccionadaBloqueada] = useState<boolean>(false);
+  
+  // Función para obtener fecha de hoy en formato YYYY-MM-DD
+  const getFechaHoy = (): string => {
+    const hoy = new Date();
+    return `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+  };
+  
+  // Verificar si la fecha seleccionada está bloqueada
+  useEffect(() => {
+    const verificarFecha = async () => {
+      const fechaStr = formatLocalDate(fecha);
+      const bloqueada = await estaFechaBloqueada(fechaStr);
+      setFechaSeleccionadaBloqueada(bloqueada);
+    };
+    verificarFecha();
+  }, [fecha, estaFechaBloqueada]);
+  
+  // Función para deshabilitar fechas bloqueadas en el calendario
+  const tileDisabled = ({ date }: { date: Date }): boolean => {
+    const fechaStr = formatLocalDate(date);
+    const hoy = getFechaHoy();
+    // Solo deshabilitar el día de hoy si está bloqueado
+    if (fechaStr === hoy && cierreStatus?.cierreBloqueado) {
+      return true;
+    }
+    return false;
+  };
 
   const [terapeutas, setTerapeutas] = useState<any[]>([]);
   const [pacientes, setPacientes] = useState<any[]>([]);
@@ -616,6 +648,11 @@ function CitasFormModal({
                 <Form.Label className="fw-semibold mb-2">
                   <FaCalendar className="me-2" />
                   Fecha
+                  {fechaSeleccionadaBloqueada && (
+                    <span className="badge bg-danger ms-2">
+                      <FaLock className="me-1" /> Día cerrado
+                    </span>
+                  )}
                 </Form.Label>
                 <div className="custom-datepicker-container">
                   <DatePicker 
@@ -624,8 +661,19 @@ function CitasFormModal({
                     className="form-control custom-datepicker"
                     clearIcon={null}
                     calendarIcon={null}
+                    tileDisabled={tileDisabled}
                   />
                 </div>
+                {fechaSeleccionadaBloqueada && (
+                  <Alert variant="warning" className="mt-2 py-2 d-flex align-items-center">
+                    <FaLock className="me-2" />
+                    <div>
+                      <strong>Día cerrado:</strong> No se pueden crear citas para esta fecha porque ya se realizó el cierre de caja.
+                      <br />
+                      <small>Seleccione otra fecha o contacte al administrador para reabrir el cierre.</small>
+                    </div>
+                  </Alert>
+                )}
               </Form.Group>
             </Col>
           </Row>
@@ -1209,6 +1257,7 @@ function CitasFormModal({
               disabled={
                 loadingCapacity || 
                 loadingSubmit ||
+                fechaSeleccionadaBloqueada || // Deshabilitar si la fecha está bloqueada por cierre
                 (capacityInfo !== null && !capacityInfo.disponible && !modoMultiple) ||
                 (modoMultiple && pacientesSeleccionados.length === 0) ||
                 (modoMultiple && capacityInfo && pacientesSeleccionados.length > capacityInfo.cuposDisponibles)
@@ -1220,6 +1269,7 @@ function CitasFormModal({
                 opacity: (
                   loadingCapacity || 
                   loadingSubmit ||
+                  fechaSeleccionadaBloqueada ||
                   (capacityInfo !== null && !capacityInfo.disponible && !modoMultiple) ||
                   (modoMultiple && pacientesSeleccionados.length === 0) ||
                   (modoMultiple && capacityInfo && pacientesSeleccionados.length > capacityInfo.cuposDisponibles)

@@ -72,6 +72,28 @@ module.exports = (sequelize) => {
         model: 'usuarios',
         key: 'id_usuario'
       }
+    },
+    estado: {
+      type: DataTypes.ENUM('Activo', 'Reabierto'),
+      allowNull: false,
+      defaultValue: 'Activo',
+      comment: 'Activo = día cerrado y bloqueado, Reabierto = día desbloqueado'
+    },
+    motivo_reapertura: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    fecha_reapertura: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    id_usuario_reapertura: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'usuarios',
+        key: 'id_usuario'
+      }
     }
   }, {
     tableName: 'cierres',

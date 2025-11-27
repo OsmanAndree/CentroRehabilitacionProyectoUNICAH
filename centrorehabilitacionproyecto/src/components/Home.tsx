@@ -3,35 +3,42 @@ import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Container from "react-bootstrap/Container";
-import { FaUserMd, FaUsers, FaCalendarAlt, FaUserFriends, FaBox, FaWarehouse, FaBuyNLarge, FaShare, FaConciergeBell, FaReceipt, FaCashRegister } from "react-icons/fa";
+import { FaUserMd, FaUsers, FaCalendarAlt, FaUserFriends, FaBox, FaWarehouse, FaBuyNLarge, FaShare, FaConciergeBell, FaReceipt, FaCashRegister, FaShieldAlt } from "react-icons/fa";
 import { FaUserGear } from "react-icons/fa6";
+import { usePermissions } from "../hooks/usePermissions";
 
-const cardsData = [
-  { path: "/pacientes", title: "Control de Pacientes", text: "Gestiona pacientes, citas y diagnósticos.", icon: <FaUsers size={48} /> },
-  { path: "/encargados", title: "Control de Encargados", text: "Maneja información de encargados de los pacientes.", icon: <FaUserFriends size={48} /> },
-  { path: "/citas", title: "Control de Citas", text: "Organiza y gestiona citas de los pacientes.", icon: <FaCalendarAlt size={48} /> },
-  { path: "/diagnosticos", title: "Control de Diagnósticos", text: "Administra los diagnósticos del sistema.", icon: <FaUserGear size={48} /> },
-  { path: "/terapeutas", title: "Control de Terapeutas", text: "Administra terapeutas, horarios y especialidades.", icon: <FaUserMd size={48} /> },
-  { path: "/servicios", title: "Control de Servicios", text: "Administra los servicios disponibles del sistema.", icon: <FaConciergeBell size={48} /> },
-  { path: "/recibos", title: "Control de Recibos", text: "Gestiona y administra los recibos del sistema.", icon: <FaReceipt size={48} /> },
-  { path: "/cierres", title: "Control de Cierres", text: "Administra los cierres de caja del sistema.", icon: <FaCashRegister size={48} /> },
-  { path: "/productos", title: "Control de Productos", text: "Supervisa el stock y gestión de productos.", icon: <FaBox size={48} /> },
-  { path: "/compras", title: "Control de Compras", text: "Administra las compras del sistema.", icon: <FaBuyNLarge size={48} /> },
-  { path: "/bodega", title: "Control de Bodega", text: "Administra el inventario de productos médicos.", icon: <FaWarehouse size={48} /> },
-  { path: "/prestamos", title: "Control de Préstamos", text: "Administra los préstamos del sistema.", icon: <FaShare size={48} /> },
-  { path: "/usuarios", title: "Control de Usuarios", text: "Administra los usuarios del sistema.", icon: <FaUserGear size={48} /> },
+interface CardData {
+  path: string;
+  title: string;
+  text: string;
+  icon: React.ReactNode;
+  module: string; // Módulo para verificar permisos
+}
+
+const cardsData: CardData[] = [
+  { path: "/pacientes", title: "Control de Pacientes", text: "Gestiona pacientes, citas y diagnósticos.", icon: <FaUsers size={48} />, module: "pacientes" },
+  { path: "/encargados", title: "Control de Encargados", text: "Maneja información de encargados de los pacientes.", icon: <FaUserFriends size={48} />, module: "encargados" },
+  { path: "/citas", title: "Control de Citas", text: "Organiza y gestiona citas de los pacientes.", icon: <FaCalendarAlt size={48} />, module: "citas" },
+  { path: "/diagnosticos", title: "Control de Diagnósticos", text: "Administra los diagnósticos del sistema.", icon: <FaUserGear size={48} />, module: "diagnosticos" },
+  { path: "/terapeutas", title: "Control de Terapeutas", text: "Administra terapeutas, horarios y especialidades.", icon: <FaUserMd size={48} />, module: "terapeutas" },
+  { path: "/servicios", title: "Control de Servicios", text: "Administra los servicios disponibles del sistema.", icon: <FaConciergeBell size={48} />, module: "servicios" },
+  { path: "/recibos", title: "Control de Recibos", text: "Gestiona y administra los recibos del sistema.", icon: <FaReceipt size={48} />, module: "recibos" },
+  { path: "/cierres", title: "Control de Cierres", text: "Administra los cierres de caja del sistema.", icon: <FaCashRegister size={48} />, module: "cierres" },
+  { path: "/productos", title: "Control de Productos", text: "Supervisa el stock y gestión de productos.", icon: <FaBox size={48} />, module: "productos" },
+  { path: "/compras", title: "Control de Compras", text: "Administra las compras del sistema.", icon: <FaBuyNLarge size={48} />, module: "compras" },
+  { path: "/bodega", title: "Control de Bodega", text: "Administra el inventario de productos médicos.", icon: <FaWarehouse size={48} />, module: "bodega" },
+  { path: "/prestamos", title: "Control de Préstamos", text: "Administra los préstamos del sistema.", icon: <FaShare size={48} />, module: "prestamos" },
+  { path: "/usuarios", title: "Control de Usuarios", text: "Administra los usuarios del sistema.", icon: <FaUserGear size={48} />, module: "usuarios" },
+  { path: "/roles", title: "Roles y Permisos", text: "Administra roles y permisos del sistema.", icon: <FaShieldAlt size={48} />, module: "roles" },
 ];
 
 function CardGrids() {
   const navigate = useNavigate();
-  const userRole = localStorage.getItem("idRol")?.toString();
-    console.log(" userRole desde el Home", userRole);
-  const unallowedPathsForRole1 = ["/productos", "/compras", "/bodega", "/prestamos", "/usuarios", "/servicios", "/recibos", "/cierres"];
-  //ADMINISTRADOR = 1
-  const filteredCards =
-    userRole === "1"
-      ? cardsData 
-      : cardsData.filter((card) => !unallowedPathsForRole1.includes(card.path)); 
+  const { canView } = usePermissions();
+
+  // Filtrar cards basado en permisos de visualización
+  const filteredCards = cardsData.filter(card => canView(card.module));
+
   return (
     <div className="min-vh-100 position-relative d-flex" style={{ 
       overflow: 'hidden',

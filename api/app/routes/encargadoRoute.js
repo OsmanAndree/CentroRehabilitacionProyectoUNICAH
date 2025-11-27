@@ -1,12 +1,28 @@
 'use strict'
 
-const express= require("express");
-const encargadoController=require("../controllers/encargadoController");
-const apiRoutes= express.Router();
+const express = require("express");
+const encargadoController = require("../controllers/encargadoController");
+const { isAuth } = require('../middlewares/auth');
+const { checkPermission } = require('../middlewares/checkPermission');
 
-apiRoutes.get("/getencargados", async (req, res)=> await encargadoController.getencargados(req,res)).
-post("/insertencargados", async (req, res)=> await encargadoController.insertencargados(req, res)).
-put("/updateencargados", async (req, res)=> await encargadoController.updateencargados(req, res)).
-delete("/deleteencargados", async (req, res)=> await encargadoController.deleteencargados(req, res));
+const apiRoutes = express.Router();
 
-module.exports=apiRoutes;
+apiRoutes
+    .get("/getencargados", 
+        isAuth, 
+        checkPermission('encargados.view'),
+        async (req, res) => await encargadoController.getencargados(req, res))
+    .post("/insertencargados", 
+        isAuth, 
+        checkPermission('encargados.create'),
+        async (req, res) => await encargadoController.insertencargados(req, res))
+    .put("/updateencargados", 
+        isAuth, 
+        checkPermission('encargados.update'),
+        async (req, res) => await encargadoController.updateencargados(req, res))
+    .delete("/deleteencargados", 
+        isAuth, 
+        checkPermission('encargados.delete'),
+        async (req, res) => await encargadoController.deleteencargados(req, res));
+
+module.exports = apiRoutes;

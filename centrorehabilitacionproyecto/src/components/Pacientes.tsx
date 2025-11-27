@@ -18,15 +18,20 @@ import {
 } from '../features/pacientes/pacientesSlice';
 
 // 2. Importamos el Formulario (Modal)
-// AJUSTA ESTA RUTA si guardaste el formulario en una carpeta diferente (ej: ./Forms/PacientesForm)
 import PacientesForm from './Forms/PacientesForm';
 import PacientesReport from './Reports/PacientesReport';
 import PaginationComponent from './PaginationComponent';
 import ExpedientePaciente from './ExpedientePaciente';
 
+// 3. Importamos el hook de permisos
+import { usePermissions } from '../hooks/usePermissions';
+
 function PacientesTable() {
   const dispatch: AppDispatch = useDispatch();
   const { pacientes, status, error, pagination } = useSelector((state: RootState) => state.pacientes);
+  
+  // Hook de permisos
+  const { canCreate, canUpdate, canDelete } = usePermissions();
 
   const [showForm, setShowForm] = useState<boolean>(false);
   const [showExpediente, setShowExpediente] = useState<boolean>(false);
@@ -53,10 +58,6 @@ function PacientesTable() {
   };
 
   useEffect(() => {
-    // Notificación carga inicial
-    if (prevStatusRef.current === 'loading' && status === 'succeeded' && prevPacientesCountRef.current === 0) {
-      // Opcional: toast.success("Pacientes cargados");
-    }
     // Notificación eliminación
     if (pacientes.length < prevPacientesCountRef.current) {
         toast.success("Paciente eliminado con éxito.");
@@ -102,7 +103,6 @@ function PacientesTable() {
   };
 
   const handleSubmit = () => {
-    // Al guardar exitosamente en el modal, recargamos la lista
     dispatch(fetchPacientes({ page: currentPage, limit: itemsPerPage, search: searchDebounce }));
   };
 
@@ -117,7 +117,7 @@ function PacientesTable() {
   };
 
   const crearPaciente = () => {
-    setPacienteSeleccionado(null); // Null indica modo creación
+    setPacienteSeleccionado(null);
     setShowForm(true);
   };
 
@@ -153,14 +153,17 @@ function PacientesTable() {
             </Col>
             <Col xs={12} md={6}>
               <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
-                <Button 
-                  variant="light" 
-                  onClick={crearPaciente}
-                  className="d-flex align-items-center justify-content-center"
-                  style={{ borderRadius: "10px", fontWeight: "500" }}
-                >
-                  <FaPlus className="me-2" /> Nuevo Paciente
-                </Button>
+                {/* Botón Nuevo Paciente - Solo si tiene permiso de crear */}
+                {canCreate('pacientes') && (
+                  <Button 
+                    variant="light" 
+                    onClick={crearPaciente}
+                    className="d-flex align-items-center justify-content-center"
+                    style={{ borderRadius: "10px", fontWeight: "500" }}
+                  >
+                    <FaPlus className="me-2" /> Nuevo Paciente
+                  </Button>
+                )}
                 
                 {pacientes.length > 0 && (
                   <PDFDownloadLink
@@ -229,6 +232,7 @@ function PacientesTable() {
                         </td>
                         <td className="py-3 px-4 text-center">
                           <div className="d-flex justify-content-center gap-2">
+                            {/* Botón Ver Expediente - Siempre visible (es view) */}
                             <Button 
                               variant="outline-info" 
                               size="sm" 
@@ -238,34 +242,46 @@ function PacientesTable() {
                             >
                               <FaFolderOpen />
                             </Button>
-                            <Button 
-                              variant={paciente.alta_medica ? "success" : "outline-success"}
-                              size="sm" 
-                              onClick={() => darAltaHandler(paciente.id_paciente)} 
-                              disabled={paciente.alta_medica}
-                              style={{ borderRadius: "8px" }}
-                              title={paciente.alta_medica ? "Paciente ya dado de alta" : "Dar de Alta Médica"}
-                            >
-                              <FaUserCheck />
-                            </Button>
-                            <Button 
-                              variant="outline-primary" 
-                              size="sm" 
-                              onClick={() => editarPaciente(paciente)} 
-                              style={{ borderRadius: "8px" }}
-                              title="Editar"
-                            >
-                              <FaEdit />
-                            </Button>
-                            <Button 
-                              variant="outline-danger" 
-                              size="sm" 
-                              onClick={() => eliminarPacienteHandler(paciente.id_paciente)} 
-                              style={{ borderRadius: "8px" }}
-                              title="Eliminar"
-                            >
-                              <FaTrash />
-                            </Button>
+                            
+                            {/* Botón Dar de Alta - Solo si tiene permiso de actualizar */}
+                            {canUpdate('pacientes') && (
+                              <Button 
+                                variant={paciente.alta_medica ? "success" : "outline-success"}
+                                size="sm" 
+                                onClick={() => darAltaHandler(paciente.id_paciente)} 
+                                disabled={paciente.alta_medica}
+                                style={{ borderRadius: "8px" }}
+                                title={paciente.alta_medica ? "Paciente ya dado de alta" : "Dar de Alta Médica"}
+                              >
+                                <FaUserCheck />
+                              </Button>
+                            )}
+                            
+                            {/* Botón Editar - Solo si tiene permiso de actualizar */}
+                            {canUpdate('pacientes') && (
+                              <Button 
+                                variant="outline-primary" 
+                                size="sm" 
+                                onClick={() => editarPaciente(paciente)} 
+                                style={{ borderRadius: "8px" }}
+                                title="Editar"
+                              >
+                                <FaEdit />
+                              </Button>
+                            )}
+                            
+                            {/* Botón Eliminar - Solo si tiene permiso de eliminar */}
+                            {canDelete('pacientes') && (
+                              <Button 
+                                variant="outline-danger" 
+                                size="sm" 
+                                onClick={() => eliminarPacienteHandler(paciente.id_paciente)} 
+                                style={{ borderRadius: "8px" }}
+                                title="Eliminar"
+                              >
+                                <FaTrash />
+                              </Button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -286,7 +302,7 @@ function PacientesTable() {
         </Card.Body>
       </Card>
 
-      {/* AQUÍ SE RENDERIZA EL FORMULARIO (MODAL) QUE CREAMOS ANTES */}
+      {/* FORMULARIO (MODAL) */}
       {showForm && (
         <PacientesForm 
             show={showForm} 

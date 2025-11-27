@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import ServiciosForm from './Forms/ServiciosForm';
 import PaginationComponent from './PaginationComponent';
+import { usePermissions } from '../hooks/usePermissions';
 
 export interface Servicio {
   id_servicio: number;
@@ -28,6 +29,7 @@ function ServiciosTable() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'succeeded' | 'failed'>('idle');
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
+  const { canCreate, canUpdate, canDelete } = usePermissions();
   
   const [showForm, setShowForm] = useState<boolean>(false);
   const [servicioSeleccionado, setServicioSeleccionado] = useState<Servicio | null>(null);
@@ -123,21 +125,23 @@ function ServiciosTable() {
             </Col>
             <Col xs={12} md={6}>
               <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
-                <Button 
-                  variant="light" 
-                  onClick={crearServicio}
-                  className="d-flex align-items-center justify-content-center"
-                  style={{
-                    borderRadius: "10px",
-                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                    fontWeight: "500",
-                    transition: "all 0.3s ease",
-                    width: isMobile ? "100%" : "auto",
-                    fontSize: isMobile ? "0.9rem" : "1rem"
-                  }}
-                >
-                  <FaPlus className="me-2" /> Nuevo Servicio
-                </Button>
+                {canCreate('servicios') && (
+                  <Button 
+                    variant="light" 
+                    onClick={crearServicio}
+                    className="d-flex align-items-center justify-content-center"
+                    style={{
+                      borderRadius: "10px",
+                      padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                      fontWeight: "500",
+                      transition: "all 0.3s ease",
+                      width: isMobile ? "100%" : "auto",
+                      fontSize: isMobile ? "0.9rem" : "1rem"
+                    }}
+                  >
+                    <FaPlus className="me-2" /> Nuevo Servicio
+                  </Button>
+                )}
               </div>
             </Col>
           </Row>
@@ -191,12 +195,16 @@ function ServiciosTable() {
                         </td>
                         <td className="py-3 px-4 text-center">
                           <div className="d-flex justify-content-center gap-2">
-                            <Button variant="outline-primary" size="sm" onClick={() => editarServicio(servicio)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                              <FaEdit />
-                            </Button>
-                            <Button variant="outline-danger" size="sm" onClick={() => eliminarServicioHandler(servicio.id_servicio)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                              <FaTrash />
-                            </Button>
+                            {canUpdate('servicios') && (
+                              <Button variant="outline-primary" size="sm" onClick={() => editarServicio(servicio)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                                <FaEdit />
+                              </Button>
+                            )}
+                            {canDelete('servicios') && (
+                              <Button variant="outline-danger" size="sm" onClick={() => eliminarServicioHandler(servicio.id_servicio)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                                <FaTrash />
+                              </Button>
+                            )}
                           </div>
                         </td>
                       </tr>

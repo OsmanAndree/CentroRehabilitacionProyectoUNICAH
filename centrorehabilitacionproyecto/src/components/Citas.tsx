@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
 import axios from 'axios';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaCalendar, FaUserClock, FaFilePdf, FaDollarSign, FaPrint } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaCalendar, FaUserClock, FaFilePdf, FaDollarSign, FaPrint, FaLock } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
@@ -13,6 +13,8 @@ import { fetchCitas, deleteCita } from '../features/citas/citasSlice';
 import CitasForm from './Forms/CitasForm';
 import CitasReport from './Reports/CitasReport';
 import PaginationComponent from './PaginationComponent';
+import { usePermissions } from '../hooks/usePermissions';
+import { useCierreBloqueo } from '../hooks/useCierreBloqueo';
 
 export interface Servicio {
   id_servicio: number;
@@ -57,6 +59,8 @@ export interface Cita {
 function CitasTable() {
   const dispatch: AppDispatch = useDispatch();
   const { citas, status, error, pagination } = useSelector((state: RootState) => state.citas);
+  const { canCreate, canUpdate, canDelete, hasPermission } = usePermissions();
+  const { cierreStatus, estaFechaBloqueada } = useCierreBloqueo();
   
   const [showForm, setShowForm] = useState<boolean>(false);
   const [citaSeleccionada, setCitaSeleccionada] = useState<Cita | null>(null);
@@ -68,6 +72,56 @@ function CitasTable() {
   const [debouncedSearchPaciente, setDebouncedSearchPaciente] = useState<string>("");
   const [debouncedSearchTherapist, setDebouncedSearchTherapist] = useState<string>("");
   const itemsPerPage = 10;
+  
+  // Estado para fechas bloqueadas (caché de verificaciones)
+  const [fechasBloqueadas, setFechasBloqueadas] = useState<Record<string, boolean>>({});
+  
+  // Verificar el día de hoy está bloqueado
+  const hoyBloqueado = cierreStatus?.cierreBloqueado || false;
+  
+  // Obtener fecha de hoy en formato YYYY-MM-DD
+  const getFechaHoy = (): string => {
+    const hoy = new Date();
+    return `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+  };
+  
+  // Verificar si una fecha específica está bloqueada (sincrónico, usa caché)
+  const esFechaBloqueada = (fecha: string): boolean => {
+    // Si es hoy, usar el estado del hook
+    if (fecha === getFechaHoy()) {
+      return hoyBloqueado;
+    }
+    // Si ya verificamos esta fecha, usar caché
+    if (fechasBloqueadas[fecha] !== undefined) {
+      return fechasBloqueadas[fecha];
+    }
+    return false; // Por defecto no bloqueado mientras carga
+  };
+  
+  // Cargar estado de bloqueo para las fechas de las citas visibles
+  useEffect(() => {
+    const verificarFechasCitas = async () => {
+      const fechasUnicas = [...new Set(citas.map(c => c.fecha))];
+      const nuevasFechasBloqueadas: Record<string, boolean> = { ...fechasBloqueadas };
+      
+      for (const fecha of fechasUnicas) {
+        if (nuevasFechasBloqueadas[fecha] === undefined) {
+          try {
+            const bloqueada = await estaFechaBloqueada(fecha);
+            nuevasFechasBloqueadas[fecha] = bloqueada;
+          } catch {
+            nuevasFechasBloqueadas[fecha] = false;
+          }
+        }
+      }
+      
+      setFechasBloqueadas(nuevasFechasBloqueadas);
+    };
+    
+    if (citas.length > 0) {
+      verificarFechasCitas();
+    }
+  }, [citas, estaFechaBloqueada]);
   
   useEffect(() => {
     dispatch(fetchCitas({ 
@@ -113,7 +167,14 @@ function CitasTable() {
       .catch((err) => toast.error(`Hubo un problema al eliminar: ${err.message || 'Error desconocido'}`));
   };
 
-  const cobrarCita = async (idCita: number) => {
+  const cobrarCita = async (idCita: number, fechaCita: string) => {
+    // Verificar si el día está bloqueado por cierre
+    const bloqueado = await estaFechaBloqueada(fechaCita);
+    if (bloqueado) {
+      toast.error('No se puede cobrar: El día está cerrado. Contacte al administrador para reabrir el cierre.');
+      return;
+    }
+
     if (!window.confirm("¿Desea cobrar esta cita? Se generará un recibo y la cita pasará a estado 'Completada'.")) return;
     
     try {
@@ -185,33 +246,40 @@ function CitasTable() {
               <div className="d-flex align-items-center">
                 <FaCalendar size={24} className="text-white me-2" />
                 <h4 className="mb-0 text-white" style={{ fontWeight: '600' }}>Gestión de Citas</h4>
+                {hoyBloqueado && (
+                  <span className="badge bg-warning text-dark ms-3" title="El día de hoy está cerrado">
+                    <FaLock className="me-1" /> Día cerrado
+                  </span>
+                )}
               </div>
             </Col>
             <Col xs={12} md={6}>
               <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
-                <Button 
-                  variant="light" 
-                  onClick={crearCita}
-                  className="d-flex align-items-center justify-content-center"
-                  style={{
-                    borderRadius: "10px",
-                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                    fontWeight: "500",
-                    transition: "all 0.3s ease",
-                    width: isMobile ? "100%" : "auto",
-                    fontSize: isMobile ? "0.9rem" : "1rem"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  <FaPlus className="me-2" /> Nueva Cita
-                </Button>
+                {canCreate('citas') && (
+                  <Button 
+                    variant="light" 
+                    onClick={crearCita}
+                    className="d-flex align-items-center justify-content-center"
+                    style={{
+                      borderRadius: "10px",
+                      padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                      fontWeight: "500",
+                      transition: "all 0.3s ease",
+                      width: isMobile ? "100%" : "auto",
+                      fontSize: isMobile ? "0.9rem" : "1rem"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    <FaPlus className="me-2" /> Nueva Cita
+                  </Button>
+                )}
                 {citas.length > 0 && (
                   <PDFDownloadLink
                     document={<CitasReport citas={citas} />} 
@@ -332,21 +400,25 @@ function CitasTable() {
                       </td>
                       <td className="py-3 px-4 text-center">
                         <div className="d-flex justify-content-center gap-2 flex-wrap">
-                          <Button variant="outline-primary" size="sm" onClick={() => editarCita(cita)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                            <FaEdit />
-                          </Button>
-                          {(cita.estado === 'Pendiente' || cita.estado === 'Confirmada') && !cita.Recibo && (
+                          {/* Editar - No disponible si la fecha está bloqueada */}
+                          {canUpdate('citas') && !esFechaBloqueada(cita.fecha) && (
+                            <Button variant="outline-primary" size="sm" onClick={() => editarCita(cita)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                              <FaEdit />
+                            </Button>
+                          )}
+                          {/* Cobrar - No disponible si la fecha está bloqueada */}
+                          {hasPermission('recibos', 'cobrar') && (cita.estado === 'Pendiente' || cita.estado === 'Confirmada') && !cita.Recibo && !esFechaBloqueada(cita.fecha) && (
                             <Button 
                               variant="outline-success" 
                               size="sm" 
-                              onClick={() => cobrarCita(cita.id_cita)} 
+                              onClick={() => cobrarCita(cita.id_cita, cita.fecha)} 
                               style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}
                               title="Cobrar cita"
                             >
                               <FaDollarSign />
                             </Button>
                           )}
-                          {cita.Recibo && cita.Recibo.estado === 'Activo' && (
+                          {hasPermission('recibos', 'imprimir') && cita.Recibo && cita.Recibo.estado === 'Activo' && (
                             <PDFDownloadLink
                               document={
                                 <ReciboReport 
@@ -401,9 +473,18 @@ function CitasTable() {
                               )}
                             </PDFDownloadLink>
                           )}
-                          <Button variant="outline-danger" size="sm" onClick={() => eliminarCitaHandler(cita.id_cita)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                            <FaTrash />
-                          </Button>
+                          {/* Eliminar - No disponible si la fecha está bloqueada */}
+                          {canDelete('citas') && !esFechaBloqueada(cita.fecha) && (
+                            <Button variant="outline-danger" size="sm" onClick={() => eliminarCitaHandler(cita.id_cita)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                              <FaTrash />
+                            </Button>
+                          )}
+                          {/* Indicador de día bloqueado */}
+                          {esFechaBloqueada(cita.fecha) && (
+                            <span className="badge bg-secondary" title="Día cerrado - No se pueden realizar cambios">
+                              <FaLock className="me-1" /> Bloqueado
+                            </span>
+                          )}
                         </div>
                       </td>
                     </tr>

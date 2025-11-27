@@ -23,6 +23,7 @@ import ComprasTable from "./components/Compras";
 import ServiciosTable from "./components/Servicios";
 import RecibosTable from "./components/Recibos";
 import CierresTable from "./components/Cierres";
+import RolesTable from "./components/Roles";
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -47,22 +48,25 @@ function AppContent() {
 
       <main className="main-content" style={{ overflow: 'auto', height: '100%' }}>
         <Routes>
-          {/* Todas tus rutas quedan igual */}
+          {/* Rutas públicas */}
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<Home />} />
-         <Route path="/pacientes" element={<PacientesTable />} />
-          <Route path="/terapeutas"element={<TerapeutasTable />} />
-          <Route path="/citas" element={<CitasTable />} />
-          <Route path="/encargados" element={<EncargadosTable />} />
-          <Route path="/diagnosticos" element={<DiagnosticosTable />} />
-          <Route path="/productos" element={<ProtectedRoute allowedRoles={["1"]}><ProductosTable /></ProtectedRoute>} />
-          <Route path="/compras" element={<ProtectedRoute allowedRoles={["1"]}><ComprasTable /></ProtectedRoute>} />
-          <Route path="/bodega" element={<ProtectedRoute allowedRoles={["1"]}><BodegaTable /></ProtectedRoute>} />
-          <Route path="/usuarios" element={<ProtectedRoute allowedRoles={["1"]}><UsuariosTable /></ProtectedRoute>} />
-          <Route path="/prestamos" element={<ProtectedRoute allowedRoles={["1"]}><PrestamosTable /></ProtectedRoute>} />
-          <Route path="/servicios" element={<ProtectedRoute allowedRoles={["1"]}><ServiciosTable /></ProtectedRoute>} />
-          <Route path="/recibos" element={<ProtectedRoute allowedRoles={["1"]}><RecibosTable /></ProtectedRoute>} />
-          <Route path="/cierres" element={<ProtectedRoute allowedRoles={["1"]}><CierresTable /></ProtectedRoute>} />
+          
+          {/* Rutas protegidas por módulo - acceso según permisos del usuario */}
+          <Route path="/pacientes" element={<ProtectedRoute module="pacientes"><PacientesTable /></ProtectedRoute>} />
+          <Route path="/terapeutas" element={<ProtectedRoute module="terapeutas"><TerapeutasTable /></ProtectedRoute>} />
+          <Route path="/citas" element={<ProtectedRoute module="citas"><CitasTable /></ProtectedRoute>} />
+          <Route path="/encargados" element={<ProtectedRoute module="encargados"><EncargadosTable /></ProtectedRoute>} />
+          <Route path="/diagnosticos" element={<ProtectedRoute module="diagnosticos"><DiagnosticosTable /></ProtectedRoute>} />
+          <Route path="/productos" element={<ProtectedRoute module="productos"><ProductosTable /></ProtectedRoute>} />
+          <Route path="/compras" element={<ProtectedRoute module="compras"><ComprasTable /></ProtectedRoute>} />
+          <Route path="/bodega" element={<ProtectedRoute module="bodega"><BodegaTable /></ProtectedRoute>} />
+          <Route path="/usuarios" element={<ProtectedRoute module="usuarios"><UsuariosTable /></ProtectedRoute>} />
+          <Route path="/prestamos" element={<ProtectedRoute module="prestamos"><PrestamosTable /></ProtectedRoute>} />
+          <Route path="/servicios" element={<ProtectedRoute module="servicios"><ServiciosTable /></ProtectedRoute>} />
+          <Route path="/recibos" element={<ProtectedRoute module="recibos"><RecibosTable /></ProtectedRoute>} />
+          <Route path="/cierres" element={<ProtectedRoute module="cierres"><CierresTable /></ProtectedRoute>} />
+          <Route path="/roles" element={<ProtectedRoute module="roles"><RolesTable /></ProtectedRoute>} />
         </Routes>
       </main>
     </>

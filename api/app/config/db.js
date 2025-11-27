@@ -24,6 +24,7 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelizeInstance = sequelizeInstance;
 
+// Modelos principales
 db.paciente = require('../models/pacienteModel')(sequelizeInstance, Sequelize);
 db.encargado = require('../models/encargadosModel')(sequelizeInstance, Sequelize);
 db.bodegas = require('../models/bodegaModel')(sequelizeInstance, Sequelize);
@@ -40,6 +41,15 @@ db.citasServicios = require('../models/citasServiciosModel')(sequelizeInstance, 
 db.recibos = require('../models/recibosModel')(sequelizeInstance, Sequelize);
 db.cierres = require('../models/cierresModel')(sequelizeInstance, Sequelize);
 
+// Modelos de Roles y Permisos (Sistema tipo Spatie)
+db.roles = require('../models/roleModel')(sequelizeInstance, Sequelize);
+db.permissions = require('../models/permissionModel')(sequelizeInstance, Sequelize);
+db.userRoles = require('../models/userRoleModel')(sequelizeInstance, Sequelize);
+db.rolePermissions = require('../models/rolePermissionModel')(sequelizeInstance, Sequelize);
+
+// =====================================================
+// RELACIONES EXISTENTES
+// =====================================================
 
 db.paciente.belongsTo(db.encargado, { foreignKey: 'id_encargado' });
 db.encargado.hasMany(db.paciente, { foreignKey: 'id_encargado' });
@@ -55,6 +65,8 @@ db.recibos.belongsTo(db.citas, { foreignKey: 'id_cita', as: 'Cita' });
 // Relaciones Cierres-Usuarios
 db.cierres.belongsTo(db.usuarios, { foreignKey: 'id_usuario', as: 'usuario' });
 db.usuarios.hasMany(db.cierres, { foreignKey: 'id_usuario', as: 'cierres' });
+// Relación para usuario que reabrió el cierre
+db.cierres.belongsTo(db.usuarios, { foreignKey: 'id_usuario_reapertura', as: 'usuarioReapertura' });
 
 db.bodegas.belongsTo(db.productos, { foreignKey: 'id_producto', as: 'producto' });
 db.productos.hasMany(db.bodegas, { foreignKey: 'id_producto' });
@@ -79,5 +91,37 @@ db.productos.hasMany(db.prestamos, { foreignKey: 'id_producto' });
 
 db.compras.hasMany(db.detallecompras, { as: 'detalle', foreignKey: 'id_compra' });
 db.detallecompras.belongsTo(db.compras, { foreignKey: 'id_compra' });
+
+// =====================================================
+// RELACIONES DE ROLES Y PERMISOS (Sistema tipo Spatie)
+// =====================================================
+
+// Usuario <-> Roles (Muchos a Muchos)
+db.usuarios.belongsToMany(db.roles, { 
+    through: db.userRoles, 
+    foreignKey: 'id_usuario', 
+    otherKey: 'id_role',
+    as: 'roles'
+});
+db.roles.belongsToMany(db.usuarios, { 
+    through: db.userRoles, 
+    foreignKey: 'id_role', 
+    otherKey: 'id_usuario',
+    as: 'usuarios'
+});
+
+// Roles <-> Permisos (Muchos a Muchos)
+db.roles.belongsToMany(db.permissions, { 
+    through: db.rolePermissions, 
+    foreignKey: 'id_role', 
+    otherKey: 'id_permission',
+    as: 'permissions'
+});
+db.permissions.belongsToMany(db.roles, { 
+    through: db.rolePermissions, 
+    foreignKey: 'id_permission', 
+    otherKey: 'id_role',
+    as: 'roles'
+});
 
 module.exports = db;

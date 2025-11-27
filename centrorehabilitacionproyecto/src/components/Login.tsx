@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaUser, FaLock } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { saveUserPermissions } from "../hooks/usePermissions";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -24,7 +25,6 @@ const Login: React.FC = () => {
       });
 
       const data = await response.json();
-      console.log(data);
       if (!response.ok) {
         throw new Error(data.error || "Error en el inicio de sesión");
       }
@@ -35,7 +35,26 @@ const Login: React.FC = () => {
         return;
       }
       
-      localStorage.setItem("idRol", data.idRol.toString());
+      // Guardar token y datos básicos (legacy)
+      localStorage.setItem("idRol", data.idRol?.toString() || "0");
+      localStorage.setItem("token", data.token);
+      
+      // Guardar permisos dinámicos (nuevo sistema)
+      if (data.permissions || data.permissionsByModule) {
+        saveUserPermissions({
+          permissions: data.permissions || [],
+          permissionsByModule: data.permissionsByModule || {},
+          roles: data.roles || [],
+          isAdmin: data.isAdmin || false
+        });
+      }
+
+      // Guardar información del usuario
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        // Guardar ID del usuario para uso en otros componentes
+        localStorage.setItem("idUsuario", data.user.id?.toString() || data.user.id_usuario?.toString() || "");
+      }
         
       toast.success("Inicio de sesión exitoso");
       setTimeout(() => navigate("/home"), 1500);

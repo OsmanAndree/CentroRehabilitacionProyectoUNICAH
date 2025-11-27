@@ -11,6 +11,7 @@ import { fetchPrestamos, deletePrestamo } from '../features/prestamos/prestamosS
 import PrestamosForm from './Forms/PrestamosForm';
 import PrestamosReport from './Reports/PrestamosReport';
 import PaginationComponent from './PaginationComponent';
+import { usePermissions } from '../hooks/usePermissions';
 
 export interface Prestamo {
     id_prestamo: number;
@@ -32,6 +33,7 @@ export interface Prestamo {
 function PrestamosTable() {
     const dispatch: AppDispatch = useDispatch();
     const { prestamos, status, error, pagination } = useSelector((state: RootState) => state.prestamos);
+    const { canCreate, canUpdate, canDelete } = usePermissions();
 
     const [showForm, setShowForm] = useState<boolean>(false);
     const [prestamoSeleccionado, setPrestamoSeleccionado] = useState<Prestamo | null>(null);
@@ -108,29 +110,31 @@ function PrestamosTable() {
                         </Col>
                         <Col xs={12} md={6}>
                             <div className={`d-flex ${isMobile ? "flex-column" : "justify-content-md-end"}`} style={{ gap: isMobile ? '10px' : '12px' }}>
-                                <Button
-                                    variant="light"
-                                    onClick={crearPrestamo}
-                                    className="d-flex align-items-center justify-content-center"
-                                    style={{
-                                        borderRadius: "10px",
-                                        padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                                        fontWeight: "500",
-                                        transition: "all 0.3s ease",
-                                        width: isMobile ? "100%" : "auto",
-                                        fontSize: isMobile ? "0.9rem" : "1rem"
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = "translateY(-2px)";
-                                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = "translateY(0)";
-                                        e.currentTarget.style.boxShadow = "none";
-                                    }}
-                                >
-                                    <FaPlus className="me-2" /> Nuevo Préstamo
-                                </Button>
+                                {canCreate('prestamos') && (
+                                    <Button
+                                        variant="light"
+                                        onClick={crearPrestamo}
+                                        className="d-flex align-items-center justify-content-center"
+                                        style={{
+                                            borderRadius: "10px",
+                                            padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                                            fontWeight: "500",
+                                            transition: "all 0.3s ease",
+                                            width: isMobile ? "100%" : "auto",
+                                            fontSize: isMobile ? "0.9rem" : "1rem"
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = "translateY(-2px)";
+                                            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = "translateY(0)";
+                                            e.currentTarget.style.boxShadow = "none";
+                                        }}
+                                    >
+                                        <FaPlus className="me-2" /> Nuevo Préstamo
+                                    </Button>
+                                )}
                                 {prestamos.length > 0 && (
                                     <PDFDownloadLink
                                         document={<PrestamosReport prestamos={prestamos} />}
@@ -222,12 +226,16 @@ function PrestamosTable() {
                                                 </td>
                                                 <td className="py-3 px-4 text-center">
                                                     <div className="d-flex justify-content-center gap-2">
-                                                        <Button variant="outline-primary" size="sm" onClick={() => editarPrestamo(prestamo)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                                                            <FaEdit />
-                                                        </Button>
-                                                        <Button variant="outline-danger" size="sm" onClick={() => eliminarPrestamoHandler(prestamo.id_prestamo)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                                                            <FaTrash />
-                                                        </Button>
+                                                        {canUpdate('prestamos') && (
+                                                            <Button variant="outline-primary" size="sm" onClick={() => editarPrestamo(prestamo)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                                                                <FaEdit />
+                                                            </Button>
+                                                        )}
+                                                        {canDelete('prestamos') && (
+                                                            <Button variant="outline-danger" size="sm" onClick={() => eliminarPrestamoHandler(prestamo.id_prestamo)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                                                                <FaTrash />
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>

@@ -12,6 +12,7 @@ import BodegasForm from './Forms/BodegasForm';
 import ProductoOut from './Forms/ProductoOut';
 import BodegaReport from './Reports/BodegaReport';
 import PaginationComponent from './PaginationComponent';
+import { usePermissions } from '../hooks/usePermissions';
 
 export interface Bodega {
   id_bodega: number;
@@ -26,6 +27,7 @@ export interface Bodega {
 function BodegaTable() {
   const dispatch: AppDispatch = useDispatch();
   const { bodegas, status, error, pagination } = useSelector((state: RootState) => state.bodegas);
+  const { canCreate, canUpdate, canDelete } = usePermissions();
   
   const [showForm, setShowForm] = useState<boolean>(false);
   const [bodegaSeleccionada, setBodegaSeleccionada] = useState<Bodega | null>(null);
@@ -115,29 +117,31 @@ function BodegaTable() {
             </Col>
             <Col xs={12} md={6}>
               <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-md-end'}`} style={{ gap: isMobile ? '10px' : '12px' }}>
-                <Button 
-                  variant="light" 
-                  onClick={crearBodega}
-                  className="d-flex align-items-center justify-content-center"
-                  style={{
-                    borderRadius: "10px",
-                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
-                    fontWeight: "500",
-                    transition: "all 0.3s ease",
-                    width: isMobile ? "100%" : "auto",
-                    fontSize: isMobile ? "0.9rem" : "1rem"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  <FaPlus className="me-2" /> Ingreso
-                </Button>
+                {canCreate('bodega') && (
+                  <Button 
+                    variant="light" 
+                    onClick={crearBodega}
+                    className="d-flex align-items-center justify-content-center"
+                    style={{
+                      borderRadius: "10px",
+                      padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
+                      fontWeight: "500",
+                      transition: "all 0.3s ease",
+                      width: isMobile ? "100%" : "auto",
+                      fontSize: isMobile ? "0.9rem" : "1rem"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    <FaPlus className="me-2" /> Ingreso
+                  </Button>
+                )}
                 {bodegas.length > 0 && (
                   <PDFDownloadLink
                     document={<BodegaReport bodegas={bodegas} />}
@@ -222,15 +226,21 @@ function BodegaTable() {
                       <td className="py-3 px-4">{item.ubicacion}</td>
                       <td className="py-3 px-4 text-center">
                         <div className="d-flex justify-content-center gap-2">
-                          <Button variant="outline-warning" size="sm" onClick={() => sacarProducto(item)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                            <FaBox />
-                          </Button>
-                          <Button variant="outline-primary" size="sm" onClick={() => editarBodega(item)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                            <FaEdit />
-                          </Button>
-                          <Button variant="outline-danger" size="sm" onClick={() => eliminarBodegaHandler(item.id_bodega)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
-                            <FaTrash />
-                          </Button>
+                          {canUpdate('bodega') && (
+                            <Button variant="outline-warning" size="sm" onClick={() => sacarProducto(item)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                              <FaBox />
+                            </Button>
+                          )}
+                          {canUpdate('bodega') && (
+                            <Button variant="outline-primary" size="sm" onClick={() => editarBodega(item)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                              <FaEdit />
+                            </Button>
+                          )}
+                          {canDelete('bodega') && (
+                            <Button variant="outline-danger" size="sm" onClick={() => eliminarBodegaHandler(item.id_bodega)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
+                              <FaTrash />
+                            </Button>
+                          )}
                         </div>
                       </td>
                     </tr>
