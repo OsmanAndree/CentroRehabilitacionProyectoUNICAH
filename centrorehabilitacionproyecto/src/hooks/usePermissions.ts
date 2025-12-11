@@ -157,7 +157,7 @@ export const usePermissions = () => {
 
   /**
    * Verifica si el usuario tiene un permiso específico
-   * Prioriza el sistema dinámico, pero fallback al legacy
+   * Prioriza el sistema dinámico, solo usa fallback si NO hay permisos dinámicos
    */
   const hasPermission = useCallback((resource: string, action: string): boolean => {
     const slug = `${resource}.${action}`;
@@ -167,21 +167,28 @@ export const usePermissions = () => {
       return true;
     }
 
-    // Sistema dinámico: verificar slug de permiso
-    if (userPermissions?.permissions && userPermissions.permissions.length > 0) {
+    // Verificar si hay permisos dinámicos configurados
+    const hasDynamicPermissions = userPermissions?.permissions && userPermissions.permissions.length > 0;
+
+    if (hasDynamicPermissions) {
+      // Sistema dinámico: verificar slug de permiso
       if (userPermissions.permissions.includes(slug)) {
         return true;
       }
-    }
 
-    // Sistema dinámico: verificar por módulo
-    if (userPermissions?.permissionsByModule?.[resource]) {
-      if (userPermissions.permissionsByModule[resource].includes(action)) {
-        return true;
+      // Sistema dinámico: verificar por módulo
+      if (userPermissions?.permissionsByModule?.[resource]) {
+        if (userPermissions.permissionsByModule[resource].includes(action)) {
+          return true;
+        }
       }
+
+      // Si hay permisos dinámicos pero NO tiene este permiso específico, retornar false
+      // NO usar fallback cuando hay sistema dinámico activo
+      return false;
     }
 
-    // Fallback al sistema legacy
+    // Fallback al sistema legacy SOLO si NO hay permisos dinámicos
     if (FALLBACK_PERMISSIONS[resource] && FALLBACK_PERMISSIONS[resource][action]) {
       if (FALLBACK_PERMISSIONS[resource][action].includes(userRole)) {
         return true;

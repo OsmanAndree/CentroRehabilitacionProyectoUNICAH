@@ -28,7 +28,7 @@ async function getPrestamo(req, res) {
         const includeOptions = [
             {
                 model: Paciente, 
-                attributes: ['nombre', 'apellido'],
+                attributes: ['nombre', 'apellido', 'direccion', 'telefono'],
                 ...(Object.keys(pacienteWhere).length > 0 && { where: pacienteWhere })
             },
             {

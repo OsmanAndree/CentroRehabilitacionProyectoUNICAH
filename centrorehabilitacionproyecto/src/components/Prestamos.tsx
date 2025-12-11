@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Spinner, Container, Row, Card, Form, InputGroup, Col } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaClipboardList, FaFilePdf } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaClipboardList, FaFilePdf, FaPrint } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector, useDispatch } from 'react-redux';
@@ -20,9 +20,19 @@ export interface Prestamo {
     fecha_prestamo: string;
     fecha_devolucion: string;
     estado: 'Prestado' | 'Devuelto';
+    periodo_prestamo?: string;
+    tipo: 'Prestamo' | 'Donacion';
+    referencia1_nombre?: string;
+    referencia1_direccion?: string;
+    referencia1_telefono?: string;
+    referencia2_nombre?: string;
+    referencia2_direccion?: string;
+    referencia2_telefono?: string;
     paciente?: {
         nombre: string;
         apellido: string;
+        direccion?: string;
+        telefono?: string;
     };
     producto?: {
         nombre: string;
@@ -137,8 +147,8 @@ function PrestamosTable() {
                                 )}
                                 {prestamos.length > 0 && (
                                     <PDFDownloadLink
-                                        document={<PrestamosReport prestamos={prestamos} />}
-                                        fileName="Reporte_Prestamos.pdf"
+                                        document={<PrestamosReport prestamos={prestamos} tipo="general" />}
+                                        fileName="Reporte_General_Prestamos.pdf"
                                         className={`btn btn-success ${isMobile ? 'w-100' : ''}`}
                                         style={{
                                             borderRadius: "10px",
@@ -225,7 +235,27 @@ function PrestamosTable() {
                                                     </span>
                                                 </td>
                                                 <td className="py-3 px-4 text-center">
-                                                    <div className="d-flex justify-content-center gap-2">
+                                                    <div className="d-flex justify-content-center gap-2 flex-wrap">
+                                                        <PDFDownloadLink
+                                                            document={<PrestamosReport prestamos={[prestamo]} />}
+                                                            fileName={`Prestamo_${prestamo.id_prestamo}_${prestamo.paciente?.nombre || 'N/A'}_${prestamo.paciente?.apellido || ''}.pdf`}
+                                                            className="btn btn-outline-info btn-sm"
+                                                            style={{
+                                                                borderRadius: "8px",
+                                                                padding: "0.4rem 0.6rem",
+                                                                textDecoration: "none",
+                                                                display: "inline-flex",
+                                                                alignItems: "center",
+                                                                gap: "4px"
+                                                            }}
+                                                        >
+                                                            {({ loading }) => (
+                                                                <>
+                                                                    <FaPrint />
+                                                                    {loading ? "..." : ""}
+                                                                </>
+                                                            )}
+                                                        </PDFDownloadLink>
                                                         {canUpdate('prestamos') && (
                                                             <Button variant="outline-primary" size="sm" onClick={() => editarPrestamo(prestamo)} style={{ borderRadius: "8px", padding: "0.4rem 0.6rem" }}>
                                                                 <FaEdit />

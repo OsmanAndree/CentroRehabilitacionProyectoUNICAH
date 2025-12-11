@@ -40,6 +40,40 @@ module.exports = (sequelize) => {
             type: DataTypes.ENUM('Prestado', 'Devuelto'),
             allowNull: false,
             defaultValue: 'Prestado'
+        },
+        periodo_prestamo: {
+            type: DataTypes.STRING(100),
+            allowNull: true,
+            comment: 'Periodo del préstamo (ej: "30 días", "1 mes", etc.)'
+        },
+        tipo: {
+            type: DataTypes.ENUM('Prestamo', 'Donacion'),
+            allowNull: false,
+            defaultValue: 'Prestamo'
+        },
+        referencia1_nombre: {
+            type: DataTypes.STRING(200),
+            allowNull: true
+        },
+        referencia1_direccion: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        referencia1_telefono: {
+            type: DataTypes.STRING(20),
+            allowNull: true
+        },
+        referencia2_nombre: {
+            type: DataTypes.STRING(200),
+            allowNull: true
+        },
+        referencia2_direccion: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        referencia2_telefono: {
+            type: DataTypes.STRING(20),
+            allowNull: true
         }
     };
 

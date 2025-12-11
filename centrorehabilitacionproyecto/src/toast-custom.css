@@ -1,3 +1,14 @@
+/* Asegurar que los toasts aparezcan por encima del navbar */
+.Toastify__toast-container {
+    z-index: 99999 !important;
+}
+
+/* Ajustar posición para que aparezca debajo del navbar */
+.Toastify__toast-container--top-right,
+.Toastify__toast-container--top-left,
+.Toastify__toast-container--top-center {
+    top: 70px !important;
+}
 
 .Toastify__toast {
     border-radius: 12px !important;

@@ -187,7 +187,7 @@ async function createDefaultRoles() {
             'diagnosticos.view', 'diagnosticos.create', 'diagnosticos.update',
             'terapeutas.view',
             'servicios.view',
-            'recibos.view', 'recibos.cobrar', 'recibos.imprimir', 'recibos.anular',
+            'recibos.view', 'recibos.cobrar', 'recibos.imprimir',
             'cierres.view',
         ];
         
